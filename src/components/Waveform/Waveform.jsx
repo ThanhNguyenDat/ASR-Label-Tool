@@ -1,31 +1,22 @@
+import classNames from "classnames/bind";
 import { useEffect, useRef, useState } from "react";
 import WaveSurfer from "wavesurfer.js";
 import RegionsPlugin from "wavesurfer.js/dist/plugin/wavesurfer.regions.min.js";
-import TimelinePlugin from "wavesurfer.js/src/plugin/timeline";
-/**
- * Random RGBA color.
- */
-function randomColor(alpha) {
-  return (
-    "rgba(" +
-    [
-      ~~(Math.random() * 255),
-      ~~(Math.random() * 255),
-      ~~(Math.random() * 255),
-      alpha || 1,
-    ] +
-    ")"
-  );
-}
+import TimelinePlugin from "wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js";
+import MinimapPlugin from "wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js";
+
+import styles from "./Waveform.scss";
+
+import { randomColor } from "../../utils";
+
+const cx = classNames.bind(styles);
 
 function Waveform(props) {
-  const { audioUrl, options } = props;
+  const { audioUrl, options, setAnnotations } = props;
 
   const [wavesurfer, setWavesurfer] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
 
-  const [regions, setRegions] = useState([]);
-  const [clickRegion, setClickRegion] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const waveRef = useRef(null);
 
@@ -40,7 +31,7 @@ function Waveform(props) {
       plugins: [RegionsPlugin.create()],
       ...wavesurferOptions,
     });
-
+    console.log("url:", audioUrl);
     if (audioUrl) {
       wavesurferInstance.load(audioUrl);
     }
@@ -53,41 +44,84 @@ function Waveform(props) {
     };
   }, [audioUrl, wavesurferOptions]);
 
+  // handle event and regions
   useEffect(() => {
     if (wavesurfer) {
+      // enable drag select
       wavesurfer.on("ready", function () {
         wavesurfer.enableDragSelection({
           color: randomColor(0.1),
         });
-        if (localStorage.regions) {
-          loadRegions(JSON.parse(localStorage.regions));
-        } else {
-          fetch("annotaions.json")
-            .then((r) => r.json())
-            .then((data) => {
-              loadRegions(data);
-              saveRegions();
-            });
-        }
       });
 
+      // autoPlay labeled region when click
       wavesurfer.on("region-click", function (region, e) {
         e.stopPropagation();
+
         e.shiftKey ? region.playLoop() : region.play();
+
+        setIsPlaying(true);
       });
+      wavesurfer.on("region-click", editAnnotaion);
 
-      //   wavesurfer.on("region-click", editAnnotation);
-
+      // show description in head
       wavesurfer.on("region-in", showNote);
 
-      //   wavesurfer.on("region-play", function (region) {
-      //     region.once("out", function () {
-      //       wavesurfer.play(region.start);
-      //       wavesurfer.pause();
-      //     });
-      //   });
+      // delete
+      document
+        .querySelector('[data-action="delete-region"]')
+        .addEventListener("click", function () {
+          let form = document.getElementById("editForm");
+          let regionId = form.dataset.region;
+          if (regionId) {
+            wavesurfer.regions.list[regionId].remove();
+            form.reset();
+          }
+        });
     }
-  }, [loadRegions, wavesurfer]);
+  }, [wavesurfer]);
+
+  /**
+   * Display annotation.
+   */
+  function showNote(region) {
+    if (!showNote.el) {
+      showNote.el = document.querySelector("#subtitle");
+    }
+    showNote.el.textContent = region.data.note || "-";
+  }
+
+  /**
+   * Edit annotation for a region.
+   */
+  function editAnnotaion(region) {
+    let form = document.getElementById("editForm");
+
+    form.style.opacity = 1;
+    form.elements.start_time.value = Math.round(region.start * 10) / 10;
+    form.elements.end_time.value = Math.round(region.end * 10) / 10;
+    form.elements.description.value = region.data.note || "";
+
+    form.onsubmit = function (e) {
+      e.preventDefault();
+      region.update({
+        start: form.elements.start_time.value,
+        end: form.elements.end_time.value,
+        data: {
+          note: form.elements.description.value,
+        },
+      });
+      form.style.opacity = 1;
+    };
+    form.onreset = function () {
+      form.style.opacity = 0;
+      form.dataset.region = null;
+    };
+    form.dataset.region = region.id;
+  }
+  /**
+   * Handle button
+   */
 
   // Handle Play or Pause audio
   const handlePlayPause = () => {
@@ -102,105 +136,87 @@ function Waveform(props) {
     }
   };
 
-  /**
-   * Save annotations to localStorage.
-   */
-  function saveRegions() {
-    localStorage.regions = JSON.stringify(
-      Object.keys(wavesurfer.regions.list).map(function (id) {
-        let region = wavesurfer.regions.list[id];
-        return {
-          start: region.start,
-          end: region.end,
-          attributes: region.attributes,
-          data: region.data,
-        };
-      })
-    );
-  }
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    let full_region_annotaions = Object.values(wavesurfer.regions.list);
 
-  /**
-   * Load regions from localStorage.
-   */
-  function loadRegions(regions) {
-    regions.forEach(function (region) {
-      region.color = randomColor(0.1);
-      wavesurfer.addRegion(region);
+    const data = full_region_annotaions.map((region, index, array) => {
+      return {
+        start_time: region.start,
+        end_time: region.end,
+        description: region.data.note || "",
+      };
     });
-  }
 
-  /**
-   * Display annotation.
-   */
-  function showNote(region) {
-    if (!showNote.el) {
-      showNote.el = document.querySelector("#subtitle");
-    }
-    let text = region.start + " - " + region.end;
-    showNote.el.textContent = region.description || text;
-  }
-
-  /**
-   * Edit annotation for a region.
-   */
-  function editAnnotation(region) {
-    let form = document.forms.edit;
-
-    form.style.opacity = 1;
-    form.elements.start.value = Math.round(region.start * 10) / 10;
-    form.elements.end.value = Math.round(region.end * 10) / 10;
-    form.elements.description.value = region.description || "";
-
-    form.onsubmit = function (e) {
-      e.preventDefault();
-      region.update({
-        start: form.elements.start.value,
-        end: form.elements.end.value,
-        description: form.elements.description.value,
-      });
-      form.style.opacity = 0;
-    };
-
-    form.onreset = function () {
-      form.style.opacity = 0;
-      form.dataset.region = null;
-    };
-    form.dataset.region = region.id;
-  }
+    console.log("final data: ", data);
+    setAnnotations(data);
+  };
 
   return (
-    <div>
-      <p id="subtitle" class="text-center text-info">
+    <div className={cx("container")}>
+      <p id="subtitle" className={cx("text-center text-info")}>
         &nbsp;
       </p>
       <div ref={waveRef}></div>
-      <button onClick={handlePlayPause}>{isPlaying ? "Pause" : "Play"}</button>
-
+      <div className={cx("row")}>
+        <div className={cx("col-sm-10")}>
+          <p>Click on a region to enter an annotation.</p>
+        </div>
+        <div class="col-sm-2">
+          <button
+            onClick={handlePlayPause}
+            className={cx("btn btn-primary btn-block")}
+          >
+            {isPlaying ? (
+              <span>
+                <i className={cx("glyphicon glyphicon-pause")}></i>
+                Pause
+              </span>
+            ) : (
+              <span>
+                <i className={cx("glyphicon glyphicon-play")}></i>
+                Play
+              </span>
+            )}
+          </button>
+          <button
+            onClick={handleSubmit}
+            className={cx("btn btn-success btn-block")}
+          >
+            Submit
+          </button>
+        </div>
+      </div>
       <div>
-        <form className="edit">
-          <div className="form-group">
-            <label for="start">Start Time</label>
-            <input className="form-control" id="start" name="start" />
+        <form className={cx("edit")} id="editForm">
+          <div className={cx("form-group")}>
+            <label htmlFor="start">Start Time</label>
+            <input className={cx("form-control")} id="start_time" />
           </div>
 
-          <div className="form-group">
-            <label for="end">End Time</label>
-            <input className="form-control" id="end" name="end" />
+          <div className={cx("form-group")}>
+            <label htmlFor="end">End Time</label>
+            <input className={cx("form-control")} id="end_time" />
           </div>
 
-          <div className="form-group">
-            <label for="description">Description Time</label>
-            <input
-              className="form-control"
+          <div className={cx("form-group")}>
+            <label htmlFor="description">Description</label>
+            <textarea
+              className={cx("form-control")}
               id="description"
               name="description"
+              rows={3}
             />
           </div>
 
-          <button type="submit" className="btn btn-success btn-block">
+          <button type="submit" className={cx("btn btn-success btn-block")}>
             Save
           </button>
-          <button type="button" data-action="delete-region">
+          <button
+            type="button"
+            className={cx("btn btn-danger btn-block")}
+            data-action="delete-region"
+          >
             Delete
           </button>
         </form>
