@@ -8,13 +8,13 @@
 npm install
 ```
 
-## Run
+### Run
 
 ```
 npm run start
 ```
 
-### Run on Docker
+## Run on Docker
 
 ```
 docker compose up
