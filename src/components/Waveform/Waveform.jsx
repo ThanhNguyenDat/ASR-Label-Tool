@@ -1,5 +1,6 @@
 import classNames from "classnames/bind";
 import { useEffect, useRef, useState } from "react";
+
 import WaveSurfer from "wavesurfer.js";
 import RegionsPlugin from "wavesurfer.js/dist/plugin/wavesurfer.regions.min.js";
 import TimelinePlugin from "wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js";
@@ -8,6 +9,7 @@ import MinimapPlugin from "wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js";
 import styles from "./Waveform.scss";
 
 import { randomColor } from "../../utils";
+import { Table, Tag } from "antd";
 
 const cx = classNames.bind(styles);
 
@@ -18,6 +20,7 @@ function Waveform(props) {
 
   const [annotaions, setAnnotations] = useState([]);
   const [lengthWavesurfer, setLengthWavesurfer] = useState(0);
+  const [dataTable, setDataTable] = useState([]);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [isReplaying, setIsReplaying] = useState(false);
@@ -83,25 +86,25 @@ function Waveform(props) {
       wavesurfer.on("region-click", function (region, e) {
         e.stopPropagation();
         region.update({
-          color: randomColor(0.1),
+          color: randomColor(0.6),
         });
 
         // Play on dont replay, loop on replay
         // e.shiftKey ? region.playLoop() : region.play();
-        region.play();
-        setIsPlaying(true);
       });
 
+      // edit annotaion
       wavesurfer.on("region-click", editAnnotaion);
+
+      // wavesurfer.on("region-play", function (region) {
+      //   region.once("out", function () {
+      //     console.log("is replay: ", isReplaying);
+      //     isReplaying ? setIsPlaying(true) : setIsPlaying(false);
+      //   });
+      // });
 
       // show description in head
       wavesurfer.on("region-in", showNote);
-
-      wavesurfer.on("region-play", function (region) {
-        region.once("out", function () {
-          setIsPlaying(false);
-        });
-      });
 
       // delete region
       const delete_region = document.querySelector(
@@ -116,17 +119,6 @@ function Waveform(props) {
   }, [wavesurfer]);
 
   /**
-   * Handle length
-   */
-  const updateLengthWavesurfer = () => {
-    const wavesuferObjs = wavesurfer.regions.list;
-    const wavesuferArray = Object.values(wavesuferObjs);
-    console.log("length: ", wavesuferArray.length);
-    setLengthWavesurfer(wavesuferArray.length);
-    setAnnotations(wavesuferArray);
-  };
-
-  /**
    * Handle annotaions
    */
   useEffect(() => {
@@ -137,14 +129,33 @@ function Waveform(props) {
       });
 
       // handle replay
-      wavesurfer.on("region-click", () => {
+      wavesurfer.on("region-click", (region) => {
+        setIsPlaying(true);
+        console.log("region: ", region.start, region.end);
+        // wavesurfer.play(region.start, region.end);
+        region.play();
+
         if (isReplaying) {
-          setIsPlaying(true);
+          // region.playLoop();
+          region.update({
+            loop: true,
+          });
         } else {
+          region.update({
+            loop: false,
+          });
         }
       });
+
+      wavesurfer.on("region-play", function (region) {
+        region.once("out", function () {
+          console.log("is replay: ", isReplaying);
+
+          isReplaying ? setIsPlaying(true) : setIsPlaying(false);
+        });
+      });
     }
-  }, [lengthWavesurfer, wavesurfer]);
+  }, [isReplaying, lengthWavesurfer, wavesurfer]);
 
   /**
    * Handle Replay a region with btn-check-replay
@@ -160,6 +171,29 @@ function Waveform(props) {
   }, []);
 
   /**
+   * Update length
+   */
+  const updateLengthWavesurfer = () => {
+    const wavesuferObjs = wavesurfer.regions.list;
+    const wavesuferArray = Object.values(wavesuferObjs);
+
+    const _dataTable = wavesuferArray.map((region, index, array) => {
+      return {
+        key: index,
+        id: index,
+        start_time: region.start,
+        end_time: region.end,
+        description: region.data.note,
+        color: region.color,
+      };
+    });
+
+    setLengthWavesurfer(wavesuferArray.length);
+    setAnnotations(wavesuferArray);
+    setDataTable(_dataTable);
+  };
+
+  /**
    * Edit annotation for a region.
    */
   function editAnnotaion(region) {
@@ -172,15 +206,24 @@ function Waveform(props) {
 
     form.onsubmit = function (e) {
       e.preventDefault();
-      region.update({
-        start: form.elements.start_time.value,
-        end: form.elements.end_time.value,
-        data: {
-          note: form.elements.description.value,
-        },
-      });
-      form.style.opacity = 1;
+      const start = form.elements.start_time.value;
+      const end = form.elements.end_time.value;
+      if (end > start) {
+        region.update({
+          start: start,
+          end: end,
+          data: {
+            note: form.elements.description.value,
+          },
+        });
+        form.style.opacity = 1;
+      } else {
+        alert("End time must greater start time");
+        form.elements.start_time.value = region.start; // Math.round(region.start * 10) / 10;
+        form.elements.end_time.value = region.end; // Math.round(region.end * 10) / 10;
+      }
     };
+
     form.onreset = function () {
       form.style.opacity = 0;
       form.dataset.region = null;
@@ -329,35 +372,36 @@ function Waveform(props) {
         </form>
       </div>
       <div className={cx("row")}>
-        {annotaions && (
-          <table className={cx("table")}>
-            <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Start Time</th>
-                <th scope="col">End Time</th>
-                <th scope="col">Description</th>
-                <th scope="col">Color</th>
-              </tr>
-            </thead>
-            <tbody>
-              {annotaions.map((region, index, array) => {
-                return (
-                  <tr>
-                    <th scope="row">{index}</th>
-                    <th>{region.start}</th>
-                    <th>{region.end}</th>
-                    <th>{region.data.note}</th>
-                    <th
-                      style={{ backgroundColor: region.color, color: "black" }}
-                    >
-                      {region.color}
-                    </th>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        {dataTable && (
+          <Table
+            dataSource={dataTable}
+            columns={[
+              { title: "Index", dataIndex: "id", key: "id" },
+              {
+                title: "Start Time",
+                dataIndex: "start_time",
+                key: "start_time",
+              },
+              { title: "End Time", dataIndex: "end_time", key: "end_time" },
+              {
+                title: "Description",
+                dataIndex: "description",
+                key: "description",
+              },
+              {
+                title: "Color",
+                dataIndex: "color",
+                key: "color",
+                render: (_, { color }) => (
+                  <>
+                    <Tag color={color} key={color}>
+                      {color}
+                    </Tag>
+                  </>
+                ),
+              },
+            ]}
+          ></Table>
         )}
       </div>
     </div>
