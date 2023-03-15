@@ -17,6 +17,7 @@ function Waveform(props) {
   const [wavesurfer, setWavesurfer] = useState(null);
 
   const [annotaions, setAnnotations] = useState([]);
+  const [lengthWavesurfer, setLengthWavesurfer] = useState(0);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [isReplaying, setIsReplaying] = useState(false);
@@ -60,6 +61,16 @@ function Waveform(props) {
 
   // handle event and regions
   useEffect(() => {
+    /**
+     * Display annotation.
+     */
+    function showNote(region) {
+      if (!showNote.el) {
+        showNote.el = document.querySelector("#subtitle");
+      }
+      showNote.el.textContent = region.data.note || "-";
+    }
+
     if (wavesurfer) {
       // enable drag select
       wavesurfer.on("ready", function () {
@@ -93,23 +104,47 @@ function Waveform(props) {
       });
 
       // delete region
-      document
-        .querySelector('[data-action="delete-region"]')
-        .addEventListener("click", function () {
-          let form = document.getElementById("editForm");
-          let regionId = form.dataset.region;
-          if (regionId) {
-            wavesurfer.regions.list[regionId].remove();
-            form.reset();
-          }
-        });
+      const delete_region = document.querySelector(
+        '[data-action="delete-region"]'
+      );
 
-      wavesurfer.on("region-click", () => {
-        setAnnotations(wavesurfer.regions.list);
-      });
-      console.log(annotaions);
+      delete_region.addEventListener("click", deleteAnnotaion);
+      return () => {
+        delete_region.removeEventListener("click", deleteAnnotaion);
+      };
     }
   }, [wavesurfer]);
+
+  /**
+   * Handle length
+   */
+  const updateLengthWavesurfer = () => {
+    const wavesuferObjs = wavesurfer.regions.list;
+    const wavesuferArray = Object.values(wavesuferObjs);
+    console.log("length: ", wavesuferArray.length);
+    setLengthWavesurfer(wavesuferArray.length);
+    setAnnotations(wavesuferArray);
+  };
+
+  /**
+   * Handle annotaions
+   */
+  useEffect(() => {
+    if (wavesurfer) {
+      // Set Annotaions and Length Wavesurfer
+      wavesurfer.on("region-updated", () => {
+        updateLengthWavesurfer();
+      });
+
+      // handle replay
+      wavesurfer.on("region-click", () => {
+        if (isReplaying) {
+          setIsPlaying(true);
+        } else {
+        }
+      });
+    }
+  }, [lengthWavesurfer, wavesurfer]);
 
   /**
    * Handle Replay a region with btn-check-replay
@@ -125,24 +160,14 @@ function Waveform(props) {
   }, []);
 
   /**
-   * Display annotation.
-   */
-  function showNote(region) {
-    if (!showNote.el) {
-      showNote.el = document.querySelector("#subtitle");
-    }
-    showNote.el.textContent = region.data.note || "-";
-  }
-
-  /**
    * Edit annotation for a region.
    */
   function editAnnotaion(region) {
     let form = document.getElementById("editForm");
 
     form.style.opacity = 1;
-    form.elements.start_time.value = Math.round(region.start * 10) / 10;
-    form.elements.end_time.value = Math.round(region.end * 10) / 10;
+    form.elements.start_time.value = region.start; // Math.round(region.start * 10) / 10;
+    form.elements.end_time.value = region.end; // Math.round(region.end * 10) / 10;
     form.elements.description.value = region.data.note || "";
 
     form.onsubmit = function (e) {
@@ -163,9 +188,22 @@ function Waveform(props) {
     form.dataset.region = region.id;
   }
 
+  /**
+   * Delete annotaion for a region
+   */
+  function deleteAnnotaion() {
+    let form = document.getElementById("editForm");
+    let regionId = form.dataset.region;
+    if (regionId) {
+      wavesurfer.regions.list[regionId].remove();
+      form.reset();
+    }
+    updateLengthWavesurfer();
+  }
+
   // Handle Replay
   const replayRegion = (event) => {
-    console.log("click: true", event.target.checked);
+    console.log("click: ", event.target.checked);
     setIsReplaying(event.target.checked);
   };
 
@@ -291,7 +329,7 @@ function Waveform(props) {
         </form>
       </div>
       <div className={cx("row")}>
-        {annotaions.length && (
+        {annotaions && (
           <table className={cx("table")}>
             <thead>
               <tr>
@@ -310,7 +348,11 @@ function Waveform(props) {
                     <th>{region.start}</th>
                     <th>{region.end}</th>
                     <th>{region.data.note}</th>
-                    <th>{region.color}</th>
+                    <th
+                      style={{ backgroundColor: region.color, color: "black" }}
+                    >
+                      {region.color}
+                    </th>
                   </tr>
                 );
               })}
