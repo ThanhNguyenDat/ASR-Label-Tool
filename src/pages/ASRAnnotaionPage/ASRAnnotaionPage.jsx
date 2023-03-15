@@ -7,7 +7,15 @@ import Waveform from "../../components/Waveform";
 //   "https://assets.mixkit.co/active_storage/sfx/1714/1714-preview.mp3";
 
 function ASRAnnotaionPage() {
-  const [options, setOptions] = useState({});
+  const [options, setOptions] = useState({
+    height: 100,
+    pixelRatio: 1,
+    scrollParent: true,
+    normalize: true,
+    minimap: true,
+    backend: "MediaElement",
+  });
+
   const [audioUrl, setAudioUrl] = useState("");
   const [annotaions, setAnnotations] = useState([]);
 
@@ -20,13 +28,7 @@ function ASRAnnotaionPage() {
           setAnnotations([]);
         }}
       />
-      {audioUrl && (
-        <Waveform
-          audioUrl={audioUrl}
-          options={options}
-          setAnnotations={setAnnotations}
-        />
-      )}
+      {audioUrl && <Waveform audioUrl={audioUrl} options={options} />}
     </div>
   );
 }

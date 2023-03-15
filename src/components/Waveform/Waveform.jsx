@@ -12,11 +12,14 @@ import { randomColor } from "../../utils";
 const cx = classNames.bind(styles);
 
 function Waveform(props) {
-  const { audioUrl, options, setAnnotations } = props;
+  const { audioUrl, options } = props;
 
   const [wavesurfer, setWavesurfer] = useState(null);
 
+  const [annotaions, setAnnotations] = useState([]);
+
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isReplaying, setIsReplaying] = useState(false);
 
   const waveRef = useRef(null);
 
@@ -24,14 +27,25 @@ function Waveform(props) {
 
   const wavesurferOptions = options || defaultOptions;
 
+  /*
+   * Initial wavesurfer
+   */
   useEffect(() => {
     // create wavesurfer with plugins
     const wavesurferInstance = WaveSurfer.create({
       container: waveRef.current,
-      plugins: [RegionsPlugin.create()],
+      plugins: [
+        RegionsPlugin.create(),
+        MinimapPlugin.create({
+          height: 30,
+          waveColor: "#ddd",
+          progressColor: "#999",
+          cursorColor: "#999",
+        }),
+      ],
       ...wavesurferOptions,
     });
-    console.log("url:", audioUrl);
+
     if (audioUrl) {
       wavesurferInstance.load(audioUrl);
     }
@@ -60,10 +74,13 @@ function Waveform(props) {
         region.update({
           color: randomColor(0.1),
         });
-        e.shiftKey ? region.playLoop() : region.play();
 
+        // Play on dont replay, loop on replay
+        // e.shiftKey ? region.playLoop() : region.play();
+        region.play();
         setIsPlaying(true);
       });
+
       wavesurfer.on("region-click", editAnnotaion);
 
       // show description in head
@@ -71,12 +88,11 @@ function Waveform(props) {
 
       wavesurfer.on("region-play", function (region) {
         region.once("out", function () {
-          // console.log("end of region");
           setIsPlaying(false);
         });
       });
 
-      // delete
+      // delete region
       document
         .querySelector('[data-action="delete-region"]')
         .addEventListener("click", function () {
@@ -87,8 +103,26 @@ function Waveform(props) {
             form.reset();
           }
         });
+
+      wavesurfer.on("region-click", () => {
+        setAnnotations(wavesurfer.regions.list);
+      });
+      console.log(annotaions);
     }
   }, [wavesurfer]);
+
+  /**
+   * Handle Replay a region with btn-check-replay
+   */
+  useEffect(() => {
+    const btn_check_replay = document.getElementById("btn-check-replay");
+
+    btn_check_replay.addEventListener("click", replayRegion);
+
+    return () => {
+      btn_check_replay.removeEventListener("click", replayRegion);
+    };
+  }, []);
 
   /**
    * Display annotation.
@@ -126,9 +160,15 @@ function Waveform(props) {
       form.style.opacity = 0;
       form.dataset.region = null;
     };
-
     form.dataset.region = region.id;
   }
+
+  // Handle Replay
+  const replayRegion = (event) => {
+    console.log("click: true", event.target.checked);
+    setIsReplaying(event.target.checked);
+  };
+
   /**
    * Handle button
    */
@@ -146,6 +186,9 @@ function Waveform(props) {
     }
   };
 
+  /*
+   * Handle Submit button
+   */
   const handleSubmit = (event) => {
     event.preventDefault();
     let full_region_annotaions = Object.values(wavesurfer.regions.list);
@@ -157,22 +200,38 @@ function Waveform(props) {
         description: region.data.note || "",
       };
     });
-
+    console.log("bool: ", data.length);
     console.log("final data: ", data);
-    setAnnotations(data);
   };
 
   return (
     <div className={cx("container")}>
-      <p id="subtitle" className={cx("text-center text-info")}>
-        &nbsp;
-      </p>
+      <div className={cx("row")}>
+        <p id="subtitle" className={cx("text-center text-info")}>
+          &nbsp;
+        </p>
+      </div>
       <div ref={waveRef}></div>
       <div className={cx("row")}>
         <div className={cx("col-sm-10")}>
           <p>Click on a region to enter an annotation.</p>
         </div>
-        <div class="col-sm-2">
+        <div className={cx("col-sm-2")}>
+          <div className={cx("form-check")}>
+            <label
+              className={cx("form-check-label")}
+              htmlFor="btn-check-replay"
+            >
+              Replay
+            </label>
+
+            <input
+              className={cx("form-check-input")}
+              type="checkbox"
+              id="btn-check-replay"
+            />
+          </div>
+
           <button
             onClick={handlePlayPause}
             className={cx("btn btn-primary btn-block")}
@@ -197,7 +256,7 @@ function Waveform(props) {
           </button>
         </div>
       </div>
-      <div>
+      <div className={cx("row")}>
         <form className={cx("edit")} id="editForm">
           <div className={cx("form-group")}>
             <label htmlFor="start">Start Time</label>
@@ -230,6 +289,34 @@ function Waveform(props) {
             Delete
           </button>
         </form>
+      </div>
+      <div className={cx("row")}>
+        {annotaions.length && (
+          <table className={cx("table")}>
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Start Time</th>
+                <th scope="col">End Time</th>
+                <th scope="col">Description</th>
+                <th scope="col">Color</th>
+              </tr>
+            </thead>
+            <tbody>
+              {annotaions.map((region, index, array) => {
+                return (
+                  <tr>
+                    <th scope="row">{index}</th>
+                    <th>{region.start}</th>
+                    <th>{region.end}</th>
+                    <th>{region.data.note}</th>
+                    <th>{region.color}</th>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

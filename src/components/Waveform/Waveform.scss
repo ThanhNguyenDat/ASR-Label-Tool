@@ -8,13 +8,16 @@ region.wavesurfer-region[data-region-highlight] {
     0px 0px 8px rgba(82, 168, 236, 0.6);
 }
 
-#form {
+#edit {
   opacity: 0;
   transition: opacity 300ms linear;
   margin: 30px 0;
 }
 
+.edit-form {
+  border: 1px solid rgb(86, 180, 239);
+}
 
-#btn-play {
+@media (min-width: 1400px) {
   
 }
