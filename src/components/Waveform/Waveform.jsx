@@ -57,7 +57,9 @@ function Waveform(props) {
       // autoPlay labeled region when click
       wavesurfer.on("region-click", function (region, e) {
         e.stopPropagation();
-
+        region.update({
+          color: randomColor(0.1),
+        });
         e.shiftKey ? region.playLoop() : region.play();
 
         setIsPlaying(true);
@@ -66,6 +68,13 @@ function Waveform(props) {
 
       // show description in head
       wavesurfer.on("region-in", showNote);
+
+      wavesurfer.on("region-play", function (region) {
+        region.once("out", function () {
+          // console.log("end of region");
+          setIsPlaying(false);
+        });
+      });
 
       // delete
       document
@@ -117,6 +126,7 @@ function Waveform(props) {
       form.style.opacity = 0;
       form.dataset.region = null;
     };
+
     form.dataset.region = region.id;
   }
   /**

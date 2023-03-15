@@ -3,6 +3,8 @@ import Waveform from "../../components/Waveform";
 
 // const _audioUrl =
 //   "https://api.twilio.com//2010-04-01/Accounts/AC25aa00521bfac6d667f13fec086072df/Recordings/RE6d44bc34911342ce03d6ad290b66580c.mp3";
+// const _audioUrl =
+//   "https://assets.mixkit.co/active_storage/sfx/1714/1714-preview.mp3";
 
 function ASRAnnotaionPage() {
   const [options, setOptions] = useState({});
@@ -10,11 +12,12 @@ function ASRAnnotaionPage() {
   const [annotaions, setAnnotations] = useState([]);
 
   return (
-    <div className="ASRAnnotaionPage">
+    <div className="container ASRAnnotaionPage">
       <input
-        placeholder="hi"
+        placeholder="Nhập link audio coi thằng nhóc"
         onChange={(event) => {
           setAudioUrl(event.target.value);
+          setAnnotations([]);
         }}
       />
       {audioUrl && (
