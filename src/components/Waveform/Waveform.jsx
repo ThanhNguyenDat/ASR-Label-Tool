@@ -57,27 +57,16 @@ function Waveform(props) {
         if (audioUrl) {
             wavesurferInstance.load(audioUrl);
 
+            // audio loaded data
             wavesurferInstance.on("ready", function (region) {
-                // wavesurferInstance.enableDragSelection({
-                //   color: randomColor(0.1),
-                // });
-
-                // // load annotations
-                // if (annotations) {
-                //   loadRegions(annotations);
-                // }
                 wavesurferInstance.enableDragSelection({
                     color: randomColor(0.1),
                 });
 
                 // load annotations
                 if (annotations) {
-                    console.log(4);
                     loadRegions(annotations, wavesurferInstance);
-
                     updateLengthWavesurfer(wavesurferInstance);
-
-                    console.log(5);
                 }
 
                 setWavesurfer(wavesurferInstance);
@@ -108,8 +97,6 @@ function Waveform(props) {
                 wavesurfer.enableDragSelection({
                     color: randomColor(0.1),
                 });
-
-
             });
 
             wavesurfer.on("region-created", function (region) {
@@ -168,6 +155,7 @@ function Waveform(props) {
             // Set Annotaions and Length Wavesurfer
             wavesurfer.on("region-updated", () => {
                 updateLengthWavesurfer(wavesurfer);
+
             });
 
             // Create new region
@@ -185,11 +173,9 @@ function Waveform(props) {
                         loop: false
                     })
                 }
-                // region.update({
-                //   color: randomColor(0.6),
-                // });
-                if (region.end < region.start || region.end - region.start < 0.1) {
-                    alert("You should expand the labeling region")
+
+                if (region.end < region.start || region.end - region.start < 0.08) {
+                    // alert("You should expand the labeling region")
                     region.remove()
                 }
             });
@@ -213,6 +199,7 @@ function Waveform(props) {
             });
 
             wavesurfer.on("region-play", function (region) {
+
                 region.once("out", function () {
                     isReplaying ? setIsPlaying(true) : setIsPlaying(false);
                 });
