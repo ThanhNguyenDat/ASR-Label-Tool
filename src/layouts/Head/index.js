@@ -1,7 +1,7 @@
 import useScript from "../../hooks/useScript";
 
 function Header() {
-  useScript("header");
+  useScript({ url: "header", head: true });
   return (
     <div>
       <head>Header</head>
