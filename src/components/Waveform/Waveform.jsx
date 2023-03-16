@@ -192,9 +192,10 @@ function Waveform(props) {
   const updateLengthWavesurfer = () => {
     const wavesuferObjs = wavesurfer.regions.list;
     const wavesuferArray = Object.values(wavesuferObjs);
+    // sort value by start time
     wavesuferArray.sort((a, b) => a.start - b.start);
 
-    const _dataTable = wavesuferArray.map((region, index, array) => {
+    const _dataTable = wavesuferArray.map((region, index) => {
       return {
         key: index,
         id: index,
@@ -206,8 +207,9 @@ function Waveform(props) {
     });
 
     setLengthWavesurfer(wavesuferArray.length);
-    setAnnotations(wavesuferArray);
     setDataTable(_dataTable);
+
+    setAnnotations(wavesuferArray);
   };
 
   /**
