@@ -2,6 +2,7 @@ import classNames from "classnames/bind";
 import { useEffect, useRef, useState } from "react";
 
 import WaveSurfer from "wavesurfer.js";
+// import { WaveSurfer } from "wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js";
 import RegionsPlugin from "wavesurfer.js/dist/plugin/wavesurfer.regions.min.js";
 import TimelinePlugin from "wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js";
 import MinimapPlugin from "wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js";
@@ -128,10 +129,15 @@ function Waveform(props) {
         updateLengthWavesurfer();
       });
 
+      // wavesurfer.on("region-update-end", (region) => {
+      //   region.play();
+      // });
+
       // handle replay
       wavesurfer.on("region-click", (region) => {
         setIsPlaying(true);
         console.log("region: ", region.start, region.end);
+
         // wavesurfer.play(region.start, region.end);
         region.play();
 
