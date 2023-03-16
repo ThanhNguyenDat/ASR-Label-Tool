@@ -8,34 +8,56 @@ import useScript from "../../hooks/useScript";
 // const _audioUrl =
 //   "https://assets.mixkit.co/active_storage/sfx/1714/1714-preview.mp3"; // khoong bi loi
 
-function ASRAnnotaionPage() {
-  useScript({ url: "https://label.lab.zalo.ai/ui/ailab_ui_api.js" });
-  console.log("AL: ", window.AL);
+const formatAnnotaion = [
+    {
+        item_info: {
+            url: "https://assets.mixkit.co/active_storage/sfx/1714/1714-preview.mp3",
+        },
+        annotations: [
+            { start: 0, end: 1, description: "alo 0 1" },
+            { start: 2, end: 3, description: "alo 2 3" },
+        ],
+    },
 
-  const [options, setOptions] = useState({
-    height: 100,
-    pixelRatio: 1,
-    scrollParent: true,
-    normalize: true,
-    minimap: true,
-    backend: "MediaElement",
-  });
+    {
+        item_info: {
+            url: "https://api.twilio.com//2010-04-01/Accounts/AC25aa00521bfac6d667f13fec086072df/Recordings/RE6d44bc34911342ce03d6ad290b66580c.mp3",
+        },
+        annotations: [{ start: 0, end: 1, description: "alo 0 1" }],
+    },
 
-  const [audioUrl, setAudioUrl] = useState("./errorNe.mp3");
-  const [annotaions, setAnnotations] = useState([]);
+    {
+        item_info: {
+            url: "https://api.twilio.com//2010-04-01/Accounts/AC25aa00521bfac6d667f13fec086072df/Recordings/RE6d44bc34911342ce03d6ad290b66580c.mp3",
+        },
+    },
+];
 
-  return (
-    <div className="container ASRAnnotaionPage">
-      <input
-        placeholder="Nhập link audio coi thằng nhóc"
-        onChange={(event) => {
-          setAudioUrl(event.target.value);
-          setAnnotations([]);
-        }}
-      />
-      {audioUrl && <Waveform audioUrl={audioUrl} options={options} />}
-    </div>
-  );
+function ASRAnnotaionPage(props) {
+    // useScript({ url: "https://label.lab.zalo.ai/ui/ailab_ui_api.js" });
+
+    const [audioUrl, setAudioUrl] = useState(
+        formatAnnotaion[0]["item_info"]["url"]
+    ); // string
+
+    const [annotations, setAnnotations] = useState(
+        formatAnnotaion[0]["annotations"]
+    ); // array
+
+    return (
+        <div className="container ASRAnnotaionPage">
+            <input
+                placeholder="Nhập link audio"
+                onChange={(event) => {
+                    setAudioUrl(event.target.value);
+                    setAnnotations([]);
+                }}
+            />
+            {audioUrl && (
+                <Waveform audioUrl={audioUrl} annotations={annotations} />
+            )}
+        </div>
+    );
 }
 
 export default ASRAnnotaionPage;
