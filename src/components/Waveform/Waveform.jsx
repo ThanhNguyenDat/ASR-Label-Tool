@@ -146,7 +146,6 @@ function Waveform(props) {
       // handle replay
       wavesurfer.on("region-click", (region) => {
         setIsPlaying(true);
-        console.log("region: ", region.start, region.end);
 
         // wavesurfer.play(region.start, region.end);
         region.play();
@@ -165,8 +164,6 @@ function Waveform(props) {
 
       wavesurfer.on("region-play", function (region) {
         region.once("out", function () {
-          console.log("is replay: ", isReplaying);
-
           isReplaying ? setIsPlaying(true) : setIsPlaying(false);
         });
       });

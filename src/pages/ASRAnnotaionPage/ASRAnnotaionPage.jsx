@@ -9,7 +9,8 @@ import useScript from "../../hooks/useScript";
 //   "https://assets.mixkit.co/active_storage/sfx/1714/1714-preview.mp3"; // khoong bi loi
 
 function ASRAnnotaionPage() {
-  // useScript({ url: "https://label.lab.zalo.ai/ui/ailab_ui_api.js" });
+  useScript({ url: "https://label.lab.zalo.ai/ui/ailab_ui_api.js" });
+  console.log("AL: ", window.AL);
 
   const [options, setOptions] = useState({
     height: 100,
