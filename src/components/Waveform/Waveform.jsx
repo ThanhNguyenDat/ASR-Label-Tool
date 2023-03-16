@@ -11,7 +11,7 @@ import MinimapPlugin from "wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js";
 import styles from "./Waveform.scss";
 
 import { randomColor } from "../../utils";
-import { Table, Tag } from "antd";
+import { Col, InputNumber, Row, Slider, Table, Tag } from "antd";
 
 const cx = classNames.bind(styles);
 
@@ -25,6 +25,7 @@ function Waveform(props) {
 
     const [isPlaying, setIsPlaying] = useState(false);
     const [isReplaying, setIsReplaying] = useState(false);
+
 
     const waveRef = useRef(null);
     const timelineRef = useRef(null);
@@ -169,20 +170,34 @@ function Waveform(props) {
                 updateLengthWavesurfer(wavesurfer);
             });
 
+            // Create new region
             wavesurfer.on("region-update-end", (region) => {
+
                 setIsPlaying(true);
                 region.play();
+
+                if (isReplaying) {
+                    region.update({
+                        loop: true
+                    })
+                } else {
+                    region.update({
+                        loop: false
+                    })
+                }
                 // region.update({
                 //   color: randomColor(0.6),
                 // });
+                if (region.end < region.start || region.end - region.start < 0.1) {
+                    alert("You should expand the labeling region")
+                    region.remove()
+                }
             });
 
             // handle replay
             wavesurfer.on("region-click", (region) => {
-                console.log(region);
                 setIsPlaying(true);
 
-                // wavesurfer.play(region.start, region.end);
                 region.play();
 
                 if (isReplaying) {
@@ -202,8 +217,6 @@ function Waveform(props) {
                     isReplaying ? setIsPlaying(true) : setIsPlaying(false);
                 });
             });
-
-            // wavesurfer
         }
     }, [isReplaying, lengthWavesurfer, wavesurfer]);
 
@@ -257,8 +270,6 @@ function Waveform(props) {
 
         setLengthWavesurfer(wavesuferArray.length);
         setDataTable(_dataTable);
-
-        // setAnnotations(wavesuferArray);
     };
 
     /**
@@ -267,7 +278,7 @@ function Waveform(props) {
     function editAnnotaion(region) {
         let form = document.getElementById("editForm");
 
-        form.style.opacity = 1;
+        // form.style.opacity = 1;
         form.elements.start_time.value = region.start; // Math.round(region.start * 10) / 10;
         form.elements.end_time.value = region.end; // Math.round(region.end * 10) / 10;
         form.elements.description.value = region.data.note || "";
@@ -284,7 +295,7 @@ function Waveform(props) {
                         note: form.elements.description.value,
                     },
                 });
-                form.style.opacity = 1;
+                // form.style.opacity = 1;
             } else {
                 alert("End time must be greater start time");
                 form.elements.start_time.value = region.start; // Math.round(region.start * 10) / 10;
@@ -293,7 +304,7 @@ function Waveform(props) {
         };
 
         form.onreset = function () {
-            form.style.opacity = 0;
+            // form.style.opacity = 0;
             form.dataset.region = null;
         };
         form.dataset.region = region.id;
@@ -314,7 +325,7 @@ function Waveform(props) {
 
     // Handle Replay
     const replayRegion = (event) => {
-        console.log("click: ", event.target.checked);
+        console.log("checkbox replay: ", event.target.checked);
         setIsReplaying(event.target.checked);
     };
 
@@ -365,6 +376,8 @@ function Waveform(props) {
             <div className={cx("row")}>
                 <div className={cx("col-sm-10")}>
                     <p>Click on a region to enter an annotation.</p>
+                    {/* <input type="range" min="1" max="200" value={zoom} onChange={e => setZoom(e.target.value)} /> */}
+
                 </div>
                 <div className={cx("col-sm-2")}>
                     <div className={cx("form-check")}>
@@ -407,7 +420,7 @@ function Waveform(props) {
                 </div>
             </div>
             <div className={cx("row")}>
-                <form className={cx("edit")} id="editForm">
+                <form className={cx("edit")} id="editForm" >
                     <div className={cx("form-group")}>
                         <label htmlFor="start">Start Time</label>
                         <input className={cx("form-control")} id="start_time" />
