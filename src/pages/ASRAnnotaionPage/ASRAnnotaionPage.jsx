@@ -9,7 +9,7 @@ import useScript from "../../hooks/useScript";
 //   "https://assets.mixkit.co/active_storage/sfx/1714/1714-preview.mp3"; // khoong bi loi
 
 function ASRAnnotaionPage() {
-  useScript({ url: "https://label.lab.zalo.ai/ui/ailab_ui_api.js" });
+  // useScript({ url: "https://label.lab.zalo.ai/ui/ailab_ui_api.js" });
 
   const [options, setOptions] = useState({
     height: 100,
@@ -20,7 +20,7 @@ function ASRAnnotaionPage() {
     backend: "MediaElement",
   });
 
-  const [audioUrl, setAudioUrl] = useState("");
+  const [audioUrl, setAudioUrl] = useState("./errorNe.mp3");
   const [annotaions, setAnnotations] = useState([]);
 
   return (

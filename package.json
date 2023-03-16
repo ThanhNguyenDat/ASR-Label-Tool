@@ -21,8 +21,10 @@
   "devDependencies": {
     "@types/wavesurfer.js": "^6.0.3",
     "customize-cra": "^1.0.0",
+    "dotenv-webpack": "^8.0.1",
     "react-app-rewired": "^2.2.1",
-    "sass": "^1.59.2"
+    "sass": "^1.59.2",
+    "webpack-cli": "^5.0.1"
   },
   "scripts": {
     "start": "react-app-rewired start",

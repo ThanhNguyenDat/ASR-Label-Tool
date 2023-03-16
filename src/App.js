@@ -8,7 +8,6 @@ import Header from "./layouts/Head";
 
 function App() {
   
-
   return (
     <div className="App">
       <Header />

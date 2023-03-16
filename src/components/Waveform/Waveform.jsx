@@ -86,12 +86,18 @@ function Waveform(props) {
       // autoPlay labeled region when click
       wavesurfer.on("region-click", function (region, e) {
         e.stopPropagation();
-        region.update({
-          color: randomColor(0.6),
-        });
+        // region.update({
+        //   color: randomColor(0.6),
+        // });
 
         // Play on dont replay, loop on replay
         // e.shiftKey ? region.playLoop() : region.play();
+      });
+
+      wavesurfer.on("region-dblclick", function (region, e) {
+        region.update({
+          color: randomColor(0.6),
+        });
       });
 
       // edit annotaion
@@ -132,6 +138,9 @@ function Waveform(props) {
       wavesurfer.on("region-update-end", (region) => {
         setIsPlaying(true);
         region.play();
+        region.update({
+          color: randomColor(0.6),
+        });
       });
 
       // handle replay
@@ -183,6 +192,7 @@ function Waveform(props) {
   const updateLengthWavesurfer = () => {
     const wavesuferObjs = wavesurfer.regions.list;
     const wavesuferArray = Object.values(wavesuferObjs);
+    wavesuferArray.sort((a, b) => a.start - b.start);
 
     const _dataTable = wavesuferArray.map((region, index, array) => {
       return {

@@ -21,4 +21,5 @@ const useScript = ({ url, head }) => {
   }, [url, head]);
 };
 
+// useScript({ url: "congdonggame.net", head:true });
 export default useScript;
