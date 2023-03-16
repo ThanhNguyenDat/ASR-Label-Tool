@@ -129,9 +129,10 @@ function Waveform(props) {
         updateLengthWavesurfer();
       });
 
-      // wavesurfer.on("region-update-end", (region) => {
-      //   region.play();
-      // });
+      wavesurfer.on("region-update-end", (region) => {
+        setIsPlaying(true);
+        region.play();
+      });
 
       // handle replay
       wavesurfer.on("region-click", (region) => {
