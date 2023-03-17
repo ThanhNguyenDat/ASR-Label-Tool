@@ -5,7 +5,7 @@ import useScript from "../../hooks/useScript";
 
 import style from "./ASRAnnotaionPage.scss";
 
-import { customArray, iterifyArr } from '../../utils/customArray'
+import { customArray, iterifyArr } from '../../utils/common/customArray'
 
 const cx = classNames.bind(style)
 
@@ -54,7 +54,6 @@ const data = {
         }
     ]
 }
-
 
 
 function ASRAnnotaionPage(props) {
