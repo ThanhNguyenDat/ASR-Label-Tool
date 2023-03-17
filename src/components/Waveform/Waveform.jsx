@@ -458,12 +458,15 @@ function Waveform(props) {
                     </div>
                 </div>)
             }
+
+
             <div className={cx("row")}>
+
                 <div className={cx("col-sm-10")}>
                     <p>Click on a region to enter an annotation.</p>
                     {/* <input type="range" min="1" max="200" value={zoom} onChange={e => setZoom(e.target.value)} /> */}
-
                 </div>
+
                 <div className={cx("col-sm-2")}>
                     <div className={cx("form-check")}>
                         <label
@@ -504,72 +507,76 @@ function Waveform(props) {
                     </button>
                 </div>
             </div>
+
             <div className={cx("row")}>
-                <form className={cx("edit")} id="editForm" >
-                    <div className={cx("form-group")}>
-                        <label htmlFor="start">Start Time</label>
-                        <input className={cx("form-control")} id="start_time" />
-                    </div>
+                <div className={cx("col-sm-4")}>
+                    <form className={cx("edit")} id="editForm" >
+                        <div className={cx("form-group")}>
+                            <label htmlFor="start">Start Time</label>
+                            <input className={cx("form-control")} id="start_time" />
+                        </div>
 
-                    <div className={cx("form-group")}>
-                        <label htmlFor="end">End Time</label>
-                        <input className={cx("form-control")} id="end_time" />
-                    </div>
+                        <div className={cx("form-group")}>
+                            <label htmlFor="end">End Time</label>
+                            <input className={cx("form-control")} id="end_time" />
+                        </div>
 
-                    <div className={cx("form-group")}>
-                        <label htmlFor="description">Description</label>
-                        <textarea
-                            className={cx("form-control")}
-                            id="description"
-                            name="description"
-                            rows={3}
-                        />
-                    </div>
+                        <div className={cx("form-group")}>
+                            <label htmlFor="description">Description</label>
+                            <textarea
+                                className={cx("form-control")}
+                                id="description"
+                                name="description"
+                                rows={5}
+                            />
+                        </div>
 
-                    <button type="submit" className={cx("btn btn-success btn-block")}>
-                        Save
-                    </button>
-                    <button
-                        type="button"
-                        className={cx("btn btn-danger btn-block")}
-                        data-action="delete-region"
-                    >
-                        Delete
-                    </button>
-                </form>
-            </div>
-            <div className={cx("row")}>
-                {dataTable && (
-                    <Table
-                        dataSource={dataTable}
-                        columns={[
-                            { title: "Index", dataIndex: "id", key: "id" },
-                            {
-                                title: "Start Time",
-                                dataIndex: "start_time",
-                                key: "start_time",
-                            },
-                            { title: "End Time", dataIndex: "end_time", key: "end_time" },
-                            {
-                                title: "Description",
-                                dataIndex: "description",
-                                key: "description",
-                            },
-                            {
-                                title: "Color",
-                                dataIndex: "color",
-                                key: "color",
-                                render: (_, { color }) => (
-                                    <>
-                                        <Tag color={color} key={color}>
-                                            {color}
-                                        </Tag>
-                                    </>
-                                ),
-                            },
-                        ]}
-                    ></Table>
-                )}
+                        <button type="submit" className={cx("btn btn-success btn-block")}>
+                            Save
+                        </button>
+                        <button
+                            type="button"
+                            className={cx("btn btn-danger btn-block")}
+                            data-action="delete-region"
+                        >
+                            Delete
+                        </button>
+                    </form>
+                </div>
+
+                <div className={cx("col-sm-8")}>
+                    {dataTable && (
+                        <Table
+                            dataSource={dataTable}
+                            columns={[
+                                { title: "Index", dataIndex: "id", key: "id" },
+                                {
+                                    title: "Start Time",
+                                    dataIndex: "start_time",
+                                    key: "start_time",
+                                },
+                                { title: "End Time", dataIndex: "end_time", key: "end_time" },
+                                {
+                                    title: "Description",
+                                    dataIndex: "description",
+                                    key: "description",
+                                },
+                                {
+                                    title: "Color",
+                                    dataIndex: "color",
+                                    key: "color",
+                                    render: (_, { color }) => (
+                                        <>
+                                            <Tag color={color} key={color}>
+                                                {color}
+                                            </Tag>
+                                        </>
+                                    ),
+                                },
+                            ]}
+                        ></Table>
+                    )}
+                </div>
             </div>
         </div>
     );
