@@ -64,9 +64,11 @@ function ASRAnnotaionPage(props) {
     useEffect(() => {
         if (window.AL) {
             console.log(window.AL);
+            console.log("receive data");
             window.AL.onReceiveData(function (data) {
                 setDataLabels(data)
             })
+            console.log("receive data success");
         }
     }, [])
 
