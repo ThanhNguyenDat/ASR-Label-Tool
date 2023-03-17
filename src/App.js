@@ -1,10 +1,13 @@
-import "./App.css";
+import styles from "./App.scss";
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { publicRoutes } from "./routes/routes";
 import { Fragment } from "react";
 import DefaultLayout from "./layouts";
 import useScript from "./hooks/useScript";
+import classNames from "classnames/bind";
+
+const cx = classNames.bind(styles)
 
 function App() {
     // useScript({ url: "https://label.lab.zalo.ai/ui/ailab_ui_api.js", head: true });
@@ -12,7 +15,7 @@ function App() {
 
     return (
         <Router>
-            <div className="App">
+            <div className={cx("App")}>
                 <Routes>
                     {publicRoutes.map((route, index) => {
                         const Page = route.component;

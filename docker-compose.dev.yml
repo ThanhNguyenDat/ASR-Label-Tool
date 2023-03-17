@@ -1,0 +1,15 @@
+version: '3'
+services:
+  frontend:
+    stdin_open: true
+    tty: true
+    container_name: asr-label-react-dev
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8221:3000"
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    entrypoint: /bin/sh

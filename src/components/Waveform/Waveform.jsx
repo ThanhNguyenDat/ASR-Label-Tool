@@ -110,6 +110,7 @@ function Waveform(props) {
                     waveColor: "#ddd",
                     progressColor: "#999",
                     cursorColor: "#999",
+                    scrollParent: false
                 }),
             ],
         });
@@ -246,16 +247,6 @@ function Waveform(props) {
 
                 region.play();
 
-                // if (isReplaying) {
-                //     // region.playLoop();
-                //     region.update({
-                //         loop: true,
-                //     });
-                // } else {
-                //     region.update({
-                //         loop: false,
-                //     });
-                // }
             });
 
             wavesurfer.on("region-play", function (region) {
@@ -446,12 +437,13 @@ function Waveform(props) {
                     &nbsp;
                 </p>
             </div>
+
             {Object.keys(dataLabels).length ? (
-                <div>
+                <div className={cx('row')}>
                     <div ref={waveRef}></div>
                     <div ref={timelineRef}></div>
                 </div>) : (
-                <div>
+                <div className={cx('row')}>
                     <h2>Audio not found</h2>
                     <div ref={waveRef}></div>
                     <div ref={timelineRef}>
@@ -469,42 +461,52 @@ function Waveform(props) {
 
                 <div className={cx("col-sm-2")}>
                     <div className={cx("form-check")}>
-                        <label
-                            className={cx("form-check-label")}
-                            htmlFor="btn-check-replay"
-                        >
-                            Replay
-                        </label>
-
-                        <input
-                            className={cx("form-check-input")}
-                            type="checkbox"
-                            id="btn-check-replay"
-                        />
+                        <div className={cx("row")}>
+                            <div className={cx("col")}>
+                                <label
+                                    className={cx("form-check-label")}
+                                    htmlFor="btn-check-replay"
+                                >
+                                    Replay
+                                </label>
+                            </div>
+                            <div className={cx("col")}>
+                                <input
+                                    className={cx("form-check-input")}
+                                    type="checkbox"
+                                    id="btn-check-replay"
+                                />
+                            </div>
+                        </div>
                     </div>
-
-                    <button
-                        onClick={handlePlayPause}
-                        className={cx("btn btn-primary btn-block")}
-                    >
-                        {isPlaying ? (
-                            <span>
-                                <i className={cx("glyphicon glyphicon-pause")}></i>
-                                Pause
-                            </span>
-                        ) : (
-                            <span>
-                                <i className={cx("glyphicon glyphicon-play")}></i>
-                                Play
-                            </span>
-                        )}
-                    </button>
-                    <button
-                        onClick={handleSubmit}
-                        className={cx("btn btn-success btn-block")}
-                    >
-                        Submit
-                    </button>
+                    <div className={cx('row')}>
+                        <div className={cx('col')}>
+                            <button
+                                onClick={handlePlayPause}
+                                className={cx("btn btn-primary btn-block")}
+                            >
+                                {isPlaying ? (
+                                    <span>
+                                        <i className={cx("glyphicon glyphicon-pause")}></i>
+                                        Pause
+                                    </span>
+                                ) : (
+                                    <span>
+                                        <i className={cx("glyphicon glyphicon-play")}></i>
+                                        Play
+                                    </span>
+                                )}
+                            </button>
+                        </div>
+                        <div className={cx('col')}>
+                            <button
+                                onClick={handleSubmit}
+                                className={cx("btn btn-success btn-block")}
+                            >
+                                Submit
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
