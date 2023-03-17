@@ -42,7 +42,7 @@ const formatAnnotaion = [
 
 function ASRAnnotaionPage(props) {
     // useScript({ url: "https://label.lab.zalo.ai/ui/ailab_ui_api.js" });
-    
+
     const [audioUrl, setAudioUrl] = useState(
         formatAnnotaion[0]["item_info"]["url"]
     ); // string

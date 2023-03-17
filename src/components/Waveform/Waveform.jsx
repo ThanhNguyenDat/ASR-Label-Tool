@@ -210,6 +210,7 @@ function Waveform(props) {
         }
     }, [isReplaying, lengthWavesurfer, wavesurfer]);
 
+
     /**
      * Handle Replay a region with btn-check-replay
      */
