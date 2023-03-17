@@ -58,7 +58,7 @@ const data = {
 
 
 function ASRAnnotaionPage(props) {
-    useScript({ url: "https://label.lab.zalo.ai/ui/ailab_ui_api.js" });
+
 
     const [dataLabels, setDataLabels] = useState({})
 
@@ -70,7 +70,7 @@ function ASRAnnotaionPage(props) {
             })
         }
     }, [])
-    console.log(window.AL);
+
     // update props
     props = {
         // audioUrl: audioUrl,

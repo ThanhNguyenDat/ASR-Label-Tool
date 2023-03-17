@@ -60,6 +60,8 @@ const data = {
 
 
 function Waveform(props) {
+    console.log('wave component: ', window.AL);
+
     let { dataLabels } = props;
 
     const [wavesurfer, setWavesurfer] = useState(null);
