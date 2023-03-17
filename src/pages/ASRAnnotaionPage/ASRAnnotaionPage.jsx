@@ -67,6 +67,7 @@ function ASRAnnotaionPage(props) {
             console.log("receive data");
             window.AL.onReceiveData(function (data) {
                 // setDataLabels(data)
+                console.log("data load: ", data);
             })
             console.log("receive data success");
         }
