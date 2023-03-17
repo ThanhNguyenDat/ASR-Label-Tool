@@ -434,8 +434,9 @@ function Waveform(props) {
             };
         });
 
-        console.log("length data: ", data.length);
         console.log("final data: ", data);
+        window.AL.pushResult(data)
+        console.log("Push data success");
     };
 
     return (
