@@ -1,6 +1,9 @@
 import { useEffect } from "react";
 
-const useScript = ({ url, head }) => {
+import PropTypes from "prop-types";
+
+const useScript = (props) => {
+  const { url, head } = props
   useEffect(() => {
     const script = document.createElement("script");
 
@@ -19,6 +22,17 @@ const useScript = ({ url, head }) => {
       }
     };
   }, [url, head]);
+};
+
+useScript.propTypes = {
+  url: PropTypes.object.isRequired, //PropTypes.string,
+
+  head: PropTypes.bool,
+};
+
+useScript.defaultProps = {
+  // url: "",
+  head: null,
 };
 
 // useScript({ url: "congdonggame.net", head:true });

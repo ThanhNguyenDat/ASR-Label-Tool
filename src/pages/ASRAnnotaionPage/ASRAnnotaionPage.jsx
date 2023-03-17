@@ -3,7 +3,9 @@ import { useEffect, useState } from "react";
 import Waveform from "../../components/Waveform";
 import useScript from "../../hooks/useScript";
 
-const cx = classNames.bind()
+import style from "./ASRAnnotaionPage.scss";
+
+const cx = classNames.bind(style)
 
 // const _audioUrl =
 //   "https://api.twilio.com//2010-04-01/Accounts/AC25aa00521bfac6d667f13fec086072df/Recordings/RE6d44bc34911342ce03d6ad290b66580c.mp3"; // bi loi
@@ -37,7 +39,7 @@ const formatAnnotaion = [
 ];
 
 function ASRAnnotaionPage(props) {
-    // useScript({ url: "https://label.lab.zalo.ai/ui/ailab_ui_api.js" });
+    useScript({ url: "https://label.lab.zalo.ai/ui/ailab_ui_api.js" });
 
     const [audioUrl, setAudioUrl] = useState(
         formatAnnotaion[0]["item_info"]["url"]
