@@ -190,16 +190,16 @@ function Waveform(props) {
 
                 region.play();
 
-                if (isReplaying) {
-                    // region.playLoop();
-                    region.update({
-                        loop: true,
-                    });
-                } else {
-                    region.update({
-                        loop: false,
-                    });
-                }
+                // if (isReplaying) {
+                //     // region.playLoop();
+                //     region.update({
+                //         loop: true,
+                //     });
+                // } else {
+                //     region.update({
+                //         loop: false,
+                //     });
+                // }
             });
 
             wavesurfer.on("region-play", function (region) {
@@ -223,6 +223,20 @@ function Waveform(props) {
             btn_check_replay.removeEventListener("click", replayRegion);
         };
     }, []);
+
+    // Update isReplaying for region chunk
+    useEffect(() => {
+        if (wavesurfer) {
+            console.log('1111');
+            Object.values(wavesurfer.regions.list).forEach(region => {
+                region.update({
+                    loop: isReplaying
+                })
+            })
+
+            console.log('11111');
+        }
+    }, [isReplaying, wavesurfer])
 
     /**
      * Load annotations
