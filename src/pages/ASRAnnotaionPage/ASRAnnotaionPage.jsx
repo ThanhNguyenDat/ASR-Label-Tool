@@ -47,6 +47,14 @@ function ASRAnnotaionPage(props) {
         formatAnnotaion[0]["annotations"]
     ); // array
 
+
+    // update props
+    props = {
+        audioUrl: audioUrl,
+        annotations: annotations,
+        ...props
+    }
+
     return (
         <div className={cx("container ASRAnnotaionPage")}>
             <input
@@ -57,7 +65,7 @@ function ASRAnnotaionPage(props) {
                 }}
             />
             {audioUrl && (
-                <Waveform audioUrl={audioUrl} annotations={annotations} />
+                <Waveform {...props} />
             )}
         </div>
     );

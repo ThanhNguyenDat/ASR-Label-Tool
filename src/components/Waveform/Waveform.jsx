@@ -5,7 +5,7 @@ import WaveSurfer from "wavesurfer.js";
 // import { WaveSurfer } from "wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js";
 import RegionsPlugin from "wavesurfer.js/dist/plugin/wavesurfer.regions.min.js";
 
-// import TimelinePlugin from "wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js";
+import TimelinePlugin from "wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js";
 import MinimapPlugin from "wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js";
 
 import styles from "./Waveform.scss";
@@ -71,6 +71,9 @@ function Waveform(props) {
 
                 setWavesurfer(wavesurferInstance);
                 setIsPlaying(false);
+
+
+                console.log("wave: ", wavesurferInstance);
             });
         }
 
@@ -157,6 +160,7 @@ function Waveform(props) {
                 updateLengthWavesurfer(wavesurfer);
 
             });
+            console.log(wavesurfer);
 
             // Create new region
             wavesurfer.on("region-update-end", (region) => {
@@ -199,7 +203,6 @@ function Waveform(props) {
             });
 
             wavesurfer.on("region-play", function (region) {
-
                 region.once("out", function () {
                     isReplaying ? setIsPlaying(true) : setIsPlaying(false);
                 });
@@ -314,6 +317,8 @@ function Waveform(props) {
     const replayRegion = (event) => {
         console.log("checkbox replay: ", event.target.checked);
         setIsReplaying(event.target.checked);
+
+
     };
 
     /**
