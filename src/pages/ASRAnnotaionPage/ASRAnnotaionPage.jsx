@@ -40,38 +40,75 @@ const formatAnnotaion = [
     },
 ];
 
+
+
+
+const data = {
+    "annotations": [
+        {
+            "class_id": 3579,
+            "class_name": "Human",
+            "content": {
+                "index": 0, // start
+                "length": 2, // end - start
+                "text": "alo" // description
+            },
+            "extra": {
+                "hard_level": 1,
+                "classify": "noise"
+            }
+        },
+        {
+            "class_id": 3579,
+            "class_name": "Human",
+            "content": {
+                "index": 2,
+                "length": 0.5,
+                "text": "1234"
+            },
+            "extra": {
+                "hard_level": 0,
+                "classify": "normal"
+            }
+        }
+    ],
+    "data": [
+        {
+            "data_cat_id": 2,
+            "dataset_id": 1970,
+            "seed": 380,
+            "id": 2677,
+            "file_name": "https://assets.mixkit.co/active_storage/sfx/1714/1714-preview.mp3" //url
+        }
+    ]
+}
+
+
+
 function ASRAnnotaionPage(props) {
     // useScript({ url: "https://label.lab.zalo.ai/ui/ailab_ui_api.js" });
 
-    const [audioUrl, setAudioUrl] = useState(
-        formatAnnotaion[0]["item_info"]["url"]
-    ); // string
+    const [dataLabels, setDataLabels] = useState({})
 
-    const [annotations, setAnnotations] = useState(
-        formatAnnotaion[0]["annotations"]
-    ); // array
-
+    useEffect(() => {
+        if (window.AL) {
+            window.AL.onReceiveData(function (data) {
+                setDataLabels(data)
+            })
+        }
+    }, [])
 
     // update props
     props = {
-        audioUrl: audioUrl,
-        annotations: annotations,
+        // audioUrl: audioUrl,
+        // annotations: annotations,
+        dataLabels: data || {}, // dataLabels
         ...props
     }
 
     return (
         <div className={cx("container ASRAnnotaionPage")}>
-            <input
-                placeholder="Nhập link audio"
-                onChange={(event) => {
-                    setAudioUrl(event.target.value);
-                    setAnnotations([]);
-                }}
-            />
-            <button>Skip</button>
-            {audioUrl && (
-                <Waveform {...props} />
-            )}
+            <Waveform {...props} />
         </div>
     );
 }

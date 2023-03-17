@@ -15,8 +15,52 @@ import { Col, InputNumber, Row, Slider, Table, Tag } from "antd";
 
 const cx = classNames.bind(styles);
 
+
+
+const data = {
+    "annotations": [
+        {
+            "class_id": 3579,
+            "class_name": "Human",
+            "content": {
+                "index": 2.2, // start
+                "length": 3, // end - start
+                "text": "alo" // description
+            },
+            "extra": {
+                "hard_level": 1,
+                "classify": "noise"
+            }
+        },
+        {
+            "class_id": 3579,
+            "class_name": "Human",
+            "content": {
+                "index": 6,
+                "length": 3,
+                "text": "1234"
+            },
+            "extra": {
+                "hard_level": 0,
+                "classify": "normal"
+            }
+        }
+    ],
+
+    "data": [
+        {
+            "data_cat_id": 2,
+            "dataset_id": 1970,
+            "seed": 380,
+            "id": 2677,
+            "file_name": "https://z3s.zaloapp.com/zai/upload/media/2023/3/17/1679022505_113605_1679022505184_23089.jpg" //url
+        }
+    ]
+}
+
+
 function Waveform(props) {
-    const { audioUrl, annotations } = props;
+    let { dataLabels } = props;
 
     const [wavesurfer, setWavesurfer] = useState(null);
 
@@ -26,10 +70,25 @@ function Waveform(props) {
     const [isPlaying, setIsPlaying] = useState(false);
     const [isReplaying, setIsReplaying] = useState(false);
 
+    const [audioUrl, setAudioUrl] = useState("")
+    const [annotations, setAnnotations] = useState([])
 
     const waveRef = useRef(null);
     const timelineRef = useRef(null);
 
+    useEffect(() => {
+
+        if (dataLabels) {
+            if (dataLabels.hasOwnProperty('data')) {
+                setAudioUrl(dataLabels['data'][0]['file_name']) // set first data item
+            }
+
+            if (dataLabels.hasOwnProperty('annotations')) {
+                setAnnotations(dataLabels['annotations'])
+            }
+        }
+    }, [dataLabels])
+    console.log("data: ", dataLabels);
     /*
      * Initial wavesurfer
      */
@@ -227,27 +286,25 @@ function Waveform(props) {
     // Update isReplaying for region chunk
     useEffect(() => {
         if (wavesurfer) {
-            console.log('1111');
             Object.values(wavesurfer.regions.list).forEach(region => {
                 region.update({
                     loop: isReplaying
                 })
             })
-
-            console.log('11111');
         }
     }, [isReplaying, wavesurfer])
 
     /**
      * Load annotations
      */
-    const loadRegions = (regions, wavesurfer) => {
-        regions.forEach((region) => {
-            region.color = randomColor(0.6);
-            region.data = {};
-            region.data.note = region.description;
-
-            wavesurfer.addRegion(region);
+    const loadRegions = (annotations, wavesurfer) => {
+        annotations.forEach((annotation) => {
+            annotation.color = randomColor(0.6);
+            annotation.data = {};
+            annotation.data.note = annotation['content']['text'];
+            annotation.start = annotation['content']['index']
+            annotation.end = annotation['content']['length'] + annotation['content']['index']
+            wavesurfer.addRegion(annotation);
         });
         updateLengthWavesurfer(wavesurfer);
     };
@@ -337,10 +394,8 @@ function Waveform(props) {
     };
 
     /**
-     * Handle button
+     * Handle Play/Pause button
      */
-
-    // Handle Play or Pause audio
     const handlePlayPause = () => {
         if (wavesurfer) {
             if (isPlaying) {
@@ -360,14 +415,28 @@ function Waveform(props) {
         event.preventDefault();
         let full_region_annotaions = Object.values(wavesurfer.regions.list);
 
+        // format data
         const data = full_region_annotaions.map((region, index, array) => {
             return {
-                start_time: region.start,
-                end_time: region.end,
-                description: region.data.note || "",
+                "postags": [
+                    {
+                        "class_id": 3579,
+                        "class_name": "Human",
+                        "content": {
+                            "index": region.start,
+                            "length": region.end - region.start,
+                            "text": region.data.note || ""
+                        },
+                        "extra": {
+                            "hard_level": 0,
+                            "classify": "normal"
+                        }
+                    }
+                ],
+                "fetch_number": 1 // fixed
             };
         });
-        console.log("bool: ", data.length);
+        console.log("length data: ", data.length);
         console.log("final data: ", data);
     };
 
@@ -378,8 +447,18 @@ function Waveform(props) {
                     &nbsp;
                 </p>
             </div>
-            <div ref={waveRef}></div>
-            <div ref={timelineRef}></div>
+            {Object.keys(dataLabels).length ? (
+                <div>
+                    <div ref={waveRef}></div>
+                    <div ref={timelineRef}></div>
+                </div>) : (
+                <div>
+                    <h2>Audio not found</h2>
+                    <div ref={waveRef}></div>
+                    <div ref={timelineRef}>
+                    </div>
+                </div>)
+            }
             <div className={cx("row")}>
                 <div className={cx("col-sm-10")}>
                     <p>Click on a region to enter an annotation.</p>
