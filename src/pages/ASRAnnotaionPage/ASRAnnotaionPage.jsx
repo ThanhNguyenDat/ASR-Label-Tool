@@ -5,6 +5,8 @@ import useScript from "../../hooks/useScript";
 
 import style from "./ASRAnnotaionPage.scss";
 
+import { customArray, iterifyArr } from '../../utils/customArray'
+
 const cx = classNames.bind(style)
 
 // const _audioUrl =
@@ -39,8 +41,8 @@ const formatAnnotaion = [
 ];
 
 function ASRAnnotaionPage(props) {
-    useScript({ url: "https://label.lab.zalo.ai/ui/ailab_ui_api.js" });
-
+    // useScript({ url: "https://label.lab.zalo.ai/ui/ailab_ui_api.js" });
+    
     const [audioUrl, setAudioUrl] = useState(
         formatAnnotaion[0]["item_info"]["url"]
     ); // string
@@ -66,6 +68,7 @@ function ASRAnnotaionPage(props) {
                     setAnnotations([]);
                 }}
             />
+            <button>Skip</button>
             {audioUrl && (
                 <Waveform {...props} />
             )}

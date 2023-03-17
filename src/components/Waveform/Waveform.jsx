@@ -10,7 +10,7 @@ import MinimapPlugin from "wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js";
 
 import styles from "./Waveform.scss";
 
-import { randomColor } from "../../utils";
+import { randomColor } from "../../utils/randomColor";
 import { Col, InputNumber, Row, Slider, Table, Tag } from "antd";
 
 const cx = classNames.bind(styles);
