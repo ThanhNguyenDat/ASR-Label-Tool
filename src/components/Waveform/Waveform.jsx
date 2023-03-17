@@ -436,6 +436,7 @@ function Waveform(props) {
                 "fetch_number": 1 // fixed
             };
         });
+
         console.log("length data: ", data.length);
         console.log("final data: ", data);
     };

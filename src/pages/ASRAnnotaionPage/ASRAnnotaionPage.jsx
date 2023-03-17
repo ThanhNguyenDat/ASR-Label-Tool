@@ -15,34 +15,6 @@ const cx = classNames.bind(style)
 // const _audioUrl =
 //   "https://assets.mixkit.co/active_storage/sfx/1714/1714-preview.mp3"; // khoong bi loi
 
-const formatAnnotaion = [
-    {
-        item_info: {
-            url: "https://assets.mixkit.co/active_storage/sfx/1714/1714-preview.mp3",
-        },
-        annotations: [
-            { start: 0, end: 1, description: "alo 0 1" },
-            { start: 2, end: 3, description: "alo 2 3" },
-        ],
-    },
-
-    {
-        item_info: {
-            url: "https://api.twilio.com//2010-04-01/Accounts/AC25aa00521bfac6d667f13fec086072df/Recordings/RE6d44bc34911342ce03d6ad290b66580c.mp3",
-        },
-        annotations: [{ start: 0, end: 1, description: "alo 0 1" }],
-    },
-
-    {
-        item_info: {
-            url: "https://api.twilio.com//2010-04-01/Accounts/AC25aa00521bfac6d667f13fec086072df/Recordings/RE6d44bc34911342ce03d6ad290b66580c.mp3",
-        },
-    },
-];
-
-
-
-
 const data = {
     "annotations": [
         {
@@ -86,18 +58,19 @@ const data = {
 
 
 function ASRAnnotaionPage(props) {
-    // useScript({ url: "https://label.lab.zalo.ai/ui/ailab_ui_api.js" });
+    useScript({ url: "https://label.lab.zalo.ai/ui/ailab_ui_api.js" });
 
     const [dataLabels, setDataLabels] = useState({})
 
     useEffect(() => {
         if (window.AL) {
+            console.log(window.AL);
             window.AL.onReceiveData(function (data) {
                 setDataLabels(data)
             })
         }
     }, [])
-
+    console.log(window.AL);
     // update props
     props = {
         // audioUrl: audioUrl,
