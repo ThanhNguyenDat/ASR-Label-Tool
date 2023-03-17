@@ -8,7 +8,7 @@ import useScript from "./hooks/useScript";
 
 function App() {
     // useScript({ url: "https://label.lab.zalo.ai/ui/ailab_ui_api.js", head: true });
-    useScript({ url: process.env.PUBLIC_URL + "/static/ailab_ui_api.js" })
+    // useScript({ url: process.env.PUBLIC_URL + "/static/ailab_ui_api.js" })
 
     return (
         <Router>

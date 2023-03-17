@@ -512,13 +512,25 @@ function Waveform(props) {
                 <div className={cx("col-sm-4")}>
                     <form className={cx("edit")} id="editForm" >
                         <div className={cx("form-group")}>
-                            <label htmlFor="start">Start Time</label>
-                            <input className={cx("form-control")} id="start_time" />
+                            <div className={cx('row')}>
+                                <div className={cx('col')}>
+                                    <label htmlFor="start">Start Time</label>
+                                </div>
+                                <div className={cx('col')}>
+                                    <input className={cx("form-control")} id="start_time" />
+                                </div>
+                            </div>
                         </div>
 
                         <div className={cx("form-group")}>
-                            <label htmlFor="end">End Time</label>
-                            <input className={cx("form-control")} id="end_time" />
+                            <div className={cx('row')}>
+                                <div className={cx('col')}>
+                                    <label htmlFor="end">End Time</label>
+                                </div>
+                                <div className={cx('col')}>
+                                    <input className={cx("form-control")} id="end_time" />
+                                </div>
+                            </div>
                         </div>
 
                         <div className={cx("form-group")}>

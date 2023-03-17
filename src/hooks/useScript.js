@@ -8,7 +8,7 @@ const useScript = (props) => {
         const script = document.createElement("script");
 
         script.src = props.url;
-        script.async = true;
+        // script.async = true;
 
         // if (props.head) {
         //   document.head.appendChild(script);
