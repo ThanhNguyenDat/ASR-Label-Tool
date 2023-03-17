@@ -77,7 +77,6 @@ function Waveform(props) {
     const timelineRef = useRef(null);
 
     useEffect(() => {
-
         if (dataLabels) {
             if (dataLabels.hasOwnProperty('data')) {
                 setAudioUrl(dataLabels['data'][0]['file_name']) // set first data item
@@ -88,7 +87,7 @@ function Waveform(props) {
             }
         }
     }, [dataLabels])
-    console.log("data: ", dataLabels);
+
     /*
      * Initial wavesurfer
      */
@@ -130,9 +129,6 @@ function Waveform(props) {
 
                 setWavesurfer(wavesurferInstance);
                 setIsPlaying(false);
-
-
-                console.log("wave: ", wavesurferInstance);
             });
         }
 
@@ -219,7 +215,6 @@ function Waveform(props) {
                 updateLengthWavesurfer(wavesurfer);
 
             });
-            console.log(wavesurfer);
 
             // Create new region
             wavesurfer.on("region-update-end", (region) => {
