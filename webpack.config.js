@@ -1,6 +1,6 @@
-const path = require('path');
+import { join } from 'path';
 
-module.exports = (env) => {
+export default (env) => {
     // use env.<YOUR VARIABLE> hear:
     console.log('Goal: ', env.goal); // 'local'
     console.log('Production: ', env.production); // true
@@ -8,7 +8,7 @@ module.exports = (env) => {
     return {
         // entry: './src/index.js',
         output: {
-            path: path.join(__dirname, '/dist'),
+            path: join(__dirname, '/dist'),
             filename: 'index.bundle.js',
         },
         devServer: {
@@ -34,6 +34,9 @@ module.exports = (env) => {
                     ]
                 }
             ]
+        },
+        resolve: {
+            extensions: ['.js', '.json', '.vue', '.jsx'],
         }
     };
 }
