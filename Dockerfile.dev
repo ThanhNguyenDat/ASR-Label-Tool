@@ -13,6 +13,5 @@ COPY . .
 
 RUN chown -R node /app/node_modules
 
-USER node
+# USER node
 
-CMD [ "npm", "run", "start" ]

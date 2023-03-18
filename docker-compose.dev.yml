@@ -7,9 +7,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+    env_file: .env.development
     ports:
       - "8221:3000"
     volumes:
       - ./:/app
       - /app/node_modules
-    entrypoint: /bin/sh
+    command: npm run start

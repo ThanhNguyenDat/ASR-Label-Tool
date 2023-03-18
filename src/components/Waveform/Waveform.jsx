@@ -2,62 +2,18 @@ import classNames from "classnames/bind";
 import { useEffect, useRef, useState } from "react";
 
 import WaveSurfer from "wavesurfer.js";
-// import { WaveSurfer } from "wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js";
 import RegionsPlugin from "wavesurfer.js/dist/plugin/wavesurfer.regions.min.js";
-
 import TimelinePlugin from "wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js";
 import MinimapPlugin from "wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js";
+
+import { Table, Tag } from "antd";
 
 import styles from "./Waveform.scss";
 
 import { randomColor } from "../../utils/randomColor";
-import { Col, InputNumber, Row, Slider, Table, Tag } from "antd";
+
 
 const cx = classNames.bind(styles);
-
-
-
-const data = {
-    "annotations": [
-        {
-            "class_id": 3579,
-            "class_name": "Human",
-            "content": {
-                "index": 2.2, // start
-                "length": 3, // end - start
-                "text": "alo" // description
-            },
-            "extra": {
-                "hard_level": 1,
-                "classify": "noise"
-            }
-        },
-        {
-            "class_id": 3579,
-            "class_name": "Human",
-            "content": {
-                "index": 6,
-                "length": 3,
-                "text": "1234"
-            },
-            "extra": {
-                "hard_level": 0,
-                "classify": "normal"
-            }
-        }
-    ],
-
-    "data": [
-        {
-            "data_cat_id": 2,
-            "dataset_id": 1970,
-            "seed": 380,
-            "id": 2677,
-            "file_name": "https://z3s.zaloapp.com/zai/upload/media/2023/3/17/1679022505_113605_1679022505184_23089.jpg" //url
-        }
-    ]
-}
-
 
 function Waveform(props) {
     console.log('wave component: ', window.AL);
@@ -68,6 +24,7 @@ function Waveform(props) {
 
     const [lengthWavesurfer, setLengthWavesurfer] = useState(0);
     const [dataTable, setDataTable] = useState([]);
+
 
     const [isPlaying, setIsPlaying] = useState(false);
     const [isReplaying, setIsReplaying] = useState(false);
@@ -102,7 +59,6 @@ function Waveform(props) {
             scrollParent: true,
             normalize: true,
             minimap: true,
-            maxCanvasWidth: 10,
             plugins: [
                 RegionsPlugin.create(),
                 MinimapPlugin.create({
@@ -161,6 +117,7 @@ function Waveform(props) {
             });
 
             wavesurfer.on("region-created", function (region) {
+
                 region.update({
                     color: randomColor(0.6),
                 });
@@ -194,7 +151,7 @@ function Waveform(props) {
             // });
 
             // show description in head
-            wavesurfer.on("region-in", showNote);
+            // wavesurfer.on("region-in", showNote);
 
             // delete region
             const delete_region = document.querySelector(
@@ -214,8 +171,12 @@ function Waveform(props) {
     useEffect(() => {
         if (wavesurfer) {
             // Set Annotaions and Length Wavesurfer
-            wavesurfer.on("region-updated", () => {
+            wavesurfer.on("region-updated", (region) => {
                 updateLengthWavesurfer(wavesurfer);
+
+                // update form infor
+                let form = document.getElementById("editForm");
+                updateForm(form, region)
 
             });
 
@@ -311,8 +272,8 @@ function Waveform(props) {
             return {
                 key: index,
                 id: index,
-                start_time: region.start,
-                end_time: region.end,
+                start_time: Math.round(region.start + 100) / 100,
+                end_time: Math.round(region.end + 100) / 100,
                 description: region.data.note,
                 color: region.color,
             };
@@ -327,11 +288,7 @@ function Waveform(props) {
      */
     function editAnnotaion(region) {
         let form = document.getElementById("editForm");
-
-        // form.style.opacity = 1;
-        form.elements.start_time.value = region.start; // Math.round(region.start * 10) / 10;
-        form.elements.end_time.value = region.end; // Math.round(region.end * 10) / 10;
-        form.elements.description.value = region.data.note || "";
+        updateForm(form, region)
 
         form.onsubmit = function (e) {
             e.preventDefault();
@@ -345,16 +302,14 @@ function Waveform(props) {
                         note: form.elements.description.value,
                     },
                 });
-                // form.style.opacity = 1;
             } else {
-                alert("End time must be greater start time");
+                // alert("End time must be greater start time");
                 form.elements.start_time.value = region.start; // Math.round(region.start * 10) / 10;
                 form.elements.end_time.value = region.end; // Math.round(region.end * 10) / 10;
             }
         };
 
         form.onreset = function () {
-            // form.style.opacity = 0;
             form.dataset.region = null;
         };
         form.dataset.region = region.id;
@@ -426,39 +381,42 @@ function Waveform(props) {
         });
 
         console.log("final data: ", data);
-        window.AL.pushResult(data)
-        console.log("Push data success");
-    };
 
+        // window.AL.pushResult(data)
+        // console.log("Push data success");
+    };
+    const updateForm = (form, region, roundRate = 100) => {
+        // update form infor
+        // const roundRate = 100;
+        form.elements.start_time.value = Math.round(region.start * roundRate) / roundRate;
+        form.elements.end_time.value = Math.round(region.end * roundRate) / roundRate;
+        form.elements.description.value = region.data.note || "";
+    }
     return (
-        <div className={cx("container")}>
+        <div className={cx("container overflow-hidden")}>
             <div className={cx("row")}>
-                <p id="subtitle" className={cx("text-center text-info")}>
+                {/* <p id="subtitle" className={cx("text-center text-info")}>
                     &nbsp;
-                </p>
+                </p> */}
+                <p></p>
             </div>
 
-            {Object.keys(dataLabels).length ? (
-                <div className={cx('row')}>
-                    <div ref={waveRef}></div>
-                    <div ref={timelineRef}></div>
-                </div>) : (
-                <div className={cx('row')}>
-                    <h2>Audio not found</h2>
-                    <div ref={waveRef}></div>
-                    <div ref={timelineRef}>
+            <div className={cx('row')}>
+                {Object.keys(dataLabels).length ? (
+                    <div>
+                        <div ref={timelineRef}></div>
+                        <div ref={waveRef}></div>
                     </div>
-                </div>)
-            }
+                ) : (
+                    <div>
+                        <h2>Audio not found</h2>
+                        <div ref={timelineRef}></div>
+                        <div ref={waveRef}></div>
+                    </div>)
+                }
+            </div>
 
-
-            <div className={cx("row")}>
-
-                <div className={cx("col-sm-10")}>
-                    <p>Click on a region to enter an annotation.</p>
-                    {/* <input type="range" min="1" max="200" value={zoom} onChange={e => setZoom(e.target.value)} /> */}
-                </div>
-
+            <div className={cx("row")} style={{ padding: 40 }}>
                 <div className={cx("col-sm-2")}>
                     <div className={cx("form-check")}>
                         <div className={cx("row")}>
@@ -479,11 +437,15 @@ function Waveform(props) {
                             </div>
                         </div>
                     </div>
+                    {/* <input type="range" min="1" max="200" value={zoom} onChange={e => setZoom(e.target.value)} /> */}
+                </div>
+
+                <div className={cx("col-sm-10")}>
                     <div className={cx('row')}>
                         <div className={cx('col')}>
                             <button
                                 onClick={handlePlayPause}
-                                className={cx("btn btn-primary btn-block")}
+                                className={cx("btn btn-primary btn-block w-100")}
                             >
                                 {isPlaying ? (
                                     <span>
@@ -501,7 +463,7 @@ function Waveform(props) {
                         <div className={cx('col')}>
                             <button
                                 onClick={handleSubmit}
-                                className={cx("btn btn-success btn-block")}
+                                className={cx("btn btn-info btn-block w-100")}
                             >
                                 Submit
                             </button>
@@ -511,59 +473,84 @@ function Waveform(props) {
             </div>
 
             <div className={cx("row")}>
-                <div className={cx("col-sm-4")}>
-                    <form className={cx("edit")} id="editForm" >
-                        <div className={cx("form-group")}>
-                            <div className={cx('row')}>
+                <div className={cx("col-sm-9")}>
+                    <div className={cx("row")}>
+                        <div className={cx('col-8')}>
+                            <form className={cx("edit form h-100")} id="editForm" >
+                                <div className={cx("row")}>
+                                    <div className={cx("col-4")}>
+                                        <div className={cx("form-group")} style={{ padding: 10 }}>
+                                            <div className={cx("col")}>
+                                                <div className={cx("row")}>
+                                                    <label htmlFor="start_time">Start Time</label>
+                                                </div>
+                                                <div className={cx("row")}>
+                                                    <input className={cx("form-control")} id="start_time" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className={cx("form-group")} style={{ padding: 10 }}>
+                                            <div className={cx('col')}>
+                                                <div className={cx('row')}>
+                                                    <label htmlFor="end_time">End Time</label>
+                                                </div>
+                                                <div className={cx('row')}>
+                                                    <input className={cx("form-control")} id="end_time" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className={cx("col-8")}>
+                                        <div className={cx("form-group")}>
+                                            <label htmlFor="description">Description</label>
+                                            <textarea
+                                                className={cx("form-control")}
+                                                id="description"
+                                                name="description"
+                                                rows={5}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div className={cx("col-4")}>
+                            <div className={cx('col')}>
                                 <div className={cx('col')}>
-                                    <label htmlFor="start">Start Time</label>
+                                    <label>Region edit</label>
+                                </div>
+                                <div className={cx("col")}>
+                                    <button type="submit" className={cx("btn btn-success btn-block w-100")}>
+                                        Save
+                                    </button>
                                 </div>
                                 <div className={cx('col')}>
-                                    <input className={cx("form-control")} id="start_time" />
+                                    <label>or</label>
+                                </div>
+                                <div className={cx("col")}>
+                                    <button
+                                        type="button"
+                                        className={cx("btn btn-block btn-danger w-100")}
+                                        data-action="delete-region"
+                                    >
+                                        Delete
+                                    </button>
                                 </div>
                             </div>
                         </div>
 
-                        <div className={cx("form-group")}>
-                            <div className={cx('row')}>
-                                <div className={cx('col')}>
-                                    <label htmlFor="end">End Time</label>
-                                </div>
-                                <div className={cx('col')}>
-                                    <input className={cx("form-control")} id="end_time" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className={cx("form-group")}>
-                            <label htmlFor="description">Description</label>
-                            <textarea
-                                className={cx("form-control")}
-                                id="description"
-                                name="description"
-                                rows={5}
-                            />
-                        </div>
-
-                        <button type="submit" className={cx("btn btn-success btn-block")}>
-                            Save
-                        </button>
-                        <button
-                            type="button"
-                            className={cx("btn btn-danger btn-block")}
-                            data-action="delete-region"
-                        >
-                            Delete
-                        </button>
-                    </form>
+                    </div>
                 </div>
 
-                <div className={cx("col-sm-8")}>
+                <div className={cx("col-sm-3")}>
                     {dataTable && (
                         <Table
+                            pagination={{ pageSize: 5 }}
                             dataSource={dataTable}
                             columns={[
-                                { title: "Index", dataIndex: "id", key: "id" },
+                                // { title: "Index", dataIndex: "id", key: "id" },
                                 {
                                     title: "Start Time",
                                     dataIndex: "start_time",
@@ -575,24 +562,24 @@ function Waveform(props) {
                                     dataIndex: "description",
                                     key: "description",
                                 },
-                                {
-                                    title: "Color",
-                                    dataIndex: "color",
-                                    key: "color",
-                                    render: (_, { color }) => (
-                                        <>
-                                            <Tag color={color} key={color}>
-                                                {color}
-                                            </Tag>
-                                        </>
-                                    ),
-                                },
+                                // {
+                                //     title: "Color",
+                                //     dataIndex: "color",
+                                //     key: "color",
+                                //     render: (_, { color }) => (
+                                //         <>
+                                //             <Tag color={color} key={color}>
+                                //                 {color}
+                                //             </Tag>
+                                //         </>
+                                //     ),
+                                // },
                             ]}
                         ></Table>
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
 
