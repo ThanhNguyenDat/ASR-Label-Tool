@@ -1,7 +1,8 @@
 import classNames from "classnames/bind";
 import { useEffect, useRef, useState } from "react";
-
+// import { WaveSurfer } from 'wavesurfer-react';
 import WaveSurfer from "wavesurfer.js";
+
 import RegionsPlugin from "wavesurfer.js/dist/plugin/wavesurfer.regions.min.js";
 import TimelinePlugin from "wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js";
 import MinimapPlugin from "wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js";
@@ -46,6 +47,8 @@ function Waveform(props) {
             }
         }
     });
+
+    useHotkeys(["command+c", "ctrl+c"], () => { })
 
     useHotkeys("alt+r", () => {
         setIsReplaying(isReplaying => !isReplaying)
@@ -134,38 +137,29 @@ function Waveform(props) {
             });
 
             wavesurfer.on("region-created", function (region) {
-                const wavesurferArray = Object.entries(wavesurfer.regions.list);
-                wavesurferArray.filter(([key, r]) => {
-
-                    if ((r.start <= region.start && region.start <= r.end) ||
-                        (r.start <= region.end && region.end <= r.end) ||
-                        (region.start <= r.start && r.start <= region.end) ||
-                        (region.start <= r.end && r.end <= region.end)) {
-                        console.log("overlap");
-                    }
-                })
-                // const overlappingRegions = wavesurfer.regions.list.filter(
-                //     (r) => r !== region && region.intersects(r)
-                // );
-                // console.log("region: ", overlappingRegions);
-                // if (overlappingRegions.length > 0) {
-                //     console.log("Region overlapping");
-                // }
-
                 region.update({
                     color: randomColor(0.6),
                 });
+
+                // const isOverlapping = Object.values(wavesurfer.regions.list).some(function (r) {
+                //     return region !== r && region.overlap(r);
+                // })
+                // if (isOverlapping) {
+                //     console.log("overlap");
+                // }
+
+
             });
 
             // autoPlay labeled region when click
-            wavesurfer.on("region-click", function (region, e) {
-                e.stopPropagation();
+            wavesurfer.on("region-click", function (region, event) {
+                event.stopPropagation();
                 // region.update({
                 //   color: randomColor(0.6),
                 // });
 
                 // Play on dont replay, loop on replay
-                // e.shiftKey ? region.playLoop() : region.play();
+                // event.shiftKey ? region.playLoop() : region.play();
             });
 
             wavesurfer.on("region-dblclick", function (region, e) {
@@ -205,21 +199,12 @@ function Waveform(props) {
             });
 
             // Create new region
-            wavesurfer.on("region-update-end", (region, e) => {
+            wavesurfer.on("region-update-end", (region, event) => {
                 setIsPlaying(true);
                 setSelectedRegion(region);
-
                 region.play();
-                // e.shiftKey ? region.playLoop() : region.play();
-                // if (isReplaying) {
-                //     region.update({
-                //         loop: true
-                //     })
-                // } else {
-                //     region.update({
-                //         loop: false
-                //     })
-                // }
+
+
 
                 if (region.end < region.start || region.end - region.start < 0.08) {
                     // alert("You should expand the labeling region")
@@ -227,17 +212,30 @@ function Waveform(props) {
                 }
             });
 
-
-
             // handle replay
-            wavesurfer.on("region-click", (region, e) => {
+            wavesurfer.on("region-click", (region, event) => {
                 setIsPlaying(true);
                 setSelectedRegion(region);
-                // e.shiftKey ? region.playLoop() : region.play();
-                region.play();
+                // event.shiftKey ? region.playLoop() : region.play();
+
+                if (event.shiftKey) {
+                    console.log("shift key");
+                    region.update({
+                        loop: true
+                    })
+                    // region.playLoop();
+                } else {
+                    console.log("non shift key");
+                    region.update({
+                        loop: false
+                    })
+                    // region.play();
+                }
+                region.play()
 
 
-
+                console.log("wavesurfer", wavesurfer);
+                console.log("region: ", region);
             });
 
             wavesurfer.on("region-play", function (region) {
