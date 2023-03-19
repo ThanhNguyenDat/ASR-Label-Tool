@@ -209,7 +209,8 @@ function Waveform(props) {
                 setIsPlaying(true);
                 setSelectedRegion(region);
                 // event.shiftKey ? region.playLoop() : region.play();
-
+                
+                region.play()
                 if (event.shiftKey || isReplaying) {
                     console.log("shift key");
                     region.update({
@@ -223,7 +224,7 @@ function Waveform(props) {
                     })
                     // region.play();
                 }
-                region.play()
+                
 
                 console.log("wavesurfer", wavesurfer);
                 console.log("region: ", region);
