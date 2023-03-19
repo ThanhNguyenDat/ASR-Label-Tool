@@ -51,7 +51,7 @@ function Waveform(props) {
     useHotkeys(["command+c", "ctrl+c"], () => { })
 
     useHotkeys("alt+r", () => {
-        setIsReplaying(isReplaying => !isReplaying)
+        setIsReplaying(!isReplaying)
         document.getElementById("btn-check-replay").checked = !isReplaying
     })
 
@@ -154,12 +154,6 @@ function Waveform(props) {
             // autoPlay labeled region when click
             wavesurfer.on("region-click", function (region, event) {
                 event.stopPropagation();
-                // region.update({
-                //   color: randomColor(0.6),
-                // });
-
-                // Play on dont replay, loop on replay
-                // event.shiftKey ? region.playLoop() : region.play();
             });
 
             wavesurfer.on("region-dblclick", function (region, e) {
@@ -204,8 +198,6 @@ function Waveform(props) {
                 setSelectedRegion(region);
                 region.play();
 
-
-
                 if (region.end < region.start || region.end - region.start < 0.08) {
                     // alert("You should expand the labeling region")
                     region.remove()
@@ -218,7 +210,7 @@ function Waveform(props) {
                 setSelectedRegion(region);
                 // event.shiftKey ? region.playLoop() : region.play();
 
-                if (event.shiftKey) {
+                if (event.shiftKey || isReplaying) {
                     console.log("shift key");
                     region.update({
                         loop: true
@@ -232,7 +224,6 @@ function Waveform(props) {
                     // region.play();
                 }
                 region.play()
-
 
                 console.log("wavesurfer", wavesurfer);
                 console.log("region: ", region);
@@ -261,6 +252,7 @@ function Waveform(props) {
 
     // Update isReplaying for region chunk
     useEffect(() => {
+        console.log("us: ", isReplaying);
         if (wavesurfer) {
             Object.values(wavesurfer.regions.list).forEach(region => {
                 region.update({
@@ -409,13 +401,11 @@ function Waveform(props) {
         });
 
         console.log("final data: ", data);
-
         // window.AL.pushResult(data)
         // console.log("Push data success");
     };
     const updateForm = (form, region, roundRate = 100) => {
         // update form infor
-        // const roundRate = 100;
         form.elements.start_time.value = Math.round(region.start * roundRate) / roundRate;
         form.elements.end_time.value = Math.round(region.end * roundRate) / roundRate;
         form.elements.description.value = region.data.note || "";
