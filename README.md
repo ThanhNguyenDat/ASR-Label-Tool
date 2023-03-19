@@ -39,4 +39,5 @@ Alt + r
 ### Shift click
 
 click -> play
+
 shit + click -> play with replay
