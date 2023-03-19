@@ -11,16 +11,18 @@ import { Table, Tag } from "antd";
 import styles from "./Waveform.scss";
 
 import { randomColor } from "../../utils/randomColor";
+import { useHotkeys } from "react-hotkeys-hook";
 
 
 const cx = classNames.bind(styles);
 
 function Waveform(props) {
-    console.log('wave component: ', window.AL);
+    // console.log('wave component: ', window.AL);
 
     let { dataLabels } = props;
 
     const [wavesurfer, setWavesurfer] = useState(null);
+    const [selectedRegion, setSelectedRegion] = useState(null);
 
     const [lengthWavesurfer, setLengthWavesurfer] = useState(0);
     const [dataTable, setDataTable] = useState([]);
@@ -34,6 +36,28 @@ function Waveform(props) {
 
     const waveRef = useRef(null);
     const timelineRef = useRef(null);
+
+    useHotkeys("space", () => {
+        if (wavesurfer) {
+            if (wavesurfer.isPlaying()) {
+                wavesurfer.pause();
+            } else {
+                wavesurfer.play();
+            }
+        }
+    });
+
+    useHotkeys("alt+r", () => {
+        setIsReplaying(isReplaying => !isReplaying)
+        document.getElementById("btn-check-replay").checked = !isReplaying
+    })
+
+    useHotkeys("delete", () => {
+        if (wavesurfer && selectedRegion) {
+            wavesurfer.regions.list[selectedRegion.id].remove();
+            setSelectedRegion(null);
+        }
+    })
 
     useEffect(() => {
         if (dataLabels) {
@@ -77,6 +101,7 @@ function Waveform(props) {
             // audio loaded data
             wavesurferInstance.on("ready", function (region) {
                 wavesurferInstance.enableDragSelection({
+                    slop: 5,
                     color: randomColor(0.1),
                 });
 
@@ -98,15 +123,7 @@ function Waveform(props) {
 
     // handle event and regions
     useEffect(() => {
-        /**
-         * Display annotation.
-         */
-        function showNote(region) {
-            if (!showNote.el) {
-                showNote.el = document.querySelector("#subtitle");
-            }
-            showNote.el.textContent = region.data.note || "-";
-        }
+
 
         if (wavesurfer) {
             // enable drag select
@@ -117,6 +134,23 @@ function Waveform(props) {
             });
 
             wavesurfer.on("region-created", function (region) {
+                const wavesurferArray = Object.entries(wavesurfer.regions.list);
+                wavesurferArray.filter(([key, r]) => {
+
+                    if ((r.start <= region.start && region.start <= r.end) ||
+                        (r.start <= region.end && region.end <= r.end) ||
+                        (region.start <= r.start && r.start <= region.end) ||
+                        (region.start <= r.end && r.end <= region.end)) {
+                        console.log("overlap");
+                    }
+                })
+                // const overlappingRegions = wavesurfer.regions.list.filter(
+                //     (r) => r !== region && region.intersects(r)
+                // );
+                // console.log("region: ", overlappingRegions);
+                // if (overlappingRegions.length > 0) {
+                //     console.log("Region overlapping");
+                // }
 
                 region.update({
                     color: randomColor(0.6),
@@ -143,21 +177,11 @@ function Waveform(props) {
             // edit annotaion
             wavesurfer.on("region-click", editAnnotaion);
 
-            // wavesurfer.on("region-play", function (region) {
-            //   region.once("out", function () {
-            //     console.log("is replay: ", isReplaying);
-            //     isReplaying ? setIsPlaying(true) : setIsPlaying(false);
-            //   });
-            // });
-
-            // show description in head
-            // wavesurfer.on("region-in", showNote);
 
             // delete region
             const delete_region = document.querySelector(
                 '[data-action="delete-region"]'
             );
-
             delete_region.addEventListener("click", deleteAnnotaion);
             return () => {
                 delete_region.removeEventListener("click", deleteAnnotaion);
@@ -181,20 +205,21 @@ function Waveform(props) {
             });
 
             // Create new region
-            wavesurfer.on("region-update-end", (region) => {
-
+            wavesurfer.on("region-update-end", (region, e) => {
                 setIsPlaying(true);
-                region.play();
+                setSelectedRegion(region);
 
-                if (isReplaying) {
-                    region.update({
-                        loop: true
-                    })
-                } else {
-                    region.update({
-                        loop: false
-                    })
-                }
+                region.play();
+                // e.shiftKey ? region.playLoop() : region.play();
+                // if (isReplaying) {
+                //     region.update({
+                //         loop: true
+                //     })
+                // } else {
+                //     region.update({
+                //         loop: false
+                //     })
+                // }
 
                 if (region.end < region.start || region.end - region.start < 0.08) {
                     // alert("You should expand the labeling region")
@@ -202,11 +227,16 @@ function Waveform(props) {
                 }
             });
 
-            // handle replay
-            wavesurfer.on("region-click", (region) => {
-                setIsPlaying(true);
 
+
+            // handle replay
+            wavesurfer.on("region-click", (region, e) => {
+                setIsPlaying(true);
+                setSelectedRegion(region);
+                // e.shiftKey ? region.playLoop() : region.play();
                 region.play();
+
+
 
             });
 
@@ -217,7 +247,6 @@ function Waveform(props) {
             });
         }
     }, [isReplaying, lengthWavesurfer, wavesurfer]);
-
 
     /**
      * Handle Replay a region with btn-check-replay
@@ -320,6 +349,7 @@ function Waveform(props) {
      */
     function deleteAnnotaion() {
         let form = document.getElementById("editForm");
+
         let regionId = form.dataset.region;
         if (regionId) {
             wavesurfer.regions.list[regionId].remove();
