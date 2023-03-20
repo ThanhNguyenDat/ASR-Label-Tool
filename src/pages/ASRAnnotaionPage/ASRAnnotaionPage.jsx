@@ -61,7 +61,7 @@ const data = {
 function ASRAnnotaionPage(props) {
     console.log('wave page: ', window.AL);
     const [dataLabels, setDataLabels] = useState({})
-
+    console.log("data as: ", dataLabels);
     useEffect(() => {
         if (window.AL) {
             console.log(window.AL);
@@ -79,6 +79,7 @@ function ASRAnnotaionPage(props) {
         // audioUrl: audioUrl,
         // annotations: annotations,
         dataLabels: data || {}, // dataLabels
+        setDataLabels: setDataLabels,
         ...props
     }
 

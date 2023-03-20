@@ -20,7 +20,7 @@ const cx = classNames.bind(styles);
 function Waveform(props) {
     // console.log('wave component: ', window.AL);
 
-    let { dataLabels } = props;
+    let { dataLabels, setDataLabels } = props;
 
     const [wavesurfer, setWavesurfer] = useState(null);
     const [selectedRegion, setSelectedRegion] = useState(null);
@@ -136,7 +136,7 @@ function Waveform(props) {
                 });
             });
 
-            wavesurfer.on("region-created", function (region) {
+            wavesurfer.on("region-created", function (region, event) {
                 region.update({
                     color: randomColor(0.6),
                 });
@@ -156,14 +156,17 @@ function Waveform(props) {
                 event.stopPropagation();
             });
 
-            wavesurfer.on("region-dblclick", function (region, e) {
+            wavesurfer.on("region-dblclick", function (region, event) {
                 region.update({
                     color: randomColor(0.6),
                 });
             });
 
             // edit annotaion
-            wavesurfer.on("region-click", editAnnotaion);
+            wavesurfer.on("region-click", (region, event) => {
+                event.preventDefault();
+                editAnnotaion(region);
+            });
 
 
             // delete region
@@ -209,7 +212,7 @@ function Waveform(props) {
                 setIsPlaying(true);
                 setSelectedRegion(region);
                 // event.shiftKey ? region.playLoop() : region.play();
-                
+
                 region.play()
                 if (event.shiftKey || isReplaying) {
                     console.log("shift key");
@@ -224,7 +227,7 @@ function Waveform(props) {
                     })
                     // region.play();
                 }
-                
+
 
                 console.log("wavesurfer", wavesurfer);
                 console.log("region: ", region);
@@ -253,7 +256,6 @@ function Waveform(props) {
 
     // Update isReplaying for region chunk
     useEffect(() => {
-        console.log("us: ", isReplaying);
         if (wavesurfer) {
             Object.values(wavesurfer.regions.list).forEach(region => {
                 region.update({
@@ -335,6 +337,99 @@ function Waveform(props) {
         form.dataset.region = region.id;
     }
 
+
+
+    const data = {
+        "annotations": [
+            {
+                "class_id": 3579,
+                "class_name": "Human",
+                "content": {
+                    "index": 0, // start
+                    "length": 2, // end - start
+                    "text": "alo" // description
+                },
+                "extra": {
+                    "hard_level": 1,
+                    "classify": "noise"
+                }
+            },
+            {
+                "class_id": 3579,
+                "class_name": "Human",
+                "content": {
+                    "index": 2,
+                    "length": 0.5,
+                    "text": "1234"
+                },
+                "extra": {
+                    "hard_level": 0,
+                    "classify": "normal"
+                }
+            }
+        ],
+        "data": [
+            {
+                "data_cat_id": 2,
+                "dataset_id": 1970,
+                "seed": 380,
+                "id": 2677,
+                "file_name": "https://assets.mixkit.co/active_storage/sfx/1714/1714-preview.mp3" //url
+            }
+        ]
+    }
+
+    const formatDataAnnotaions = (wavesurfer) => {
+        if (wavesurfer) {
+            const waveArray = Object.values(wavesurfer.regions.list)
+            const formatted = waveArray.map((region, index) => {
+                return {
+                    "class_id": 3579,
+                    "class_name": "Human",
+                    "content": {
+                        "index": region.start, // start
+                        "length": region.end - region.start, // end - start
+                        "text": region.data.note || "" // description
+                    },
+                    "extra": {
+                        "hard_level": 1,
+                        "classify": "noise"
+                    }
+                }
+            })
+            return formatted
+        }
+    }
+
+    const handleSaveRegion = (event) => {
+        if (selectedRegion) {
+            event.preventDefault();
+            let form = document.getElementById("editForm")
+            const start = form.elements.start_time.value;
+            const end = form.elements.end_time.value;
+            if (end > start) {
+                selectedRegion.update({
+                    start: start,
+                    end: end,
+                    data: {
+                        note: form.elements.description.value,
+                    },
+                });
+            } else {
+                // alert("End time must be greater start time");
+                form.elements.start_time.value = selectedRegion.start; // Math.round(region.start * 10) / 10;
+                form.elements.end_time.value = selectedRegion.end; // Math.round(region.end * 10) / 10;
+            }
+
+            const list_formatted_anns = formatDataAnnotaions(wavesurfer)
+            dataLabels["annotations"] = list_formatted_anns
+            // console.log("data labels: ", dataLabels);
+            setDataLabels(dataLabels)
+            // console.log("on save: ", wavesurfer);
+            // format data
+        }
+
+    }
     /**
      * Delete annotaion for a region
      */
@@ -403,7 +498,7 @@ function Waveform(props) {
 
         console.log("final data: ", data);
         // window.AL.pushResult(data)
-        // console.log("Push data success");
+        console.log("Push data success");
     };
     const updateForm = (form, region, roundRate = 100) => {
         // update form infor
@@ -541,7 +636,7 @@ function Waveform(props) {
                                             <label></label>
                                         </div>
                                         <div className={cx("col")}>
-                                            <button type="submit" className={cx("btn btn-success btn-block w-100")}>
+                                            <button type="button" onClick={handleSaveRegion} className={cx("btn btn-success btn-block w-100")}>
                                                 Save
                                             </button>
                                         </div>
