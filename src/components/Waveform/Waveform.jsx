@@ -513,10 +513,11 @@ function Waveform(props) {
 
                 <div className={cx("col-sm-10")}>
                     <div className={cx('row')}>
-                        <div className={cx('col')}>
+                        <div className={cx('col')}></div>
+                        <div className={cx('col-5')}>
                             <button
                                 onClick={handlePlayPause}
-                                className={cx("btn btn-primary btn-block w-100")}
+                                className={cx("btn btn-primary btn-block w-100 btn-lg")}
                             >
                                 {isPlaying ? (
                                     <span>
@@ -531,10 +532,11 @@ function Waveform(props) {
                                 )}
                             </button>
                         </div>
-                        <div className={cx('col')}>
+                        <div className={cx('col')}></div>
+                        <div className={cx('col-5')}>
                             <button
                                 onClick={handleSubmit}
-                                className={cx("btn btn-info btn-block w-100")}
+                                className={cx("btn btn-info btn-block w-100 btn-lg")}
                             >
                                 Submit
                             </button>
@@ -551,7 +553,7 @@ function Waveform(props) {
                                 <div className={cx('col-9')}>
                                     <div className={cx("row")}>
                                         <div className={cx("col-4")}>
-                                            <div className={cx("form-group")} style={{ padding: 10 }}>
+                                            <div className={cx("form-group")} style={{ paddingLeft: 10 }}>
                                                 <div className={cx("col")}>
                                                     <div className={cx("row")}>
                                                         <label htmlFor="start_time">Start Time</label>
@@ -561,7 +563,7 @@ function Waveform(props) {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className={cx("form-group")} style={{ padding: 10 }}>
+                                            <div className={cx("form-group")} style={{ paddingLeft: 10, paddingTop: 20 }}>
                                                 <div className={cx('col')}>
                                                     <div className={cx('row')}>
                                                         <label htmlFor="end_time">End Time</label>
@@ -597,10 +599,10 @@ function Waveform(props) {
                                                 Save
                                             </button>
                                         </div>
-                                        <div className={cx('col')}>
+                                        <div className={cx('col')} style={{ paddingTop: 10 }}>
                                             <label>or</label>
                                         </div>
-                                        <div className={cx("col")}>
+                                        <div className={cx("col")} style={{ paddingTop: 10 }}>
                                             <button
                                                 type="button"
                                                 className={cx("btn btn-block btn-danger w-100")}
