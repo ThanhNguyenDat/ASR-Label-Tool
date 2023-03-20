@@ -494,72 +494,73 @@ function Waveform(props) {
             <div className={cx("row")}>
                 <div className={cx("col-sm-9")}>
                     <div className={cx("row")}>
-                        <div className={cx('col-8')}>
-                            <form className={cx("edit form h-100")} id="editForm" >
-                                <div className={cx("row")}>
-                                    <div className={cx("col-4")}>
-                                        <div className={cx("form-group")} style={{ padding: 10 }}>
-                                            <div className={cx("col")}>
-                                                <div className={cx("row")}>
-                                                    <label htmlFor="start_time">Start Time</label>
+                        <form className={cx("edit form h-100")} id="editForm" >
+                            <div className={cx('row')}>
+                                <div className={cx('col-9')}>
+                                    <div className={cx("row")}>
+                                        <div className={cx("col-4")}>
+                                            <div className={cx("form-group")} style={{ padding: 10 }}>
+                                                <div className={cx("col")}>
+                                                    <div className={cx("row")}>
+                                                        <label htmlFor="start_time">Start Time</label>
+                                                    </div>
+                                                    <div className={cx("row")}>
+                                                        <input className={cx("form-control")} id="start_time" />
+                                                    </div>
                                                 </div>
-                                                <div className={cx("row")}>
-                                                    <input className={cx("form-control")} id="start_time" />
+                                            </div>
+                                            <div className={cx("form-group")} style={{ padding: 10 }}>
+                                                <div className={cx('col')}>
+                                                    <div className={cx('row')}>
+                                                        <label htmlFor="end_time">End Time</label>
+                                                    </div>
+                                                    <div className={cx('row')}>
+                                                        <input className={cx("form-control")} id="end_time" />
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className={cx("form-group")} style={{ padding: 10 }}>
-                                            <div className={cx('col')}>
-                                                <div className={cx('row')}>
-                                                    <label htmlFor="end_time">End Time</label>
-                                                </div>
-                                                <div className={cx('row')}>
-                                                    <input className={cx("form-control")} id="end_time" />
-                                                </div>
+                                        <div className={cx("col-8")}>
+                                            <div className={cx("form-group")}>
+                                                <label htmlFor="description">Description</label>
+                                                <textarea
+                                                    className={cx("form-control")}
+                                                    id="description"
+                                                    name="description"
+                                                    rows={5}
+                                                />
                                             </div>
                                         </div>
                                     </div>
+                                </div>
 
-                                    <div className={cx("col-8")}>
-                                        <div className={cx("form-group")}>
-                                            <label htmlFor="description">Description</label>
-                                            <textarea
-                                                className={cx("form-control")}
-                                                id="description"
-                                                name="description"
-                                                rows={5}
-                                            />
+
+                                <div className={cx("col-3")}>
+                                    <div className={cx('col')}>
+                                        <div className={cx('col')}>
+                                            <label></label>
+                                        </div>
+                                        <div className={cx("col")}>
+                                            <button type="submit" className={cx("btn btn-success btn-block w-100")}>
+                                                Save
+                                            </button>
+                                        </div>
+                                        <div className={cx('col')}>
+                                            <label>or</label>
+                                        </div>
+                                        <div className={cx("col")}>
+                                            <button
+                                                type="button"
+                                                className={cx("btn btn-block btn-danger w-100")}
+                                                data-action="delete-region"
+                                            >
+                                                Delete
+                                            </button>
                                         </div>
                                     </div>
-                                </div>
-                            </form>
-                        </div>
-
-                        <div className={cx("col-4")}>
-                            <div className={cx('col')}>
-                                <div className={cx('col')}>
-                                    <label>Region edit</label>
-                                </div>
-                                <div className={cx("col")}>
-                                    <button type="submit" className={cx("btn btn-success btn-block w-100")}>
-                                        Save
-                                    </button>
-                                </div>
-                                <div className={cx('col')}>
-                                    <label>or</label>
-                                </div>
-                                <div className={cx("col")}>
-                                    <button
-                                        type="button"
-                                        className={cx("btn btn-block btn-danger w-100")}
-                                        data-action="delete-region"
-                                    >
-                                        Delete
-                                    </button>
                                 </div>
                             </div>
-                        </div>
-
+                        </form>
                     </div>
                 </div>
 
