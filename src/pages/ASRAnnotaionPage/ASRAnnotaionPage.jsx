@@ -1,9 +1,9 @@
 import classNames from "classnames/bind";
 import { useEffect, useState } from "react";
 
-import Waveform from "../../components/Waveform"
-
-import useScript from "../../hooks/useScript";
+// import Waveform from "../../components/Waveform"
+import Waveform from "@components/Waveform";
+import useScript from "@hooks/useScript";
 
 import style from "./ASRAnnotaionPage.scss";
 

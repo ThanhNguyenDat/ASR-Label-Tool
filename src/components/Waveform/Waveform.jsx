@@ -11,7 +11,7 @@ import { Table, Tag } from "antd";
 
 import styles from "./Waveform.scss";
 
-import { randomColor } from "../../utils/randomColor";
+import { randomColor } from "@utils/randomColor";
 import { useHotkeys } from "react-hotkeys-hook";
 
 
@@ -381,9 +381,10 @@ function Waveform(props) {
             }
 
             const list_formatted_anns = formatDataAnnotaions(wavesurfer)
-            dataLabels["annotations"] = list_formatted_anns
+
+            // dataLabels["annotations"] = list_formatted_anns
             // console.log("data labels: ", dataLabels);
-            setDataLabels(dataLabels)
+            // setDataLabels(dataLabels)
             // console.log("on save: ", wavesurfer);
             // format data
         }
