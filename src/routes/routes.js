@@ -2,9 +2,9 @@ import ASRAnnotaionPage from "../pages/ASRAnnotaionPage/ASRAnnotaionPage";
 import HomePage from "../pages/HomePage";
 
 const routes = {
-  home: "/",
+  home: "/react_label_ui",
 
-  label: "/ui/asr",
+  label: "/react_label_ui/ui/asr",
 };
 
 // Public routes
