@@ -338,47 +338,6 @@ function Waveform(props) {
     }
 
 
-
-    const data = {
-        "annotations": [
-            {
-                "class_id": 3579,
-                "class_name": "Human",
-                "content": {
-                    "index": 0, // start
-                    "length": 2, // end - start
-                    "text": "alo" // description
-                },
-                "extra": {
-                    "hard_level": 1,
-                    "classify": "noise"
-                }
-            },
-            {
-                "class_id": 3579,
-                "class_name": "Human",
-                "content": {
-                    "index": 2,
-                    "length": 0.5,
-                    "text": "1234"
-                },
-                "extra": {
-                    "hard_level": 0,
-                    "classify": "normal"
-                }
-            }
-        ],
-        "data": [
-            {
-                "data_cat_id": 2,
-                "dataset_id": 1970,
-                "seed": 380,
-                "id": 2677,
-                "file_name": "https://assets.mixkit.co/active_storage/sfx/1714/1714-preview.mp3" //url
-            }
-        ]
-    }
-
     const formatDataAnnotaions = (wavesurfer) => {
         if (wavesurfer) {
             const waveArray = Object.values(wavesurfer.regions.list)
