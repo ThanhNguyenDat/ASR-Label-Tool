@@ -148,7 +148,7 @@ function Waveform(props) {
                 //     console.log("overlap");
                 // }
 
-
+                // setSelectedRegion(region)
             });
 
             // autoPlay labeled region when click
@@ -192,7 +192,7 @@ function Waveform(props) {
                 // update form infor
                 let form = document.getElementById("editForm");
                 updateForm(form, region)
-
+                setSelectedRegion(region)
             });
 
             // Create new region
@@ -407,8 +407,6 @@ function Waveform(props) {
     const replayRegion = (event) => {
         console.log("checkbox replay: ", event.target.checked);
         setIsReplaying(event.target.checked);
-
-
     };
 
     /**
