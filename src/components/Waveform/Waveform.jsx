@@ -294,8 +294,8 @@ function Waveform(props) {
             return {
                 key: index,
                 id: index,
-                start_time: Math.round(region.start + 100) / 100,
-                end_time: Math.round(region.end + 100) / 100,
+                start_time: Math.round(region.start * 100) / 100,
+                end_time: Math.round(region.end * 100) / 100,
                 description: region.data.note,
                 color: region.color,
             };
