@@ -20,7 +20,9 @@ const cx = classNames.bind(styles);
 function Waveform(props) {
     // console.log('wave component: ', window.AL);
 
-    let { dataLabels, setDataLabels } = props;
+    let { dataLabels, setDataLabels, commonInfo } = props;
+    const [dataLabelInfo, setDataLabelInfo] = useState({})
+
 
     const [wavesurfer, setWavesurfer] = useState(null);
     const [selectedRegion, setSelectedRegion] = useState(null);
@@ -64,8 +66,15 @@ function Waveform(props) {
 
     useEffect(() => {
         if (dataLabels) {
-            if (dataLabels.hasOwnProperty('data')) {
+            if (dataLabels.hasOwnProperty('data') && dataLabels['data'].length > 0) {
                 setAudioUrl(dataLabels['data'][0]['file_name']) // set first data item
+                const _data_label_info = {}
+                _data_label_info['data_cat_id'] = dataLabels['data'][0]['data_cat_id']
+                _data_label_info['dataset_id'] = dataLabels['data'][0]['dataset_id']
+                _data_label_info['seed'] = dataLabels['data'][0]['seed']
+                _data_label_info['item_id'] = dataLabels['data'][0]['id']
+                setDataLabelInfo(_data_label_info)
+                
             }
 
             if (dataLabels.hasOwnProperty('annotations')) {
@@ -343,17 +352,18 @@ function Waveform(props) {
             const waveArray = Object.values(wavesurfer.regions.list)
             const formatted = waveArray.map((region, index) => {
                 return {
-                    "class_id": 3579,
-                    "class_name": "Human",
-                    "content": {
-                        "index": region.start, // start
-                        "length": region.end - region.start, // end - start
+                    "class_id": commonInfo[0].id,
+                    "class_name": "noise",
+                    "tag": {
+                        "index": parseInt(region.start*1000), // start
+                        "length": parseInt((region.end - region.start)*1000), // end - start
                         "text": region.data.note || "" // description
                     },
                     "extra": {
                         "hard_level": 1,
                         "classify": "noise"
-                    }
+                    },
+                    ...dataLabelInfo
                 }
             })
             return formatted
@@ -381,10 +391,10 @@ function Waveform(props) {
             }
 
             const list_formatted_anns = formatDataAnnotaions(wavesurfer)
-            dataLabels["annotations"] = list_formatted_anns
-            // console.log("data labels: ", dataLabels);
-            setDataLabels(dataLabels)
-            // console.log("on save: ", wavesurfer);
+            setDataLabels({
+                data: dataLabels['data'],
+                annotations: list_formatted_anns
+            })
             // format data
         }
 
@@ -456,6 +466,9 @@ function Waveform(props) {
         });
 
         console.log("final data: ", data);
+        
+        // setDataLabels({})
+        console.log("updated set data label: ", data);
         // window.AL.pushResult(data)
         console.log("Push data success");
     };

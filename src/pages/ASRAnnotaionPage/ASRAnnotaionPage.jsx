@@ -60,19 +60,101 @@ const data = {
 
 function ASRAnnotaionPage(props) {
     console.log('wave page: ', window.AL);
-    const [dataLabels, setDataLabels] = useState(data)
+    const [commonInfo, setCommonInfo] = useState([])
+    const [dataLabels, setDataLabels] = useState({
+        'annotations': [],
+        'data': [],
+    })
 
     useEffect(() => {
+        console.log('on change use effect ')
         if (window.AL) {
-            console.log(window.AL);
             console.log("receive data");
-            window.AL.onReceiveData(function (data) {
-                // setDataLabels(data)
-                console.log("data load: ", data);
+            console.log("data push result before onReceiveRequestResult : dataLabels ", dataLabels);
+            window.AL.onReceiveRequestResult(function (data) {
+                
+                const final_annotations = dataLabels['annotations']
+                // window.AL.pushResultFail();
+                console.log('alo onReceiveRequestResult ')
+                console.log("data push result: dataLabels ", dataLabels);
+                // window.AL.pushResultFail();
+                window.AL.pushResult({'postags': final_annotations, 'fetch_number': 1});
+                // window.AL.pushResult({'postags': dataLabels['annotations'], 'fetch_number': 1});
+
+                console.log('after push result')
+                
             })
+            console.log('hi')
+            window.AL.onReceiveData(function (data) {
+                console.log('onReceiveData', data)
+                // setDataLabels(data)
+                if (data.length > 0) {
+                    setDataLabels(data[0])
+                } 
+                
+            })
+
+            window.AL.onPushResultFail(function (data) {
+                alert('fail to push' + data['message']);
+            });
+
+            window.AL.onReceiveCommonInfo(function (data) {
+                console.log('onReceiveCommonInfo in', data)
+                var classes = data['classes'];
+                setCommonInfo(classes)
+                AL.pushSettings({'settings': [
+                    {
+                        'type': 'text', 
+                        'id': 1,
+                        'name': 'Video Name', 
+                        'options': []
+                    },
+                    {
+                        'type': 'text', 
+                        'id': 2,
+                        'name': 'Frame ID', 
+                        'options': []
+                    },
+                ]});
+                console.log('onReceiveCommonInfo out ', data)
+                
+            });
+
+            window.AL.onUpdateSelectClass(function (data) {
+                console.log('onUpdateSelectClass data', data)
+                
+            });
+
+            window.AL.onReceiveRequestResetCurrent(function (data) {
+                console.log('onReceiveRequestResetCurrent ', data)
+            });
+            
             console.log("receive data success");
         }
-    }, [])
+    }, [dataLabels.annotations])
+
+    // useEffect(() => {
+    //     const script = document.createElement("script")
+    //     script.innerHTML = `
+    //     window.AL.onReceiveData(function (data) {
+    //         console.log('onReceiveData')
+    //         console.log(data);
+    //     })
+    //     `
+    //     // mount
+    //     document.body.appendChild(script);
+    //     // }
+
+    //     console.log("window AL: ", window.AL);
+    //     // unmount
+    //     return () => {
+    //         // if (props.head) {
+    //         //   document.head.removeChild(script);
+    //         // } else {
+    //         document.body.removeChild(script);
+    //         // }
+    //     };
+    // })
 
     // update props
     props = {
@@ -80,6 +162,7 @@ function ASRAnnotaionPage(props) {
         // annotations: annotations,
         dataLabels: dataLabels || {}, // dataLabels
         setDataLabels: setDataLabels,
+        commonInfo: commonInfo,
         ...props
     }
 
