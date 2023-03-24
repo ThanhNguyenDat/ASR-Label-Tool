@@ -60,8 +60,14 @@ const data = {
 
 function ASRAnnotaionPage(props) {
     console.log('wave page: ', window.AL);
-    const [commonInfo, setCommonInfo] = useState([data])
+    const [commonInfo, setCommonInfo] = useState([
+        { color: '#474747', description: 'Other class', id: 3709, name: 'Other' },
+        { color: '#0000FF', description: 'noise', id: 3710, name: 'noise' }
+    ])
+
     const [dataLabels, setDataLabels] = useState(data)
+
+    // const [commonInfo, setCommonInfo] = useState([])
     // const [dataLabels, setDataLabels] = useState({
     //     'annotations': [],
     //     'data': [],

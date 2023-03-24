@@ -366,7 +366,7 @@ function Waveform(props) {
             const waveArray = Object.values(wavesurfer.regions.list)
             const formatted = waveArray.map((region, index) => {
                 return {
-                    "class_id": 123,//commonInfo[0].id,
+                    "class_id": commonInfo[0].id,
                     "class_name": "Human",
                     "tag": {
                         "index": parseInt(region.start * 1000), // start
