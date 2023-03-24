@@ -200,6 +200,11 @@ function Waveform(props) {
      */
     useEffect(() => {
         if (wavesurfer) {
+            wavesurfer.on("region-created", () => {
+                updateDataAnnotations(wavesurfer)
+                console.log("wavesufer update: ", wavesurfer.regions.list);
+            })
+
             // Set Annotaions and Length Wavesurfer
             wavesurfer.on("region-updated", (region) => {
                 updateLengthWavesurfer(wavesurfer);
@@ -280,6 +285,9 @@ function Waveform(props) {
         }
     }, [isReplaying, wavesurfer])
 
+
+
+
     /**
      * Load annotations
      */
@@ -358,7 +366,7 @@ function Waveform(props) {
             const waveArray = Object.values(wavesurfer.regions.list)
             const formatted = waveArray.map((region, index) => {
                 return {
-                    "class_id": commonInfo[0].id,
+                    "class_id": 123,//commonInfo[0].id,
                     "class_name": "Human",
                     "tag": {
                         "index": parseInt(region.start * 1000), // start
@@ -374,6 +382,14 @@ function Waveform(props) {
             })
             return formatted
         }
+    }
+
+    const updateDataAnnotations = (wavesurfer) => {
+        const list_formatted_anns = formatDataAnnotaions(wavesurfer)
+        setDataLabels({
+            data: dataLabels['data'],
+            annotations: list_formatted_anns
+        })
     }
 
     const handleSaveRegion = (event) => {
@@ -402,11 +418,13 @@ function Waveform(props) {
             // setDataLabels(dataLabels)
             // console.log("on save: ", wavesurfer);
             // format data
-            const list_formatted_anns = formatDataAnnotaions(wavesurfer)
-            setDataLabels({
-                data: dataLabels['data'],
-                annotations: list_formatted_anns
-            })
+
+            // const list_formatted_anns = formatDataAnnotaions(wavesurfer)
+            // setDataLabels({
+            //     data: dataLabels['data'],
+            //     annotations: list_formatted_anns
+            // })
+            updateDataAnnotations(wavesurfer)
         }
 
     }

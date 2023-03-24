@@ -60,12 +60,12 @@ const data = {
 
 function ASRAnnotaionPage(props) {
     console.log('wave page: ', window.AL);
-    const [commonInfo, setCommonInfo] = useState([])
-    // const [dataLabels, setDataLabels] = useState(data)
-    const [dataLabels, setDataLabels] = useState({
-        'annotations': [],
-        'data': [],
-    })
+    const [commonInfo, setCommonInfo] = useState([data])
+    const [dataLabels, setDataLabels] = useState(data)
+    // const [dataLabels, setDataLabels] = useState({
+    //     'annotations': [],
+    //     'data': [],
+    // })
 
     useEffect(() => {
         console.log('on change use effect ')
