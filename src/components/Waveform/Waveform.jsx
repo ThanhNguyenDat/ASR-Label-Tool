@@ -114,6 +114,10 @@ function Waveform(props) {
 
                 // load annotations
                 if (annotations.length > 0) {
+                    // clear all regions in wavesurfer
+                    wavesurferInstance.clearRegions();
+
+                    // load new anntations
                     loadRegions(annotations, wavesurferInstance);
                     updateLengthWavesurfer(wavesurferInstance);
                 }
@@ -126,7 +130,7 @@ function Waveform(props) {
         return () => {
             wavesurferInstance.destroy();
         };
-    }, [audioUrl]);
+    }, [dataLabel[0]['file_name']]);
 
     // handle event and regions
     useEffect(() => {
@@ -392,6 +396,7 @@ function Waveform(props) {
         form.elements.end_time.value = Math.round(region.end * roundRate) / roundRate;
         form.elements.description.value = region.data.note || "";
     }
+
     return (
         <div className={cx("container overflow-hidden")}>
             <div className={cx("row")}>

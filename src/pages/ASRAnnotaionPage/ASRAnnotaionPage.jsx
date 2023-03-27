@@ -92,10 +92,9 @@ function ASRAnnotaionPage(props) {
             window.AL.onReceiveData(function (data) {
                 console.log('onReceiveData', data)
                 if (data.length > 0) {
-
-                    // update data - url - annotations
-                    setAnnotations(data[0]['annotations'])
+                    // update data - annotations
                     setDataLabel(data[0]['data'])
+                    setAnnotations(data[0]['annotations'])
                 }
 
             })
