@@ -63,16 +63,12 @@ function ASRAnnotaionPage(props) {
         { color: '#474747', description: 'Other class', id: 3709, name: 'Other' },
         { color: '#0000FF', description: 'noise', id: 3710, name: 'noise' }
     ])
-    // const [dataLabels, setDataLabels] = useState(data)
-
     const [dataLabel, setDataLabel] = useState(data['data']);
     const [annotations, setAnnotations] = useState(data['annotations']);
 
     // const [commonInfo, setCommonInfo] = useState([])
-    // const [dataLabels, setDataLabels] = useState({
-    //     'annotations': [],
-    //     'data': [],
-    // })
+    // const [dataLabel, setDataLabel] = useState([]);
+    // const [annotations, setAnnotations] = useState([]);
 
     // Full flow when anntations change
     useEffect(() => {
