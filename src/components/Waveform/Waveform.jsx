@@ -20,8 +20,8 @@ const cx = classNames.bind(styles);
 function Waveform(props) {
     // console.log('wave component: ', window.AL);
 
-    let { dataLabels, setDataLabels, commonInfo } = props;
-    const [dataLabelInfo, setDataLabelInfo] = useState({})
+    let { commonInfo, dataLabel, annotations, setAnnotations } = props;
+    // const [dataLabelInfo, setDataLabelInfo] = useState({})
 
     const [wavesurfer, setWavesurfer] = useState(null);
     const [selectedRegion, setSelectedRegion] = useState(null);
@@ -29,8 +29,7 @@ function Waveform(props) {
     const [lengthWavesurfer, setLengthWavesurfer] = useState(0);
     const [dataTable, setDataTable] = useState([]);
 
-    const [audioUrl, setAudioUrl] = useState("")
-    const [annotations, setAnnotations] = useState([])
+    const [audioUrl, setAudioUrl] = useState(dataLabel[0]['file_name'])
 
     const waveRef = useRef(null);
     const timelineRef = useRef(null);
@@ -54,23 +53,30 @@ function Waveform(props) {
         }
     })
 
-    useEffect(() => {
-        if (dataLabels) {
-            if (dataLabels.hasOwnProperty('data') && dataLabels['data'].length > 0) {
-                setAudioUrl(dataLabels['data'][0]['file_name']) // set first data item
-                const _data_label_info = {}
-                _data_label_info['data_cat_id'] = dataLabels['data'][0]['data_cat_id']
-                _data_label_info['dataset_id'] = dataLabels['data'][0]['dataset_id']
-                _data_label_info['seed'] = dataLabels['data'][0]['seed']
-                _data_label_info['item_id'] = dataLabels['data'][0]['id']
-                setDataLabelInfo(_data_label_info)
-            }
+    // useEffect(() => {
+    //     if (dataLabels) {
+    //         if (dataLabels.hasOwnProperty('data') && dataLabels['data'].length > 0) {
+    //             setAudioUrl(dataLabels['data'][0]['file_name']) // set first data item
+    //             const _data_label_info = {}
+    //             _data_label_info['data_cat_id'] = dataLabels['data'][0]['data_cat_id']
+    //             _data_label_info['dataset_id'] = dataLabels['data'][0]['dataset_id']
+    //             _data_label_info['seed'] = dataLabels['data'][0]['seed']
+    //             _data_label_info['item_id'] = dataLabels['data'][0]['id']
+    //             setDataLabelInfo(_data_label_info)
+    //         }
 
-            if (dataLabels.hasOwnProperty('annotations')) {
-                setAnnotations(dataLabels['annotations'])
-            }
+    //         if (dataLabels.hasOwnProperty('annotations')) {
+    //             setAnnotations(dataLabels['annotations'])
+    //         }
+    //     }
+    // }, [dataLabels])
+
+    useEffect(() => {
+        if (dataLabel.length > 0) {
+            setAudioUrl(dataLabel[0]['file_name'])
         }
-    }, [dataLabels])
+
+    }, [dataLabel])
 
     /*
      * Initial wavesurfer
@@ -107,7 +113,7 @@ function Waveform(props) {
                 });
 
                 // load annotations
-                if (annotations) {
+                if (annotations.length > 0) {
                     loadRegions(annotations, wavesurferInstance);
                     updateLengthWavesurfer(wavesurferInstance);
                 }
@@ -324,22 +330,23 @@ function Waveform(props) {
                         "hard_level": 1,
                         "classify": "noise"
                     },
-                    ...dataLabelInfo
+                    'data_cat_id': dataLabel[0]['data_cat_id'],
+                    'dataset_id': dataLabel[0]['dataset_id'],
+                    'seed': dataLabel[0]['seed'],
+                    'item_id': dataLabel[0]['id'],
                 }
             })
-            console.log("data label inffo: ", dataLabelInfo);
-            console.log("common info: ", commonInfo);
-            console.log("");
             return formatted
         }
     }
 
     const updateDataAnnotations = (wavesurfer) => {
         const list_formatted_anns = formatDataAnnotaions(wavesurfer)
-        setDataLabels({
-            data: dataLabels['data'],
-            annotations: list_formatted_anns
-        })
+        // setDataLabels({
+        //     data: dataLabel,
+        //     annotations: list_formatted_anns
+        // })
+        setAnnotations(list_formatted_anns)
     }
 
     const handleSaveRegion = (event) => {
@@ -395,7 +402,7 @@ function Waveform(props) {
             </div>
 
             <div className={cx('row')}>
-                {Object.keys(dataLabels).length ? (
+                {Object.keys(dataLabel).length ? (
                     <div>
                         <div ref={timelineRef}></div>
                         <div ref={waveRef}></div>

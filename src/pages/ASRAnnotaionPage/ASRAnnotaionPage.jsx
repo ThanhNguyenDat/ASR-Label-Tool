@@ -59,41 +59,47 @@ const data = {
 
 
 function ASRAnnotaionPage(props) {
-    // const [commonInfo, setCommonInfo] = useState([
-    //     { color: '#474747', description: 'Other class', id: 3709, name: 'Other' },
-    //     { color: '#0000FF', description: 'noise', id: 3710, name: 'noise' }
-    // ])
+    const [commonInfo, setCommonInfo] = useState([
+        { color: '#474747', description: 'Other class', id: 3709, name: 'Other' },
+        { color: '#0000FF', description: 'noise', id: 3710, name: 'noise' }
+    ])
     // const [dataLabels, setDataLabels] = useState(data)
 
-    const [commonInfo, setCommonInfo] = useState([])
-    const [dataLabels, setDataLabels] = useState({
-        'annotations': [],
-        'data': [],
-    })
+    const [dataLabel, setDataLabel] = useState(data['data']);
+    const [annotations, setAnnotations] = useState(data['annotations']);
 
+    // const [commonInfo, setCommonInfo] = useState([])
+    // const [dataLabels, setDataLabels] = useState({
+    //     'annotations': [],
+    //     'data': [],
+    // })
+
+    // Full flow when anntations change
     useEffect(() => {
         console.log('on change use effect ')
         if (window.AL) {
             console.log("receive data");
-            console.log("data push result before onReceiveRequestResult : dataLabels ", dataLabels);
+            console.log(`data push result before onReceiveRequestResult : data: ${dataLabel}`);
+            console.log(`data push result before onReceiveRequestResult : annotation: ${annotations}`);
             window.AL.onReceiveRequestResult(function (data) {
-                const final_annotations = dataLabels['annotations']
+                // const final_annotations = annotations
                 // window.AL.pushResultFail();
                 console.log('alo onReceiveRequestResult ')
-                console.log("data push result: dataLabels ", dataLabels);
+                console.log("data push result: dataLabels ", annotations);
                 // window.AL.pushResultFail();
-                window.AL.pushResult({ 'postags': final_annotations, 'fetch_number': 1 });
+                window.AL.pushResult({ 'postags': annotations, 'fetch_number': 1 });
                 // window.AL.pushResult({'postags': dataLabels['annotations'], 'fetch_number': 1});
 
                 console.log('after push result')
-
             })
             console.log('hi')
             window.AL.onReceiveData(function (data) {
                 console.log('onReceiveData', data)
-                // setDataLabels(data)
                 if (data.length > 0) {
-                    setDataLabels(data[0])
+
+                    // update data - url - annotations
+                    setAnnotations(data[0]['annotations'])
+                    setDataLabel(data[0]['data'])
                 }
 
             })
@@ -136,15 +142,18 @@ function ASRAnnotaionPage(props) {
 
             console.log("receive data success");
         }
-    }, [dataLabels.annotations])
+    }, [annotations])
 
     // update props
     const waveform_props = {
         // audioUrl: audioUrl,
         // annotations: annotations,
-        dataLabels: dataLabels || {}, // dataLabels
-        setDataLabels: setDataLabels,
+        // dataLabels: dataLabels || {}, // dataLabels
+        // setDataLabels: setDataLabels,
         commonInfo: commonInfo,
+
+        dataLabel,
+        annotations, setAnnotations,
         ...props
     }
 
