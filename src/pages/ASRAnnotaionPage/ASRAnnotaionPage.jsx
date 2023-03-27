@@ -18,7 +18,7 @@ const cx = classNames.bind(style)
 //   "https://assets.mixkit.co/active_storage/sfx/1714/1714-preview.mp3"; // khoong bi loi
 
 const data = {
-    "annotations": [
+    "annotation": [
         {
             "class_id": 3579,
             "class_name": "Human",
@@ -67,7 +67,11 @@ function ASRAnnotaionPage(props) {
     // const [annotations, setAnnotations] = useState(data['annotations']);
 
     const [commonInfo, setCommonInfo] = useState([])
-    const [dataLabel, setDataLabel] = useState([]);
+    const [dataLabel, setDataLabel] = useState([
+        {
+            "file_name": "https://assets.mixkit.co/active_storage/sfx/1714/1714-preview.mp3" //url
+        }
+    ]);
     const [annotations, setAnnotations] = useState([]);
 
     // Full flow when anntations change
@@ -93,8 +97,11 @@ function ASRAnnotaionPage(props) {
                 console.log('onReceiveData', data)
                 if (data.length > 0) {
                     // update data - annotations
+                    
+                    console.log("data[0] ", data[0])
+
                     setDataLabel(data[0]['data'])
-                    setAnnotations(data[0]['annotations'])
+                    setAnnotations(data[0]['annotation'])
                 }
 
             })
@@ -148,7 +155,8 @@ function ASRAnnotaionPage(props) {
         commonInfo: commonInfo,
 
         dataLabel,
-        annotations, setAnnotations,
+        annotations, 
+        setAnnotations,
         ...props
     }
 

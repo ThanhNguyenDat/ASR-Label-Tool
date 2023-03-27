@@ -29,7 +29,7 @@ function Waveform(props) {
     const [lengthWavesurfer, setLengthWavesurfer] = useState(0);
     const [dataTable, setDataTable] = useState([]);
 
-    const [audioUrl, setAudioUrl] = useState(dataLabel[0]['file_name'])
+    const audioUrl = dataLabel[0]["file_name"]
 
     const waveRef = useRef(null);
     const timelineRef = useRef(null);
@@ -53,30 +53,6 @@ function Waveform(props) {
         }
     })
 
-    // useEffect(() => {
-    //     if (dataLabels) {
-    //         if (dataLabels.hasOwnProperty('data') && dataLabels['data'].length > 0) {
-    //             setAudioUrl(dataLabels['data'][0]['file_name']) // set first data item
-    //             const _data_label_info = {}
-    //             _data_label_info['data_cat_id'] = dataLabels['data'][0]['data_cat_id']
-    //             _data_label_info['dataset_id'] = dataLabels['data'][0]['dataset_id']
-    //             _data_label_info['seed'] = dataLabels['data'][0]['seed']
-    //             _data_label_info['item_id'] = dataLabels['data'][0]['id']
-    //             setDataLabelInfo(_data_label_info)
-    //         }
-
-    //         if (dataLabels.hasOwnProperty('annotations')) {
-    //             setAnnotations(dataLabels['annotations'])
-    //         }
-    //     }
-    // }, [dataLabels])
-
-    useEffect(() => {
-        if (dataLabel.length > 0) {
-            setAudioUrl(dataLabel[0]['file_name'])
-        }
-
-    }, [dataLabel])
 
     /*
      * Initial wavesurfer
@@ -104,24 +80,28 @@ function Waveform(props) {
 
         if (audioUrl) {
             wavesurferInstance.load(audioUrl);
-
             // audio loaded data
             wavesurferInstance.on("ready", function (region) {
                 wavesurferInstance.enableDragSelection({
                     slop: 5,
                     color: randomColor(0.1),
                 });
-
                 // load annotations
-                if (annotations.length > 0) {
-                    // clear all regions in wavesurfer
-                    wavesurferInstance.clearRegions();
+                // if (annotations.length > 0) {
+                //     // clear all regions in wavesurfer
+                //     wavesurferInstance.clearRegions();
 
-                    // load new anntations
-                    loadRegions(annotations, wavesurferInstance);
-                    updateLengthWavesurfer(wavesurferInstance);
-                }
+                //     // load new anntations
+                //     loadRegions(annotations, wavesurferInstance);
+                //     updateLengthWavesurfer(wavesurferInstance);
+                // }
 
+                wavesurferInstance.clearRegions();
+
+                // load new anntations
+                loadRegions(annotations, wavesurferInstance);
+                updateLengthWavesurfer(wavesurferInstance);
+                console.log("wavesurferInstance ready before set", wavesurferInstance)
                 setWavesurfer(wavesurferInstance);
                 // setIsPlaying(false);
             });
@@ -130,7 +110,7 @@ function Waveform(props) {
         return () => {
             wavesurferInstance.destroy();
         };
-    }, [dataLabel[0]['file_name']]);
+    }, [audioUrl]);
 
     // handle event and regions
     useEffect(() => {
@@ -139,12 +119,14 @@ function Waveform(props) {
         if (wavesurfer) {
             // enable drag select
             wavesurfer.on("ready", function (region) {
+                console.log("wave surfer ready")
                 wavesurfer.enableDragSelection({
                     color: randomColor(0.1),
                 });
             });
 
             wavesurfer.on("region-created", function (region, event) {
+                console.log('first function')
                 region.update({
                     color: randomColor(0.6),
                 });
