@@ -264,15 +264,15 @@ function Waveform(props) {
     /**
      * Handle Replay a region with btn-check-replay
      */
-    useEffect(() => {
-        const btn_check_replay = document.getElementById("btn-check-replay");
+    // useEffect(() => {
+    //     const btn_check_replay = document.getElementById("btn-check-replay");
 
-        btn_check_replay.addEventListener("click", replayRegion);
+    //     btn_check_replay.addEventListener("click", replayRegion);
 
-        return () => {
-            btn_check_replay.removeEventListener("click", replayRegion);
-        };
-    }, []);
+    //     return () => {
+    //         btn_check_replay.removeEventListener("click", replayRegion);
+    //     };
+    // }, []);
 
     // Update isReplaying for region chunk
     useEffect(() => {
@@ -443,59 +443,60 @@ function Waveform(props) {
     }
 
     // Handle Replay
-    const replayRegion = (event) => {
-        console.log("checkbox replay: ", event.target.checked);
-        setIsReplaying(event.target.checked);
-    };
+    // const replayRegion = (event) => {
+    //     console.log("checkbox replay: ", event.target.checked);
+    //     setIsReplaying(event.target.checked);
+    // };
 
     /**
      * Handle Play/Pause button
      */
-    const handlePlayPause = () => {
-        if (wavesurfer) {
-            if (isPlaying) {
-                wavesurfer.pause();
-                setIsPlaying(false);
-            } else {
-                wavesurfer.play();
-                setIsPlaying(true);
-            }
-        }
-    };
+    // const handlePlayPause = () => {
+    //     if (wavesurfer) {
+    //         if (isPlaying) {
+    //             wavesurfer.pause();
+    //             setIsPlaying(false);
+    //         } else {
+    //             wavesurfer.play();
+    //             setIsPlaying(true);
+    //         }
+    //     }
+    // };
 
     /*
      * Handle Submit button
      */
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        let full_region_annotaions = Object.values(wavesurfer.regions.list);
+    // const handleSubmit = (event) => {
+    //     event.preventDefault();
+    //     let full_region_annotaions = Object.values(wavesurfer.regions.list);
 
-        // format data
-        const data = full_region_annotaions.map((region, index, array) => {
-            return {
-                "postags": [
-                    {
-                        "class_id": commonInfo[0].id,
-                        "class_name": "Human",
-                        "tag": {
-                            "index": region.start,
-                            "length": region.end - region.start,
-                            "text": region.data.note || ""
-                        },
-                        "extra": {
-                            "hard_level": 0,
-                            "classify": "normal"
-                        }
-                    }
-                ],
-                "fetch_number": 1 // fixed
-            };
-        });
+    //     // format data
+    //     const data = full_region_annotaions.map((region, index, array) => {
+    //         return {
+    //             "postags": [
+    //                 {
+    //                     "class_id": commonInfo[0].id,
+    //                     "class_name": "Human",
+    //                     "tag": {
+    //                         "index": region.start,
+    //                         "length": region.end - region.start,
+    //                         "text": region.data.note || ""
+    //                     },
+    //                     "extra": {
+    //                         "hard_level": 0,
+    //                         "classify": "normal"
+    //                     }
+    //                 }
+    //             ],
+    //             "fetch_number": 1 // fixed
+    //         };
+    //     });
 
-        console.log("final data: ", data);
-        // window.AL.pushResult(data)
-        console.log("Push data success");
-    };
+    //     console.log("final data: ", data);
+    //     // window.AL.pushResult(data)
+    //     console.log("Push data success");
+    // };
+
     const updateForm = (form, region, roundRate = 100) => {
         // update form infor
         form.elements.start_time.value = Math.round(region.start * roundRate) / roundRate;
@@ -526,7 +527,7 @@ function Waveform(props) {
                 }
             </div>
 
-            <div className={cx("row")} style={{ padding: 40 }}>
+            {/* <div className={cx("row")} style={{ padding: 40 }}>
                 <div className={cx("col-sm-2")}>
                     <div className={cx("form-check")}>
                         <div className={cx("row")}>
@@ -547,7 +548,6 @@ function Waveform(props) {
                             </div>
                         </div>
                     </div>
-                    {/* <input type="range" min="1" max="200" value={zoom} onChange={e => setZoom(e.target.value)} /> */}
                 </div>
 
                 <div className={cx("col-sm-10")}>
@@ -582,7 +582,7 @@ function Waveform(props) {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             <div className={cx("row")}>
                 <div className={cx("col-sm-9")}>
