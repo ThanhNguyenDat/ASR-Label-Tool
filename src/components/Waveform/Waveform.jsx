@@ -29,10 +29,6 @@ function Waveform(props) {
     const [lengthWavesurfer, setLengthWavesurfer] = useState(0);
     const [dataTable, setDataTable] = useState([]);
 
-
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [isReplaying, setIsReplaying] = useState(false);
-
     const [audioUrl, setAudioUrl] = useState("")
     const [annotations, setAnnotations] = useState([])
 
@@ -51,11 +47,6 @@ function Waveform(props) {
 
     useHotkeys(["command+c", "ctrl+c"], () => { })
 
-    useHotkeys("alt+r", () => {
-        setIsReplaying(!isReplaying)
-        document.getElementById("btn-check-replay").checked = !isReplaying
-    })
-
     useHotkeys("delete", () => {
         if (wavesurfer && selectedRegion) {
             wavesurfer.regions.list[selectedRegion.id].remove();
@@ -65,13 +56,6 @@ function Waveform(props) {
 
     useEffect(() => {
         if (dataLabels) {
-            // if (dataLabels.hasOwnProperty('data')) {
-            //     setAudioUrl(dataLabels['data'][0]['file_name']) // set first data item
-            // }
-
-            // if (dataLabels.hasOwnProperty('annotations')) {
-            //     setAnnotations(dataLabels['annotations'])
-            // }
             if (dataLabels.hasOwnProperty('data') && dataLabels['data'].length > 0) {
                 setAudioUrl(dataLabels['data'][0]['file_name']) // set first data item
                 const _data_label_info = {}
@@ -129,7 +113,7 @@ function Waveform(props) {
                 }
 
                 setWavesurfer(wavesurferInstance);
-                setIsPlaying(false);
+                // setIsPlaying(false);
             });
         }
 
@@ -154,15 +138,6 @@ function Waveform(props) {
                 region.update({
                     color: randomColor(0.6),
                 });
-
-                // const isOverlapping = Object.values(wavesurfer.regions.list).some(function (r) {
-                //     return region !== r && region.overlap(r);
-                // })
-                // if (isOverlapping) {
-                //     console.log("overlap");
-                // }
-
-                // setSelectedRegion(region)
             });
 
             // autoPlay labeled region when click
@@ -216,7 +191,7 @@ function Waveform(props) {
 
             // Create new region
             wavesurfer.on("region-update-end", (region, event) => {
-                setIsPlaying(true);
+                // setIsPlaying(true);
                 setSelectedRegion(region);
                 region.play();
 
@@ -228,12 +203,12 @@ function Waveform(props) {
 
             // handle replay
             wavesurfer.on("region-click", (region, event) => {
-                setIsPlaying(true);
+                // setIsPlaying(true);
                 setSelectedRegion(region);
                 // event.shiftKey ? region.playLoop() : region.play();
 
                 region.play()
-                if (event.shiftKey || isReplaying) {
+                if (event.shiftKey) {
                     console.log("shift key");
                     region.update({
                         loop: true
@@ -254,38 +229,11 @@ function Waveform(props) {
 
             wavesurfer.on("region-play", function (region) {
                 region.once("out", function () {
-                    isReplaying ? setIsPlaying(true) : setIsPlaying(false);
+                    // isReplaying ? setIsPlaying(true) : setIsPlaying(false);
                 });
             });
         }
-    }, [isReplaying, lengthWavesurfer, wavesurfer]);
-
-    /**
-     * Handle Replay a region with btn-check-replay
-     */
-    useEffect(() => {
-        const btn_check_replay = document.getElementById("btn-check-replay");
-
-        btn_check_replay.addEventListener("click", replayRegion);
-
-        return () => {
-            btn_check_replay.removeEventListener("click", replayRegion);
-        };
-    }, []);
-
-    // Update isReplaying for region chunk
-    useEffect(() => {
-        if (wavesurfer) {
-            Object.values(wavesurfer.regions.list).forEach(region => {
-                region.update({
-                    loop: isReplaying
-                })
-            })
-        }
-    }, [isReplaying, wavesurfer])
-
-
-
+    }, [lengthWavesurfer, wavesurfer]);
 
     /**
      * Load annotations
@@ -379,6 +327,9 @@ function Waveform(props) {
                     ...dataLabelInfo
                 }
             })
+            console.log("data label inffo: ", dataLabelInfo);
+            console.log("common info: ", commonInfo);
+            console.log("");
             return formatted
         }
     }
@@ -410,23 +361,10 @@ function Waveform(props) {
                 form.elements.start_time.value = selectedRegion.start; // Math.round(region.start * 10) / 10;
                 form.elements.end_time.value = selectedRegion.end; // Math.round(region.end * 10) / 10;
             }
-
-
-            // dataLabels["annotations"] = list_formatted_anns
-            // console.log("data labels: ", dataLabels);
-            // setDataLabels(dataLabels)
-            // console.log("on save: ", wavesurfer);
-            // format data
-
-            // const list_formatted_anns = formatDataAnnotaions(wavesurfer)
-            // setDataLabels({
-            //     data: dataLabels['data'],
-            //     annotations: list_formatted_anns
-            // })
             updateDataAnnotations(wavesurfer)
         }
-
     }
+
     /**
      * Delete annotaion for a region
      */
@@ -441,63 +379,6 @@ function Waveform(props) {
         updateLengthWavesurfer(wavesurfer);
     }
 
-    // Handle Replay
-    const replayRegion = (event) => {
-        console.log("checkbox replay: ", event.target.checked);
-        setIsReplaying(event.target.checked);
-    };
-
-    /**
-     * Handle Play/Pause button
-     */
-    const handlePlayPause = () => {
-        if (wavesurfer) {
-            if (isPlaying) {
-                wavesurfer.pause();
-                setIsPlaying(false);
-            } else {
-                wavesurfer.play();
-                setIsPlaying(true);
-            }
-        }
-    };
-
-    /*
-     * Handle Submit button
-     */
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        let full_region_annotaions = Object.values(wavesurfer.regions.list);
-
-        // format data
-        const data = full_region_annotaions.map((region, index, array) => {
-            return {
-                "postags": [
-                    {
-                        "class_id": commonInfo[0].id,
-                        "class_name": "Human",
-                        "tag": {
-                            "index": region.start,
-                            "length": region.end - region.start,
-                            "text": region.data.note || ""
-                        },
-                        "extra": {
-                            "hard_level": 0,
-                            "classify": "normal"
-                        }
-                    }
-                ],
-                "fetch_number": 1 // fixed
-            };
-        });
-
-        console.log("final data: ", data);
-        
-        // setDataLabels({})
-        console.log("updated set data label: ", data);
-        // window.AL.pushResult(data)
-        console.log("Push data success");
-    };
     const updateForm = (form, region, roundRate = 100) => {
         // update form infor
         form.elements.start_time.value = Math.round(region.start * roundRate) / roundRate;
@@ -526,64 +407,6 @@ function Waveform(props) {
                         <div ref={waveRef}></div>
                     </div>)
                 }
-            </div>
-
-            <div className={cx("row")} style={{ padding: 40 }}>
-                <div className={cx("col-sm-2")}>
-                    <div className={cx("form-check")}>
-                        <div className={cx("row")}>
-                            <div className={cx("col")}>
-                                <label
-                                    className={cx("form-check-label")}
-                                    htmlFor="btn-check-replay"
-                                >
-                                    Replay
-                                </label>
-                            </div>
-                            <div className={cx("col")}>
-                                <input
-                                    className={cx("form-check-input")}
-                                    type="checkbox"
-                                    id="btn-check-replay"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                    {/* <input type="range" min="1" max="200" value={zoom} onChange={e => setZoom(e.target.value)} /> */}
-                </div>
-
-                <div className={cx("col-sm-10")}>
-                    <div className={cx('row')}>
-                        <div className={cx('col')}></div>
-                        <div className={cx('col-5')}>
-                            <button
-                                onClick={handlePlayPause}
-                                className={cx("btn btn-primary btn-block w-100 btn-lg")}
-                            >
-                                {isPlaying ? (
-                                    <span>
-                                        <i className={cx("glyphicon glyphicon-pause")}></i>
-                                        Pause
-                                    </span>
-                                ) : (
-                                    <span>
-                                        <i className={cx("glyphicon glyphicon-play")}></i>
-                                        Play
-                                    </span>
-                                )}
-                            </button>
-                        </div>
-                        <div className={cx('col')}></div>
-                        <div className={cx('col-5')}>
-                            <button
-                                onClick={handleSubmit}
-                                className={cx("btn btn-info btn-block w-100 btn-lg")}
-                            >
-                                Submit
-                            </button>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <div className={cx("row")}>
