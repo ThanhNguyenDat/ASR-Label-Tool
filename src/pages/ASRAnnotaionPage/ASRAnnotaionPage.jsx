@@ -1,9 +1,9 @@
 import classNames from "classnames/bind";
 import { useEffect, useState } from "react";
 
-import Waveform from "../../components/Waveform"
-
-import useScript from "../../hooks/useScript";
+// import Waveform from "../../components/Waveform"
+import Waveform from "@components/Waveform";
+import useScript from "@hooks/useScript";
 
 import style from "./ASRAnnotaionPage.scss";
 
@@ -59,7 +59,12 @@ const data = {
 
 
 function ASRAnnotaionPage(props) {
-    console.log('wave page: ', window.AL);
+    // const [commonInfo, setCommonInfo] = useState([
+    //     { color: '#474747', description: 'Other class', id: 3709, name: 'Other' },
+    //     { color: '#0000FF', description: 'noise', id: 3710, name: 'noise' }
+    // ])
+    // const [dataLabels, setDataLabels] = useState(data)
+
     const [commonInfo, setCommonInfo] = useState([])
     const [dataLabels, setDataLabels] = useState({
         'annotations': [],
@@ -72,17 +77,16 @@ function ASRAnnotaionPage(props) {
             console.log("receive data");
             console.log("data push result before onReceiveRequestResult : dataLabels ", dataLabels);
             window.AL.onReceiveRequestResult(function (data) {
-                
                 const final_annotations = dataLabels['annotations']
                 // window.AL.pushResultFail();
                 console.log('alo onReceiveRequestResult ')
                 console.log("data push result: dataLabels ", dataLabels);
                 // window.AL.pushResultFail();
-                window.AL.pushResult({'postags': final_annotations, 'fetch_number': 1});
+                window.AL.pushResult({ 'postags': final_annotations, 'fetch_number': 1 });
                 // window.AL.pushResult({'postags': dataLabels['annotations'], 'fetch_number': 1});
 
                 console.log('after push result')
-                
+
             })
             console.log('hi')
             window.AL.onReceiveData(function (data) {
@@ -90,8 +94,8 @@ function ASRAnnotaionPage(props) {
                 // setDataLabels(data)
                 if (data.length > 0) {
                     setDataLabels(data[0])
-                } 
-                
+                }
+
             })
 
             window.AL.onPushResultFail(function (data) {
@@ -102,62 +106,40 @@ function ASRAnnotaionPage(props) {
                 console.log('onReceiveCommonInfo in', data)
                 var classes = data['classes'];
                 setCommonInfo(classes)
-                AL.pushSettings({'settings': [
-                    {
-                        'type': 'text', 
-                        'id': 1,
-                        'name': 'Video Name', 
-                        'options': []
-                    },
-                    {
-                        'type': 'text', 
-                        'id': 2,
-                        'name': 'Frame ID', 
-                        'options': []
-                    },
-                ]});
+                window.AL.pushSettings({
+                    'settings': [
+                        {
+                            'type': 'text',
+                            'id': 1,
+                            'name': 'Video Name',
+                            'options': []
+                        },
+                        {
+                            'type': 'text',
+                            'id': 2,
+                            'name': 'Frame ID',
+                            'options': []
+                        },
+                    ]
+                });
                 console.log('onReceiveCommonInfo out ', data)
-                
+
             });
 
             window.AL.onUpdateSelectClass(function (data) {
                 console.log('onUpdateSelectClass data', data)
-                
             });
 
             window.AL.onReceiveRequestResetCurrent(function (data) {
                 console.log('onReceiveRequestResetCurrent ', data)
             });
-            
+
             console.log("receive data success");
         }
     }, [dataLabels.annotations])
 
-    // useEffect(() => {
-    //     const script = document.createElement("script")
-    //     script.innerHTML = `
-    //     window.AL.onReceiveData(function (data) {
-    //         console.log('onReceiveData')
-    //         console.log(data);
-    //     })
-    //     `
-    //     // mount
-    //     document.body.appendChild(script);
-    //     // }
-
-    //     console.log("window AL: ", window.AL);
-    //     // unmount
-    //     return () => {
-    //         // if (props.head) {
-    //         //   document.head.removeChild(script);
-    //         // } else {
-    //         document.body.removeChild(script);
-    //         // }
-    //     };
-    // })
-
     // update props
-    props = {
+    const waveform_props = {
         // audioUrl: audioUrl,
         // annotations: annotations,
         dataLabels: dataLabels || {}, // dataLabels
@@ -168,7 +150,7 @@ function ASRAnnotaionPage(props) {
 
     return (
         <div className={cx("container ASRAnnotaionPage")}>
-            <Waveform {...props} />
+            <Waveform {...waveform_props} />
         </div>
     );
 }

@@ -11,7 +11,7 @@ import { Table, Tag } from "antd";
 
 import styles from "./Waveform.scss";
 
-import { randomColor } from "../../utils/randomColor";
+import { randomColor } from "@utils/randomColor";
 import { useHotkeys } from "react-hotkeys-hook";
 
 
@@ -22,7 +22,6 @@ function Waveform(props) {
 
     let { dataLabels, setDataLabels, commonInfo } = props;
     const [dataLabelInfo, setDataLabelInfo] = useState({})
-
 
     const [wavesurfer, setWavesurfer] = useState(null);
     const [selectedRegion, setSelectedRegion] = useState(null);
@@ -66,6 +65,13 @@ function Waveform(props) {
 
     useEffect(() => {
         if (dataLabels) {
+            // if (dataLabels.hasOwnProperty('data')) {
+            //     setAudioUrl(dataLabels['data'][0]['file_name']) // set first data item
+            // }
+
+            // if (dataLabels.hasOwnProperty('annotations')) {
+            //     setAnnotations(dataLabels['annotations'])
+            // }
             if (dataLabels.hasOwnProperty('data') && dataLabels['data'].length > 0) {
                 setAudioUrl(dataLabels['data'][0]['file_name']) // set first data item
                 const _data_label_info = {}
@@ -74,7 +80,6 @@ function Waveform(props) {
                 _data_label_info['seed'] = dataLabels['data'][0]['seed']
                 _data_label_info['item_id'] = dataLabels['data'][0]['id']
                 setDataLabelInfo(_data_label_info)
-                
             }
 
             if (dataLabels.hasOwnProperty('annotations')) {
@@ -157,7 +162,7 @@ function Waveform(props) {
                 //     console.log("overlap");
                 // }
 
-
+                // setSelectedRegion(region)
             });
 
             // autoPlay labeled region when click
@@ -194,6 +199,11 @@ function Waveform(props) {
      */
     useEffect(() => {
         if (wavesurfer) {
+            wavesurfer.on("region-created", () => {
+                updateDataAnnotations(wavesurfer)
+                console.log("wavesufer update: ", wavesurfer.regions.list);
+            })
+
             // Set Annotaions and Length Wavesurfer
             wavesurfer.on("region-updated", (region) => {
                 updateLengthWavesurfer(wavesurfer);
@@ -201,7 +211,7 @@ function Waveform(props) {
                 // update form infor
                 let form = document.getElementById("editForm");
                 updateForm(form, region)
-
+                setSelectedRegion(region)
             });
 
             // Create new region
@@ -274,6 +284,9 @@ function Waveform(props) {
         }
     }, [isReplaying, wavesurfer])
 
+
+
+
     /**
      * Load annotations
      */
@@ -303,8 +316,8 @@ function Waveform(props) {
             return {
                 key: index,
                 id: index,
-                start_time: Math.round(region.start + 100) / 100,
-                end_time: Math.round(region.end + 100) / 100,
+                start_time: Math.round(region.start * 100) / 100,
+                end_time: Math.round(region.end * 100) / 100,
                 description: region.data.note,
                 color: region.color,
             };
@@ -353,10 +366,10 @@ function Waveform(props) {
             const formatted = waveArray.map((region, index) => {
                 return {
                     "class_id": commonInfo[0].id,
-                    "class_name": "noise",
+                    "class_name": "Human",
                     "tag": {
-                        "index": parseInt(region.start*1000), // start
-                        "length": parseInt((region.end - region.start)*1000), // end - start
+                        "index": parseInt(region.start * 1000), // start
+                        "length": parseInt((region.end - region.start) * 1000), // end - start
                         "text": region.data.note || "" // description
                     },
                     "extra": {
@@ -368,6 +381,14 @@ function Waveform(props) {
             })
             return formatted
         }
+    }
+
+    const updateDataAnnotations = (wavesurfer) => {
+        const list_formatted_anns = formatDataAnnotaions(wavesurfer)
+        setDataLabels({
+            data: dataLabels['data'],
+            annotations: list_formatted_anns
+        })
     }
 
     const handleSaveRegion = (event) => {
@@ -390,12 +411,19 @@ function Waveform(props) {
                 form.elements.end_time.value = selectedRegion.end; // Math.round(region.end * 10) / 10;
             }
 
-            const list_formatted_anns = formatDataAnnotaions(wavesurfer)
-            setDataLabels({
-                data: dataLabels['data'],
-                annotations: list_formatted_anns
-            })
+
+            // dataLabels["annotations"] = list_formatted_anns
+            // console.log("data labels: ", dataLabels);
+            // setDataLabels(dataLabels)
+            // console.log("on save: ", wavesurfer);
             // format data
+
+            // const list_formatted_anns = formatDataAnnotaions(wavesurfer)
+            // setDataLabels({
+            //     data: dataLabels['data'],
+            //     annotations: list_formatted_anns
+            // })
+            updateDataAnnotations(wavesurfer)
         }
 
     }
@@ -417,8 +445,6 @@ function Waveform(props) {
     const replayRegion = (event) => {
         console.log("checkbox replay: ", event.target.checked);
         setIsReplaying(event.target.checked);
-
-
     };
 
     /**
@@ -448,9 +474,9 @@ function Waveform(props) {
             return {
                 "postags": [
                     {
-                        "class_id": 3579,
+                        "class_id": commonInfo[0].id,
                         "class_name": "Human",
-                        "content": {
+                        "tag": {
                             "index": region.start,
                             "length": region.end - region.start,
                             "text": region.data.note || ""
@@ -528,10 +554,11 @@ function Waveform(props) {
 
                 <div className={cx("col-sm-10")}>
                     <div className={cx('row')}>
-                        <div className={cx('col')}>
+                        <div className={cx('col')}></div>
+                        <div className={cx('col-5')}>
                             <button
                                 onClick={handlePlayPause}
-                                className={cx("btn btn-primary btn-block w-100")}
+                                className={cx("btn btn-primary btn-block w-100 btn-lg")}
                             >
                                 {isPlaying ? (
                                     <span>
@@ -546,10 +573,11 @@ function Waveform(props) {
                                 )}
                             </button>
                         </div>
-                        <div className={cx('col')}>
+                        <div className={cx('col')}></div>
+                        <div className={cx('col-5')}>
                             <button
                                 onClick={handleSubmit}
-                                className={cx("btn btn-info btn-block w-100")}
+                                className={cx("btn btn-info btn-block w-100 btn-lg")}
                             >
                                 Submit
                             </button>
@@ -566,7 +594,7 @@ function Waveform(props) {
                                 <div className={cx('col-9')}>
                                     <div className={cx("row")}>
                                         <div className={cx("col-4")}>
-                                            <div className={cx("form-group")} style={{ padding: 10 }}>
+                                            <div className={cx("form-group")} style={{ paddingLeft: 10 }}>
                                                 <div className={cx("col")}>
                                                     <div className={cx("row")}>
                                                         <label htmlFor="start_time">Start Time</label>
@@ -576,7 +604,7 @@ function Waveform(props) {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className={cx("form-group")} style={{ padding: 10 }}>
+                                            <div className={cx("form-group")} style={{ paddingLeft: 10, paddingTop: 20 }}>
                                                 <div className={cx('col')}>
                                                     <div className={cx('row')}>
                                                         <label htmlFor="end_time">End Time</label>
@@ -612,10 +640,10 @@ function Waveform(props) {
                                                 Save
                                             </button>
                                         </div>
-                                        <div className={cx('col')}>
+                                        <div className={cx('col')} style={{ paddingTop: 10 }}>
                                             <label>or</label>
                                         </div>
-                                        <div className={cx("col")}>
+                                        <div className={cx("col")} style={{ paddingTop: 10 }}>
                                             <button
                                                 type="button"
                                                 className={cx("btn btn-block btn-danger w-100")}
