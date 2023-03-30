@@ -14,18 +14,21 @@ import styles from "./Waveform.scss";
 import { randomColor } from "@utils/randomColor";
 import { useHotkeys } from "react-hotkeys-hook";
 
+import {iterifyArr} from '@utils/common/customArray'
 
 const cx = classNames.bind(styles);
 
 function Waveform(props) {
     let { commonInfo, dataLabel, annotations, setAnnotations } = props;
     const audioUrl = dataLabel[0]["file_name"]
+
     const [form] = Form.useForm();
 
     const [wavesurfer, setWavesurfer] = useState(null);
     const [selectedRegionKey, setSelectedRegionKey] = useState();
 
     const [dataTable, setDataTable] = useState([]);
+    const [focusCell, setFocusCell] = useState({ row: null, col: null });
 
     const waveRef = useRef(null);
     const timelineRef = useRef(null);
@@ -40,20 +43,26 @@ function Waveform(props) {
         }
     });
 
+    // disable because focus <input description>
     useHotkeys("delete", () => {
-        console.log("data table: ", dataTable);
-        console.log("selected region: ", selectedRegionKey);
-        const row = dataTable.find(data => data.key === selectedRegionKey)
-        const id_wave = row && row.hasOwnProperty("id_wave") ? row.id_wave : null
-        
-        if (wavesurfer && id_wave) {
-            console.log("row delete: ", id_wave);
+        // const row = dataTable.find(data => data.key === selectedRegionKey)
+        // const id_wave = row && row.hasOwnProperty("id_wave") ? row.id_wave : null
+        const id_wave = getIdByKey(selectedRegionKey);
 
+        if (wavesurfer && id_wave) {
             wavesurfer.regions.list[id_wave].remove();
             updateDataTable(wavesurfer)
             setSelectedRegionKey(null)
         }
     })
+
+    // useHotkeys("tab", (event) => {
+    //     event.preventDefault();
+
+    //     // find current cell in table
+    //     const activateCell = document.activeElement;
+    //     console.log(activateCell);
+    // })
 
     /*
      * Initial wavesurfer
@@ -67,6 +76,7 @@ function Waveform(props) {
             scrollParent: true,
             normalize: true,
             minimap: true,
+            backend: 'WebAudio',
             plugins: [
                 RegionsPlugin.create(),
                 MinimapPlugin.create({
@@ -103,7 +113,7 @@ function Waveform(props) {
         };
     }, [audioUrl]);
 
-    // handle event and regions
+    // handle event and regions when wavesurfer initial (PARENT)
     useEffect(() => {
         if (wavesurfer) {
             wavesurfer.on("region-created", function (region, event) {
@@ -154,18 +164,41 @@ function Waveform(props) {
         }
     }, [wavesurfer]);
 
+    // handle event
     useEffect(() => {
         wavesurfer?.on("region-click", (region) => {
             const row = dataTable.find((d) => d.id_wave === region.id)
             if (row && row.hasOwnProperty('key')) {
                 setSelectedRegionKey(row.key);
+                setFocusCell({ row: row.id, col: "description" });
             };
 
             const rowElement = document.querySelector(`tr[data-row-key="${row?.key}"]`);
             if (rowElement) {
                 rowElement.click();
-            }
+
+                const des = rowElement.querySelector(`input[data-key="description"]`)
+                if (des) des.focus()
+            }   
         })
+
+        wavesurfer?.on("region-created", (region) => {
+            console.log("update");
+            const row = dataTable.find((d) => d.id_wave === region.id)
+            if (row && row.hasOwnProperty('key')) {
+                setSelectedRegionKey(row.key);
+                setFocusCell({ row: row.id, col: "description" });
+            };
+
+            const rowElement = document.querySelector(`tr[data-row-key="${row?.key}"]`);
+            if (rowElement) {
+                rowElement.click();
+
+                const des = rowElement.querySelector(`input[data-key="description"]`)
+                if (des) des.focus()
+            }   
+        })
+
     }, [dataTable.length])
 
     /**
@@ -248,12 +281,21 @@ function Waveform(props) {
         })
     }
 
-    function convertKey2Id () {
-        return 
+    function getKeyById (id_wave) {
+        // convert table key to wavesurfer id
+        const row = dataTable.find(data => data.id_wave = id_wave)
+        const key_table = row.key
+        return key_table
     }
 
-    function convertId2Key() {
-        return 
+    function getIdByKey(key_table) {
+        // convert wavesurfer id to table key
+        const row = dataTable.find(data => data.key === key_table)
+        if (row && row.hasOwnProperty("id_wave")) {
+            return row.id_wave
+        }
+        return
+        
     }
 
     return (
@@ -288,7 +330,6 @@ function Waveform(props) {
                             onRow={(record, rowIndex) => {
                                 return {
                                     onClick: event => {
-                                        console.log('onClick: ', record, rowIndex);
                                         setSelectedRegionKey(record.key);
 
                                         form.setFieldsValue({
@@ -303,20 +344,18 @@ function Waveform(props) {
                                             region.play();
                                         }
                                     },
-                                    onBlur: event => {
-                                        console.log("onblur: ", record);
-                                        setSelectedRegionKey(null);
-
-                                    },
+                                    // onBlur: event => {
+                                    //     console.log("onblur: ", record);
+                                    //     setSelectedRegionKey(null);
+                                    // },
                                     onChange: event => {
-                                        console.log("onChange: ", record);
-                                        let values = form.getFieldsValue()
-
+                                        let tmp_values = form.getFieldsValue()
+                                        
                                         // parse Int
-                                        values = {
-                                            ...values,
-                                            start_time: parseFloat(values.start_time),
-                                            end_time: parseFloat(values.end_time)
+                                        const values = {
+                                            ...tmp_values,
+                                            start_time: parseFloat(tmp_values.start_time),
+                                            end_time: parseFloat(tmp_values.end_time)
                                         }
 
                                         // update data when change input
@@ -332,7 +371,8 @@ function Waveform(props) {
                                         updateDataAnnotations(wavesurfer)
                                     }
                                 }
-                            }}
+                            }}                            
+
                             columns={[
                                 // { title: "Index", dataIndex: "id", key: "id" },
                                 {
@@ -340,8 +380,17 @@ function Waveform(props) {
                                     dataIndex: "start_time",
                                     key: "start_time",
                                     width: "10%",
-                                    render: (text, record) => {
+                                    onCell: (record, rowIndex) => {
+                                        return {
+                                            onClick: event => {
+                                                setFocusCell({ row: rowIndex, col: "start_time" });
+                                            }
+                                        }
+                                    },
+                                    render: (text, record, index) => {
                                         if (record.key === selectedRegionKey) {
+                                            const shouldFocus = focusCell.row === index && focusCell.col === "start_time";
+                                            
                                             return (<Form.Item
                                                 name="start_time"
                                                 rules={[
@@ -351,7 +400,7 @@ function Waveform(props) {
                                                     }
                                                 ]}
                                             >
-                                                <Input />
+                                                <Input data-key="start_time" autoFocus={shouldFocus}/>
                                             </Form.Item>)
                                         } else {
                                             return <p>{text}</p>
@@ -363,8 +412,17 @@ function Waveform(props) {
                                     dataIndex: "end_time",
                                     key: "end_time",
                                     width: "10%",
-                                    render: (text, record) => {
+                                    onCell: (record, rowIndex) => {
+                                        return {
+                                            onClick: event => {
+                                                setFocusCell({ row: rowIndex, col: "end_time" });
+                                            }
+                                        }
+                                    },
+                                    render: (text, record, index) => {
                                         if (record.key === selectedRegionKey) {
+                                            const shouldFocus = focusCell.row === index && focusCell.col === "end_time";
+                                            
                                             return (
                                                 <Form.Item
                                                     name="end_time"
@@ -375,7 +433,7 @@ function Waveform(props) {
                                                         }
                                                     ]}
                                                 >
-                                                    <Input />
+                                                    <Input data-key="end_time" autoFocus={shouldFocus}/>
                                                 </Form.Item>)
                                         } else {
                                             return <p>{text}</p>
@@ -387,8 +445,17 @@ function Waveform(props) {
                                     dataIndex: "description",
                                     key: "description",
                                     width: "70%",
-                                    render: (text, record) => {
+                                    onCell: (record, rowIndex) => {
+                                        return {
+                                            onClick: event => {
+                                                setFocusCell({ row: rowIndex, col: "description" });
+                                            }
+                                        }
+                                    },
+                                    render: (text, record, index) => {
                                         if (record.key === selectedRegionKey) {
+                                            const shouldFocus = focusCell.row === index && focusCell.col === "description";
+                                            
                                             return (<Form.Item
                                                 name="description"
                                                 rules={[
@@ -398,7 +465,7 @@ function Waveform(props) {
                                                     }
                                                 ]}
                                             >
-                                                <Input />
+                                                <Input data-key="description" autoFocus={shouldFocus}/>
                                             </Form.Item>)
                                         } else {
                                             return <p>{text}</p>
