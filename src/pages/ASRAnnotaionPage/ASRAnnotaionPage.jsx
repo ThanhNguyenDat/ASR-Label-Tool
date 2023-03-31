@@ -101,7 +101,19 @@ function ASRAnnotaionPage(props) {
                     console.log("data[0] ", data[0])
 
                     setDataLabel(data[0]['data'])
-                    setAnnotations(data[0]['annotation'])
+                    const anns = data[0]['annotation']
+                    const formatted_anns = anns.map(ele => {
+                        return {
+                            ...ele,
+                            content: {
+                                ...ele['content'],
+                                index: ele['content']['index']/1000,
+                                length: ele['content']['length']/1000
+                            }
+                        }
+                    })
+                    console.log('formatted_anns ', formatted_anns)
+                    setAnnotations(formatted_anns)
                 }
 
             })
