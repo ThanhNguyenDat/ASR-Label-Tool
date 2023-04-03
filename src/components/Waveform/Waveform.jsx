@@ -7,34 +7,28 @@ import RegionsPlugin from "wavesurfer.js/dist/plugin/wavesurfer.regions.min.js";
 import TimelinePlugin from "wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js";
 import MinimapPlugin from "wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js";
 
-import { Table, Tag } from "antd";
+import { Form, Input, Table, Tag } from "antd";
 
 import styles from "./Waveform.scss";
 
 import { randomColor } from "@utils/randomColor";
 import { useHotkeys } from "react-hotkeys-hook";
 
+import {iterifyArr} from '@utils/common/customArray'
 
 const cx = classNames.bind(styles);
 
 function Waveform(props) {
-    // console.log('wave component: ', window.AL);
+    let { commonInfo, dataLabel, annotations, setAnnotations } = props;
+    const audioUrl = dataLabel[0]["file_name"]
 
-    let { dataLabels, setDataLabels, commonInfo } = props;
-    const [dataLabelInfo, setDataLabelInfo] = useState({})
+    const [form] = Form.useForm();
 
     const [wavesurfer, setWavesurfer] = useState(null);
-    const [selectedRegion, setSelectedRegion] = useState(null);
+    const [selectedRegionKey, setSelectedRegionKey] = useState();
 
-    const [lengthWavesurfer, setLengthWavesurfer] = useState(0);
     const [dataTable, setDataTable] = useState([]);
-
-
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [isReplaying, setIsReplaying] = useState(false);
-
-    const [audioUrl, setAudioUrl] = useState("")
-    const [annotations, setAnnotations] = useState([])
+    const [focusCell, setFocusCell] = useState({ row: null, col: null });
 
     const waveRef = useRef(null);
     const timelineRef = useRef(null);
@@ -49,45 +43,26 @@ function Waveform(props) {
         }
     });
 
-    useHotkeys(["command+c", "ctrl+c"], () => { })
-
-    useHotkeys("alt+r", () => {
-        setIsReplaying(!isReplaying)
-        document.getElementById("btn-check-replay").checked = !isReplaying
-    })
-
+    // disable because focus <input description>
     useHotkeys("delete", () => {
-        if (wavesurfer && selectedRegion) {
-            wavesurfer.regions.list[selectedRegion.id].remove();
-            setSelectedRegion(null);
+        // const row = dataTable.find(data => data.key === selectedRegionKey)
+        // const id_wave = row && row.hasOwnProperty("id_wave") ? row.id_wave : null
+        const id_wave = getIdByKey(selectedRegionKey);
+
+        if (wavesurfer && id_wave) {
+            wavesurfer.regions.list[id_wave].remove();
+            updateDataTable(wavesurfer)
+            setSelectedRegionKey(null)
         }
     })
 
-    useEffect(() => {
-        if (dataLabels) {
-            // if (dataLabels.hasOwnProperty('data')) {
-            //     setAudioUrl(dataLabels['data'][0]['file_name']) // set first data item
-            // }
+    // useHotkeys("tab", (event) => {
+    //     event.preventDefault();
 
-            // if (dataLabels.hasOwnProperty('annotations')) {
-            //     setAnnotations(dataLabels['annotations'])
-            // }
-            if (dataLabels.hasOwnProperty('data') && dataLabels['data'].length > 0) {
-                setAudioUrl(dataLabels['data'][0]['file_name']) // set first data item
-                const _data_label_info = {}
-                _data_label_info['data_cat_id'] = dataLabels['data'][0]['data_cat_id']
-                _data_label_info['dataset_id'] = dataLabels['data'][0]['dataset_id']
-                _data_label_info['seed'] = dataLabels['data'][0]['seed']
-                _data_label_info['item_id'] = dataLabels['data'][0]['id']
-                setDataLabelInfo(_data_label_info)
-
-            }
-
-            if (dataLabels.hasOwnProperty('annotations')) {
-                setAnnotations(dataLabels['annotations'])
-            }
-        }
-    }, [dataLabels])
+    //     // find current cell in table
+    //     const activateCell = document.activeElement;
+    //     console.log(activateCell);
+    // })
 
     /*
      * Initial wavesurfer
@@ -101,6 +76,7 @@ function Waveform(props) {
             scrollParent: true,
             normalize: true,
             minimap: true,
+            backend: 'WebAudio',
             plugins: [
                 RegionsPlugin.create(),
                 MinimapPlugin.create({
@@ -115,7 +91,6 @@ function Waveform(props) {
 
         if (audioUrl) {
             wavesurferInstance.load(audioUrl);
-
             // audio loaded data
             wavesurferInstance.on("ready", function (region) {
                 wavesurferInstance.enableDragSelection({
@@ -123,14 +98,13 @@ function Waveform(props) {
                     color: randomColor(0.1),
                 });
 
-                // load annotations
-                if (annotations) {
-                    loadRegions(annotations, wavesurferInstance);
-                    updateLengthWavesurfer(wavesurferInstance);
-                }
+                wavesurferInstance.clearRegions();
+
+                // load new anntations
+                loadRegions(annotations, wavesurferInstance);
+                updateDataTable(wavesurferInstance);
 
                 setWavesurfer(wavesurferInstance);
-                setIsPlaying(false);
             });
         }
 
@@ -139,154 +113,93 @@ function Waveform(props) {
         };
     }, [audioUrl]);
 
-    // handle event and regions
+    // handle event and regions when wavesurfer initial (PARENT)
     useEffect(() => {
-
-
         if (wavesurfer) {
-            // enable drag select
-            wavesurfer.on("ready", function (region) {
-                wavesurfer.enableDragSelection({
-                    color: randomColor(0.1),
-                });
-            });
-
             wavesurfer.on("region-created", function (region, event) {
                 region.update({
                     color: randomColor(0.6),
                 });
-
-                // const isOverlapping = Object.values(wavesurfer.regions.list).some(function (r) {
-                //     return region !== r && region.overlap(r);
-                // })
-                // if (isOverlapping) {
-                //     console.log("overlap");
-                // }
-
-                // setSelectedRegion(region)
+                updateDataAnnotations(wavesurfer)
             });
 
-            // autoPlay labeled region when click
             wavesurfer.on("region-click", function (region, event) {
                 event.stopPropagation();
-            });
-
-            wavesurfer.on("region-dblclick", function (region, event) {
-                region.update({
-                    color: randomColor(0.6),
-                });
-            });
-
-            // edit annotaion
-            wavesurfer.on("region-click", (region, event) => {
-                event.preventDefault();
-                editAnnotaion(region);
-            });
-
-
-            // delete region
-            const delete_region = document.querySelector(
-                '[data-action="delete-region"]'
-            );
-            delete_region.addEventListener("click", deleteAnnotaion);
-            return () => {
-                delete_region.removeEventListener("click", deleteAnnotaion);
-            };
-        }
-    }, [wavesurfer]);
-
-    /**
-     * Handle annotaions
-     */
-    useEffect(() => {
-        if (wavesurfer) {
-            wavesurfer.on("region-created", () => {
-                updateDataAnnotations(wavesurfer)
-                console.log("wavesufer update: ", wavesurfer.regions.list);
-            })
-
-            // Set Annotaions and Length Wavesurfer
-            wavesurfer.on("region-updated", (region) => {
-                updateLengthWavesurfer(wavesurfer);
-
-                // update form infor
-                let form = document.getElementById("editForm");
-                updateForm(form, region)
-                setSelectedRegion(region)
-            });
-
-            // Create new region
-            wavesurfer.on("region-update-end", (region, event) => {
-                setIsPlaying(true);
-                setSelectedRegion(region);
-                region.play();
-
-                if (region.end < region.start || region.end - region.start < 0.08) {
-                    // alert("You should expand the labeling region")
-                    region.remove()
-                }
-            });
-
-            // handle replay
-            wavesurfer.on("region-click", (region, event) => {
-                setIsPlaying(true);
-                setSelectedRegion(region);
-                // event.shiftKey ? region.playLoop() : region.play();
 
                 region.play()
-                if (event.shiftKey || isReplaying) {
+                if (event.shiftKey) {
                     console.log("shift key");
                     region.update({
                         loop: true
                     })
-                    // region.playLoop();
                 } else {
                     console.log("non shift key");
                     region.update({
                         loop: false
                     })
-                    // region.play();
                 }
-
-
-                console.log("wavesurfer", wavesurfer);
-                console.log("region: ", region);
             });
 
-            wavesurfer.on("region-play", function (region) {
-                region.once("out", function () {
-                    isReplaying ? setIsPlaying(true) : setIsPlaying(false);
+            // Set Annotaions and Length Wavesurfer
+            wavesurfer.on("region-updated", (region) => {
+                updateDataTable(wavesurfer);
+                setSelectedRegionKey(region.id);
+            });
+
+            // Create new region
+            wavesurfer.on("region-update-end", (region, event) => {
+                region.play();
+
+                if (region.end < region.start || region.end - region.start < 0.08) {
+                    region.remove()
+                }
+            });
+
+            // update new color region
+            wavesurfer.on("region-dblclick", function (region, event) {
+                region.update({
+                    color: randomColor(0.6),
                 });
             });
         }
-    }, [isReplaying, lengthWavesurfer, wavesurfer]);
+    }, [wavesurfer]);
 
-    /**
-     * Handle Replay a region with btn-check-replay
-     */
-    // useEffect(() => {
-    //     const btn_check_replay = document.getElementById("btn-check-replay");
-
-    //     btn_check_replay.addEventListener("click", replayRegion);
-
-    //     return () => {
-    //         btn_check_replay.removeEventListener("click", replayRegion);
-    //     };
-    // }, []);
-
-    // Update isReplaying for region chunk
+    // handle event
     useEffect(() => {
-        if (wavesurfer) {
-            Object.values(wavesurfer.regions.list).forEach(region => {
-                region.update({
-                    loop: isReplaying
-                })
-            })
-        }
-    }, [isReplaying, wavesurfer])
+        wavesurfer?.on("region-click", (region) => {
+            const row = dataTable.find((d) => d.id_wave === region.id)
+            if (row && row.hasOwnProperty('key')) {
+                setSelectedRegionKey(row.key);
+                setFocusCell({ row: row.id, col: "description" });
+            };
 
+            const rowElement = document.querySelector(`tr[data-row-key="${row?.key}"]`);
+            if (rowElement) {
+                rowElement.click();
 
+                const des = rowElement.querySelector(`input[data-key="description"]`)
+                if (des) des.focus()
+            }   
+        })
 
+        wavesurfer?.on("region-created", (region) => {
+            console.log("update");
+            const row = dataTable.find((d) => d.id_wave === region.id)
+            if (row && row.hasOwnProperty('key')) {
+                setSelectedRegionKey(row.key);
+                setFocusCell({ row: row.id, col: "description" });
+            };
+
+            const rowElement = document.querySelector(`tr[data-row-key="${row?.key}"]`);
+            if (rowElement) {
+                rowElement.click();
+
+                const des = rowElement.querySelector(`input[data-key="description"]`)
+                if (des) des.focus()
+            }   
+        })
+
+    }, [dataTable.length])
 
     /**
      * Load annotations
@@ -300,14 +213,13 @@ function Waveform(props) {
             annotation.end = annotation['content']['length'] + annotation['content']['index']
             wavesurfer.addRegion(annotation);
         });
-        updateLengthWavesurfer(wavesurfer);
+        updateDataTable(wavesurfer);
     };
 
     /**
-     * Update length
+     * Update data table
      */
-    const updateLengthWavesurfer = (wavesurfer) => {
-
+    const updateDataTable = (wavesurfer) => {
         const wavesuferObjs = wavesurfer.regions.list;
         const wavesuferArray = Object.values(wavesuferObjs);
         // sort value by start time
@@ -321,45 +233,13 @@ function Waveform(props) {
                 end_time: Math.round(region.end * 100) / 100,
                 description: region.data.note,
                 color: region.color,
+                id_wave: region.id
             };
         });
 
-        setLengthWavesurfer(wavesuferArray.length);
         setDataTable(_dataTable);
+        updateDataAnnotations(wavesurfer);
     };
-
-    /**
-     * Edit annotation for a region.
-     */
-    function editAnnotaion(region) {
-        let form = document.getElementById("editForm");
-        updateForm(form, region)
-
-        form.onsubmit = function (e) {
-            e.preventDefault();
-            const start = form.elements.start_time.value;
-            const end = form.elements.end_time.value;
-            if (end > start) {
-                region.update({
-                    start: start,
-                    end: end,
-                    data: {
-                        note: form.elements.description.value,
-                    },
-                });
-            } else {
-                // alert("End time must be greater start time");
-                form.elements.start_time.value = region.start; // Math.round(region.start * 10) / 10;
-                form.elements.end_time.value = region.end; // Math.round(region.end * 10) / 10;
-            }
-        };
-
-        form.onreset = function () {
-            form.dataset.region = null;
-        };
-        form.dataset.region = region.id;
-    }
-
 
     const formatDataAnnotaions = (wavesurfer) => {
         if (wavesurfer) {
@@ -377,7 +257,10 @@ function Waveform(props) {
                         "hard_level": 1,
                         "classify": "noise"
                     },
-                    ...dataLabelInfo
+                    'data_cat_id': dataLabel[0]['data_cat_id'],
+                    'dataset_id': dataLabel[0]['dataset_id'],
+                    'seed': dataLabel[0]['seed'],
+                    'item_id': dataLabel[0]['id'],
                 }
             })
             return formatted
@@ -386,134 +269,42 @@ function Waveform(props) {
 
     const updateDataAnnotations = (wavesurfer) => {
         const list_formatted_anns = formatDataAnnotaions(wavesurfer)
-        setDataLabels({
-            data: dataLabels['data'],
-            annotations: list_formatted_anns
+        setAnnotations(list_formatted_anns)
+    }
+
+    const updateWavesurferFromDataTable = (updatedDataTable) => {
+        updatedDataTable.forEach(data => {
+            const id_wave = data['id_wave'];
+            wavesurfer.regions.list[id_wave].start = data.start_time;
+            wavesurfer.regions.list[id_wave].end = data.end_time;
+            wavesurfer.regions.list[id_wave].data.note = data.description;
         })
     }
 
-    const handleSaveRegion = (event) => {
-        if (selectedRegion) {
-            event.preventDefault();
-            let form = document.getElementById("editForm")
-            const start = form.elements.start_time.value;
-            const end = form.elements.end_time.value;
-            if (end > start) {
-                selectedRegion.update({
-                    start: start,
-                    end: end,
-                    data: {
-                        note: form.elements.description.value,
-                    },
-                });
-            } else {
-                // alert("End time must be greater start time");
-                form.elements.start_time.value = selectedRegion.start; // Math.round(region.start * 10) / 10;
-                form.elements.end_time.value = selectedRegion.end; // Math.round(region.end * 10) / 10;
-            }
+    function getKeyById (id_wave) {
+        // convert table key to wavesurfer id
+        const row = dataTable.find(data => data.id_wave = id_wave)
+        const key_table = row.key
+        return key_table
+    }
 
-
-            // dataLabels["annotations"] = list_formatted_anns
-            // console.log("data labels: ", dataLabels);
-            // setDataLabels(dataLabels)
-            // console.log("on save: ", wavesurfer);
-            // format data
-
-            // const list_formatted_anns = formatDataAnnotaions(wavesurfer)
-            // setDataLabels({
-            //     data: dataLabels['data'],
-            //     annotations: list_formatted_anns
-            // })
-            updateDataAnnotations(wavesurfer)
+    function getIdByKey(key_table) {
+        // convert wavesurfer id to table key
+        const row = dataTable.find(data => data.key === key_table)
+        if (row && row.hasOwnProperty("id_wave")) {
+            return row.id_wave
         }
-
-    }
-    /**
-     * Delete annotaion for a region
-     */
-    function deleteAnnotaion() {
-        let form = document.getElementById("editForm");
-
-        let regionId = form.dataset.region;
-        if (regionId) {
-            wavesurfer.regions.list[regionId].remove();
-            form.reset();
-        }
-        updateLengthWavesurfer(wavesurfer);
+        return
+        
     }
 
-    // Handle Replay
-    // const replayRegion = (event) => {
-    //     console.log("checkbox replay: ", event.target.checked);
-    //     setIsReplaying(event.target.checked);
-    // };
-
-    /**
-     * Handle Play/Pause button
-     */
-    // const handlePlayPause = () => {
-    //     if (wavesurfer) {
-    //         if (isPlaying) {
-    //             wavesurfer.pause();
-    //             setIsPlaying(false);
-    //         } else {
-    //             wavesurfer.play();
-    //             setIsPlaying(true);
-    //         }
-    //     }
-    // };
-
-    /*
-     * Handle Submit button
-     */
-    // const handleSubmit = (event) => {
-    //     event.preventDefault();
-    //     let full_region_annotaions = Object.values(wavesurfer.regions.list);
-
-    //     // format data
-    //     const data = full_region_annotaions.map((region, index, array) => {
-    //         return {
-    //             "postags": [
-    //                 {
-    //                     "class_id": commonInfo[0].id,
-    //                     "class_name": "Human",
-    //                     "tag": {
-    //                         "index": region.start,
-    //                         "length": region.end - region.start,
-    //                         "text": region.data.note || ""
-    //                     },
-    //                     "extra": {
-    //                         "hard_level": 0,
-    //                         "classify": "normal"
-    //                     }
-    //                 }
-    //             ],
-    //             "fetch_number": 1 // fixed
-    //         };
-    //     });
-
-    //     console.log("final data: ", data);
-    //     // window.AL.pushResult(data)
-    //     console.log("Push data success");
-    // };
-
-    const updateForm = (form, region, roundRate = 100) => {
-        // update form infor
-        form.elements.start_time.value = Math.round(region.start * roundRate) / roundRate;
-        form.elements.end_time.value = Math.round(region.end * roundRate) / roundRate;
-        form.elements.description.value = region.data.note || "";
-    }
     return (
         <div className={cx("container overflow-hidden")}>
             <div className={cx("row")}>
-                {/* <p id="subtitle" className={cx("text-center text-info")}>
-                    &nbsp;
-                </p> */}
                 <p></p>
             </div>
-
             <div className={cx('row')}>
-                {Object.keys(dataLabels).length ? (
+                {Object.keys(dataLabel).length ? (
                     <div>
                         <div ref={timelineRef}></div>
                         <div ref={waveRef}></div>
@@ -526,171 +317,195 @@ function Waveform(props) {
                     </div>)
                 }
             </div>
-
-            {/* <div className={cx("row")} style={{ padding: 40 }}>
-                <div className={cx("col-sm-2")}>
-                    <div className={cx("form-check")}>
-                        <div className={cx("row")}>
-                            <div className={cx("col")}>
-                                <label
-                                    className={cx("form-check-label")}
-                                    htmlFor="btn-check-replay"
-                                >
-                                    Replay
-                                </label>
-                            </div>
-                            <div className={cx("col")}>
-                                <input
-                                    className={cx("form-check-input")}
-                                    type="checkbox"
-                                    id="btn-check-replay"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className={cx("col-sm-10")}>
-                    <div className={cx('row')}>
-                        <div className={cx('col')}></div>
-                        <div className={cx('col-5')}>
-                            <button
-                                onClick={handlePlayPause}
-                                className={cx("btn btn-primary btn-block w-100 btn-lg")}
-                            >
-                                {isPlaying ? (
-                                    <span>
-                                        <i className={cx("glyphicon glyphicon-pause")}></i>
-                                        Pause
-                                    </span>
-                                ) : (
-                                    <span>
-                                        <i className={cx("glyphicon glyphicon-play")}></i>
-                                        Play
-                                    </span>
-                                )}
-                            </button>
-                        </div>
-                        <div className={cx('col')}></div>
-                        <div className={cx('col-5')}>
-                            <button
-                                onClick={handleSubmit}
-                                className={cx("btn btn-info btn-block w-100 btn-lg")}
-                            >
-                                Submit
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div> */}
+            <div className={cx("row")}>
+                <p></p>
+            </div>
 
             <div className={cx("row")}>
-                <div className={cx("col-sm-9")}>
-                    <div className={cx("row")}>
-                        <form className={cx("edit form h-100")} id="editForm" >
-                            <div className={cx('row')}>
-                                <div className={cx('col-9')}>
-                                    <div className={cx("row")}>
-                                        <div className={cx("col-4")}>
-                                            <div className={cx("form-group")} style={{ paddingLeft: 10 }}>
-                                                <div className={cx("col")}>
-                                                    <div className={cx("row")}>
-                                                        <label htmlFor="start_time">Start Time</label>
-                                                    </div>
-                                                    <div className={cx("row")}>
-                                                        <input className={cx("form-control")} id="start_time" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className={cx("form-group")} style={{ paddingLeft: 10, paddingTop: 20 }}>
-                                                <div className={cx('col')}>
-                                                    <div className={cx('row')}>
-                                                        <label htmlFor="end_time">End Time</label>
-                                                    </div>
-                                                    <div className={cx('row')}>
-                                                        <input className={cx("form-control")} id="end_time" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className={cx("col-8")}>
-                                            <div className={cx("form-group")}>
-                                                <label htmlFor="description">Description</label>
-                                                <textarea
-                                                    className={cx("form-control")}
-                                                    id="description"
-                                                    name="description"
-                                                    rows={5}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                                <div className={cx("col-3")}>
-                                    <div className={cx('col')}>
-                                        <div className={cx('col')}>
-                                            <label></label>
-                                        </div>
-                                        <div className={cx("col")}>
-                                            <button type="button" onClick={handleSaveRegion} className={cx("btn btn-success btn-block w-100")}>
-                                                Save
-                                            </button>
-                                        </div>
-                                        <div className={cx('col')} style={{ paddingTop: 10 }}>
-                                            <label>or</label>
-                                        </div>
-                                        <div className={cx("col")} style={{ paddingTop: 10 }}>
-                                            <button
-                                                type="button"
-                                                className={cx("btn btn-block btn-danger w-100")}
-                                                data-action="delete-region"
-                                            >
-                                                Delete
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <div className={cx("col-sm-3")}>
-                    {dataTable && (
+                {dataTable && (
+                    <Form form={form}>
                         <Table
                             pagination={{ pageSize: 5 }}
                             dataSource={dataTable}
+                            onRow={(record, rowIndex) => {
+                                return {
+                                    onClick: event => {
+                                        setSelectedRegionKey(record.key);
+
+                                        form.setFieldsValue({
+                                            start_time: record.start_time,
+                                            end_time: record.end_time,
+                                            description: record.description
+                                        })
+
+                                        // play region
+                                        const region = wavesurfer.regions.list[record.id_wave]
+                                        if (region) {
+                                            region.play();
+                                        }
+                                    },
+                                    // onBlur: event => {
+                                    //     console.log("onblur: ", record);
+                                    //     setSelectedRegionKey(null);
+                                    // },
+                                    onChange: event => {
+                                        let tmp_values = form.getFieldsValue()
+                                        
+                                        // parse Int
+                                        const values = {
+                                            ...tmp_values,
+                                            start_time: parseFloat(tmp_values.start_time),
+                                            end_time: parseFloat(tmp_values.end_time)
+                                        }
+
+                                        // update data when change input
+                                        let updateData = [...dataTable]
+
+                                        updateData.splice(selectedRegionKey, 1, { ...record, ...values, key: selectedRegionKey })
+                                        setDataTable(updateData);
+
+
+                                        updateWavesurferFromDataTable(updateData);
+
+                                        // update annotation after change value typing
+                                        updateDataAnnotations(wavesurfer)
+                                    }
+                                }
+                            }}                            
+
                             columns={[
                                 // { title: "Index", dataIndex: "id", key: "id" },
                                 {
                                     title: "Start Time",
                                     dataIndex: "start_time",
                                     key: "start_time",
+                                    width: "10%",
+                                    onCell: (record, rowIndex) => {
+                                        return {
+                                            onClick: event => {
+                                                setFocusCell({ row: rowIndex, col: "start_time" });
+                                            }
+                                        }
+                                    },
+                                    render: (text, record, index) => {
+                                        if (record.key === selectedRegionKey) {
+                                            const shouldFocus = focusCell.row === index && focusCell.col === "start_time";
+                                            
+                                            return (<Form.Item
+                                                name="start_time"
+                                                rules={[
+                                                    {
+                                                        required: true,
+                                                        message: "Enter your start time"
+                                                    }
+                                                ]}
+                                            >
+                                                <Input data-key="start_time" autoFocus={shouldFocus}/>
+                                            </Form.Item>)
+                                        } else {
+                                            return <p>{text}</p>
+                                        }
+                                    }
                                 },
-                                { title: "End Time", dataIndex: "end_time", key: "end_time" },
+                                {
+                                    title: "End Time",
+                                    dataIndex: "end_time",
+                                    key: "end_time",
+                                    width: "10%",
+                                    onCell: (record, rowIndex) => {
+                                        return {
+                                            onClick: event => {
+                                                setFocusCell({ row: rowIndex, col: "end_time" });
+                                            }
+                                        }
+                                    },
+                                    render: (text, record, index) => {
+                                        if (record.key === selectedRegionKey) {
+                                            const shouldFocus = focusCell.row === index && focusCell.col === "end_time";
+                                            
+                                            return (
+                                                <Form.Item
+                                                    name="end_time"
+                                                    rules={[
+                                                        {
+                                                            required: true,
+                                                            message: "Enter your end time"
+                                                        }
+                                                    ]}
+                                                >
+                                                    <Input data-key="end_time" autoFocus={shouldFocus}/>
+                                                </Form.Item>)
+                                        } else {
+                                            return <p>{text}</p>
+                                        }
+                                    }
+                                },
                                 {
                                     title: "Description",
                                     dataIndex: "description",
                                     key: "description",
+                                    width: "70%",
+                                    onCell: (record, rowIndex) => {
+                                        return {
+                                            onClick: event => {
+                                                setFocusCell({ row: rowIndex, col: "description" });
+                                            }
+                                        }
+                                    },
+                                    render: (text, record, index) => {
+                                        if (record.key === selectedRegionKey) {
+                                            const shouldFocus = focusCell.row === index && focusCell.col === "description";
+                                            
+                                            return (<Form.Item
+                                                name="description"
+                                                rules={[
+                                                    {
+                                                        required: true,
+                                                        message: "Enter your description"
+                                                    }
+                                                ]}
+                                            >
+                                                <Input data-key="description" autoFocus={shouldFocus}/>
+                                            </Form.Item>)
+                                        } else {
+                                            return <p>{text}</p>
+                                        }
+                                    }
                                 },
-                                // {
-                                //     title: "Color",
-                                //     dataIndex: "color",
-                                //     key: "color",
-                                //     render: (_, { color }) => (
-                                //         <>
-                                //             <Tag color={color} key={color}>
-                                //                 {color}
-                                //             </Tag>
-                                //         </>
-                                //     ),
-                                // },
+                                {
+                                    title: "Operations",
+                                    dataIndex: "operations",
+                                    key: "operations",
+                                    width: "10%",
+                                    onCell: record => {
+                                        return {
+                                            onClick: event => {
+                                                event.stopPropagation(); // this will avoid onRow being called
+                                            }
+                                        }
+                                    },
+                                    render: (_, record) => {
+                                        return (
+                                            <>
+                                                <button
+                                                    className={cx("btn btn-danger")}
+                                                    onClick={() => {
+                                                        wavesurfer.regions.list[record.id_wave].remove();
+                                                        updateDataTable(wavesurfer)
+
+                                                        setSelectedRegionKey(null)
+
+                                                    }}
+                                                >Delete</button>
+                                            </>
+                                        )
+                                    }
+                                }
                             ]}
-                        ></Table>
-                    )}
-                </div>
+                        >
+                        </Table>
+                    </Form>
+                )}
             </div>
         </div >
     );

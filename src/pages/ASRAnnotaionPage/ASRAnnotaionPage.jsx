@@ -18,7 +18,7 @@ const cx = classNames.bind(style)
 //   "https://assets.mixkit.co/active_storage/sfx/1714/1714-preview.mp3"; // khoong bi loi
 
 const data = {
-    "annotations": [
+    "annotation": [
         {
             "class_id": 3579,
             "class_name": "Human",
@@ -59,42 +59,61 @@ const data = {
 
 
 function ASRAnnotaionPage(props) {
-    const [commonInfo, setCommonInfo] = useState([
-        { color: '#474747', description: 'Other class', id: 3709, name: 'Other' },
-        { color: '#0000FF', description: 'noise', id: 3710, name: 'noise' }
-    ])
-    const [dataLabels, setDataLabels] = useState(data)
+    // const [commonInfo, setCommonInfo] = useState([
+    //     { color: '#474747', description: 'Other class', id: 3709, name: 'Other' },
+    //     { color: '#0000FF', description: 'noise', id: 3710, name: 'noise' }
+    // ])
+    // const [dataLabel, setDataLabel] = useState(data['data']);
+    // const [annotations, setAnnotations] = useState(data['annotation']);
 
-    // const [commonInfo, setCommonInfo] = useState([])
-    // const [dataLabels, setDataLabels] = useState({
-    //     'annotations': [],
-    //     'data': [],
-    // })
+    const [commonInfo, setCommonInfo] = useState([])
+    const [dataLabel, setDataLabel] = useState([
+        {
+            "file_name": "https://assets.mixkit.co/active_storage/sfx/1714/1714-preview.mp3" //url
+        }
+    ]);
+    const [annotations, setAnnotations] = useState([]);
 
+    // Full flow when anntations change
     useEffect(() => {
         console.log('on change use effect ')
         if (window.AL) {
             console.log("receive data");
-            console.log("data push result before onReceiveRequestResult : dataLabels ", dataLabels);
+            console.log(`data push result before onReceiveRequestResult : data: ${dataLabel}`);
+            console.log(`data push result before onReceiveRequestResult : annotation: ${annotations}`);
             window.AL.onReceiveRequestResult(function (data) {
-
-                const final_annotations = dataLabels['annotations']
+                // const final_annotations = annotations
                 // window.AL.pushResultFail();
                 console.log('alo onReceiveRequestResult ')
-                console.log("data push result: dataLabels ", dataLabels);
+                console.log("data push result: dataLabels ", annotations);
                 // window.AL.pushResultFail();
-                window.AL.pushResult({ 'postags': final_annotations, 'fetch_number': 1 });
+                window.AL.pushResult({ 'postags': annotations, 'fetch_number': 1 });
                 // window.AL.pushResult({'postags': dataLabels['annotations'], 'fetch_number': 1});
 
                 console.log('after push result')
-
             })
             console.log('hi')
             window.AL.onReceiveData(function (data) {
                 console.log('onReceiveData', data)
-                // setDataLabels(data)
                 if (data.length > 0) {
-                    setDataLabels(data[0])
+                    // update data - annotations
+
+                    console.log("data[0] ", data[0])
+
+                    setDataLabel(data[0]['data'])
+                    const anns = data[0]['annotation']
+                    const formatted_anns = anns.map(ele => {
+                        return {
+                            ...ele,
+                            content: {
+                                ...ele['content'],
+                                index: ele['content']['index']/1000,
+                                length: ele['content']['length']/1000
+                            }
+                        }
+                    })
+                    console.log('formatted_anns ', formatted_anns)
+                    setAnnotations(formatted_anns)
                 }
 
             })
@@ -129,7 +148,6 @@ function ASRAnnotaionPage(props) {
 
             window.AL.onUpdateSelectClass(function (data) {
                 console.log('onUpdateSelectClass data', data)
-
             });
 
             window.AL.onReceiveRequestResetCurrent(function (data) {
@@ -138,15 +156,19 @@ function ASRAnnotaionPage(props) {
 
             console.log("receive data success");
         }
-    }, [dataLabels.annotations])
+    }, [annotations])
 
     // update props
     const waveform_props = {
         // audioUrl: audioUrl,
         // annotations: annotations,
-        dataLabels: dataLabels || {}, // dataLabels
-        setDataLabels: setDataLabels,
+        // dataLabels: dataLabels || {}, // dataLabels
+        // setDataLabels: setDataLabels,
         commonInfo: commonInfo,
+
+        dataLabel,
+        annotations,
+        setAnnotations,
         ...props
     }
 
