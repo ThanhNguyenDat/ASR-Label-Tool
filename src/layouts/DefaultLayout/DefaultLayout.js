@@ -8,11 +8,17 @@ const cx = classNames.bind(styles);
 
 function DefaultLayout({ children }) {
   return (
-    <div className={cx("wrapper")}>
+    <div className={cx("wrapper hello")}>
       <Header />
-      <div className={cx("container")}>
-        {/* <Sidebar /> */}
-        <div className={cx("content")}>{children}</div>
+      <div className={cx("")}>
+        <div className="row">
+          <div className={cx("col-md-2 left-column")}> This is sidebar </div>
+          <div className="col-md-10 right-column"> {children} </div>
+          {/* <div className={cx("content")}>{children}</div> */}
+
+        </div>
+
+        
       </div>
     </div>
   );

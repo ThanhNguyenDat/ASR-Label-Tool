@@ -1,5 +1,6 @@
 import ASRAnnotaionPage from "../pages/ASRAnnotaionPage/ASRAnnotaionPage";
 import HomePage from "../pages/HomePage";
+import { HeaderOnly } from "../layouts";
 
 const routes = {
   home: "/react_label_ui",
@@ -12,7 +13,7 @@ const publicRoutes = [
   {
     path: routes.home,
     component: HomePage,
-    layout: null,
+    // layout: HeaderOnly,
   },
   {
     path: routes.label,

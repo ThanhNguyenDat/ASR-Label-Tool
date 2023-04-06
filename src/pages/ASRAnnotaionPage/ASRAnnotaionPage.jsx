@@ -88,42 +88,36 @@ function ASRAnnotaionPage(props) {
     useEffect(() => {
         console.log('on change use effect ')
         if (window.AL) {
-            console.log("receive data");
-            console.log(`data push result before onReceiveRequestResult : data: ${dataLabel}`);
-            console.log(`data push result before onReceiveRequestResult : annotation: ${annotations}`);
             window.AL.onReceiveRequestResult(function (data) {
                 // const final_annotations = annotations
                 // window.AL.pushResultFail();
-                console.log('alo onReceiveRequestResult ')
                 console.log("data push result: dataLabels ", annotations);
+                console.log("data push result: resultLabel ", resultLabel);
                 // window.AL.pushResultFail();
                 window.AL.pushResult({ 'postags': resultLabel, 'fetch_number': 1 });
                 // window.AL.pushResult({'postags': dataLabels['annotations'], 'fetch_number': 1});
 
-                console.log('after push result')
             })
-            console.log('hi')
             window.AL.onReceiveData(function (data) {
                 console.log('onReceiveData', data)
                 if (data.length > 0) {
                     // update data - annotations
-
-                    console.log("data[0] ", data[0])
-
                     setDataLabel(data[0]['data'])
                     const anns = data[0]['annotation']
-                    const formatted_anns = anns.map(ele => {
-                        return {
-                            ...ele,
-                            content: {
-                                ...ele['content'],
-                                index: ele['content']['index']/1000,
-                                length: ele['content']['length']/1000
+                    if (anns.length > 0) {
+                        const formatted_anns = anns.map(ele => {
+                            return {
+                                ...ele,
+                                content: {
+                                    ...ele['content'],
+                                    index: ele['content']['index']/1000,
+                                    length: ele['content']['length']/1000
+                                }
                             }
-                        }
-                    })
-                    console.log('formatted_anns ', formatted_anns)
-                    setAnnotations(formatted_anns)
+                        })
+                        setAnnotations(formatted_anns)
+                    } 
+
                 }
 
             })
@@ -163,10 +157,8 @@ function ASRAnnotaionPage(props) {
             window.AL.onReceiveRequestResetCurrent(function (data) {
                 console.log('onReceiveRequestResetCurrent ', data)
             });
-
-            console.log("receive data success");
         }
-    }, [annotations])
+    }, [annotations, resultLabel])
 
     // update props
     const waveform_props = {

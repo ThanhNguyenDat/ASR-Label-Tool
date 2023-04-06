@@ -11,12 +11,12 @@ const cx = classNames.bind(styles);
 
 function Header() {
     return (
-        <header className={cx("wrapper")}>
-            <div className={cx("inner")}>
+        <header className={cx("")}>
+            <div className={cx("")}>
                 {/* <Link to={routes.routes.home} className={cx("logo-link")}>
           <img src={images.logo} alt="AILab" />
         </Link> */}
-                <h1>Hi</h1>
+                <h1>Hi from Header</h1>
             </div>
         </header>
     );

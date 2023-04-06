@@ -187,9 +187,9 @@ function Waveform(props) {
             region.end = annotation.content.length + annotation.content.index
             region.data.note = annotation.content.text;
             
-            region.data.audibility = annotation.extra.classify?.audibility || "good";
-            region.data.noise = annotation.extra.classify?.noise || "clean";
-            region.data.echo = annotation.extra.classify?.echo || "clean";
+            region.data.audibility = annotation.extra?.classify?.audibility || "good";
+            region.data.noise = annotation.extra?.classify?.noise || "clean";
+            region.data.echo = annotation.extra?.classify?.echo || "clean";
             wavesurfer.addRegion(region);
         });
 
@@ -282,7 +282,7 @@ function Waveform(props) {
                     "length": parseInt(data.end_time * 1000),
                     "text": data.description || "",
                 },
-                "extra": {
+                "extras": {
                     "hard_level": 1,
                     "classify": {
                         "audibility": data.audibility,
