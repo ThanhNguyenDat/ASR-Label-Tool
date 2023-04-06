@@ -29,7 +29,11 @@ const data = {
             },
             "extra": {
                 "hard_level": 1,
-                "classify": "noise"
+                "classify": {
+                    "audibility": "good",
+                    "noise": "clean",
+                    "echo": "clean",
+                }
             }
         },
         {
@@ -42,7 +46,11 @@ const data = {
             },
             "extra": {
                 "hard_level": 0,
-                "classify": "normal"
+                "classify": {
+                    "audibility": "audible",
+                    "noise": "medium",
+                    "echo": "light",
+                }
             }
         }
     ],
@@ -65,7 +73,7 @@ function ASRAnnotaionPage(props) {
     // ])
     // const [dataLabel, setDataLabel] = useState(data['data']);
     // const [annotations, setAnnotations] = useState(data['annotation']);
-
+    
     const [commonInfo, setCommonInfo] = useState([])
     const [dataLabel, setDataLabel] = useState([
         {
@@ -73,7 +81,9 @@ function ASRAnnotaionPage(props) {
         }
     ]);
     const [annotations, setAnnotations] = useState([]);
+    
 
+    const [resultLabel, setResultLabel] = useState([]);
     // Full flow when anntations change
     useEffect(() => {
         console.log('on change use effect ')
@@ -87,7 +97,7 @@ function ASRAnnotaionPage(props) {
                 console.log('alo onReceiveRequestResult ')
                 console.log("data push result: dataLabels ", annotations);
                 // window.AL.pushResultFail();
-                window.AL.pushResult({ 'postags': annotations, 'fetch_number': 1 });
+                window.AL.pushResult({ 'postags': resultLabel, 'fetch_number': 1 });
                 // window.AL.pushResult({'postags': dataLabels['annotations'], 'fetch_number': 1});
 
                 console.log('after push result')
@@ -168,13 +178,16 @@ function ASRAnnotaionPage(props) {
 
         dataLabel,
         annotations,
-        setAnnotations,
+
+        setResultLabel,
         ...props
     }
 
     return (
         <div className={cx("container ASRAnnotaionPage")}>
             <Waveform {...waveform_props} />
+            {/* <button onClick={()=>{console.log(`result push ${resultLabel.length}: ${JSON.stringify(resultLabel)}`)}}>resultLabel</button>
+            <button onClick={()=>{console.log(`annota push ${annotations.length}: ${JSON.stringify(annotations)}`)}}>annotations</button> */}
         </div>
     );
 }

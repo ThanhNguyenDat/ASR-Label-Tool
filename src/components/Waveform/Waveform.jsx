@@ -1,13 +1,11 @@
 import classNames from "classnames/bind";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 // import { WaveSurfer } from 'wavesurfer-react';
 import WaveSurfer from "wavesurfer.js";
 
 import RegionsPlugin from "wavesurfer.js/dist/plugin/wavesurfer.regions.min.js";
 import TimelinePlugin from "wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js";
 import MinimapPlugin from "wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js";
-
-import { Form, Input, Table, Tag } from "antd";
 
 import styles from "./Waveform.scss";
 
@@ -16,53 +14,46 @@ import { useHotkeys } from "react-hotkeys-hook";
 
 import {iterifyArr} from '@utils/common/customArray'
 
+import TableCustom from "../../custom-fields/TableCustom/TableCustom";
+
 const cx = classNames.bind(styles);
+// const { Column, ColumnGroup } = Table;
+// const { Option } = Select;
+// const { CheckableTag } = Tag;
+
+const colors = {
+    low: 'green',
+    medium: 'orange',
+    high: 'red',
+    
+    // audibility
+    good: 'blue',
+    audible: 'green',
+    bad: 'red',
+
+    normal: 'blue',
+};
+  
 
 function Waveform(props) {
-    let { commonInfo, dataLabel, annotations, setAnnotations } = props;
-    const audioUrl = dataLabel[0]["file_name"]
+    let { 
+        commonInfo, 
+        dataLabel, 
+        annotations, 
 
-    const [form] = Form.useForm();
+        setResultLabel,
+    } = props;
+    const audioUrl = dataLabel[0]["file_name"]
 
     const [wavesurfer, setWavesurfer] = useState(null);
     const [selectedRegionKey, setSelectedRegionKey] = useState();
+    // const [lengthWavesurfer, setLengthWavesurfer] = useState(0);
 
-    const [dataTable, setDataTable] = useState([]);
+    const [dataTable, setDataTable] = useState([])
     const [focusCell, setFocusCell] = useState({ row: null, col: null });
 
     const waveRef = useRef(null);
     const timelineRef = useRef(null);
-
-    useHotkeys("space", () => {
-        if (wavesurfer) {
-            if (wavesurfer.isPlaying()) {
-                wavesurfer.pause();
-            } else {
-                wavesurfer.play();
-            }
-        }
-    });
-
-    // disable because focus <input description>
-    useHotkeys("delete", () => {
-        // const row = dataTable.find(data => data.key === selectedRegionKey)
-        // const id_wave = row && row.hasOwnProperty("id_wave") ? row.id_wave : null
-        const id_wave = getIdByKey(selectedRegionKey);
-
-        if (wavesurfer && id_wave) {
-            wavesurfer.regions.list[id_wave].remove();
-            updateDataTable(wavesurfer)
-            setSelectedRegionKey(null)
-        }
-    })
-
-    // useHotkeys("tab", (event) => {
-    //     event.preventDefault();
-
-    //     // find current cell in table
-    //     const activateCell = document.activeElement;
-    //     console.log(activateCell);
-    // })
 
     /*
      * Initial wavesurfer
@@ -102,8 +93,6 @@ function Waveform(props) {
 
                 // load new anntations
                 loadRegions(annotations, wavesurferInstance);
-                updateDataTable(wavesurferInstance);
-
                 setWavesurfer(wavesurferInstance);
             });
         }
@@ -120,12 +109,17 @@ function Waveform(props) {
                 region.update({
                     color: randomColor(0.6),
                 });
-                updateDataAnnotations(wavesurfer)
             });
 
             wavesurfer.on("region-click", function (region, event) {
-                event.stopPropagation();
+                console.log("wavesurfer: ", wavesurfer.regions.list);
+                const newDataTable = updateDataTableByWavesurfer(wavesurfer);
+                updateResultLabel(newDataTable);
 
+                console.log('new dataTable: ', newDataTable)
+
+                event.stopPropagation();
+                // play region and replay region
                 region.play()
                 if (event.shiftKey) {
                     console.log("shift key");
@@ -138,12 +132,28 @@ function Waveform(props) {
                         loop: false
                     })
                 }
+
+                // focus description
+                const row = newDataTable.find((d) => d.wave_id === region.id)
+                console.log('row: ', row)
+                if (row && row.hasOwnProperty('key')) {
+                    setSelectedRegionKey(row.key);
+                    setFocusCell({ row: row.id, col: "description" });
+                };
+                const rowElement = document.querySelector(`tr[data-row-key="${row?.key}"]`);
+                if (rowElement) {
+                    rowElement.click();
+                    rowElement.querySelector(`input[data-key="description"]`)?.focus()
+                }
             });
 
             // Set Annotaions and Length Wavesurfer
             wavesurfer.on("region-updated", (region) => {
-                updateDataTable(wavesurfer);
                 setSelectedRegionKey(region.id);
+
+                const newDataTable = updateDataTableByWavesurfer(wavesurfer);
+                updateResultLabel(newDataTable);
+                
             });
 
             // Create new region
@@ -164,138 +174,243 @@ function Waveform(props) {
         }
     }, [wavesurfer]);
 
-    // handle event
-    useEffect(() => {
-        wavesurfer?.on("region-click", (region) => {
-            const row = dataTable.find((d) => d.id_wave === region.id)
-            if (row && row.hasOwnProperty('key')) {
-                setSelectedRegionKey(row.key);
-                setFocusCell({ row: row.id, col: "description" });
-            };
-
-            const rowElement = document.querySelector(`tr[data-row-key="${row?.key}"]`);
-            if (rowElement) {
-                rowElement.click();
-
-                const des = rowElement.querySelector(`input[data-key="description"]`)
-                if (des) des.focus()
-            }   
-        })
-
-        wavesurfer?.on("region-created", (region) => {
-            console.log("update");
-            const row = dataTable.find((d) => d.id_wave === region.id)
-            if (row && row.hasOwnProperty('key')) {
-                setSelectedRegionKey(row.key);
-                setFocusCell({ row: row.id, col: "description" });
-            };
-
-            const rowElement = document.querySelector(`tr[data-row-key="${row?.key}"]`);
-            if (rowElement) {
-                rowElement.click();
-
-                const des = rowElement.querySelector(`input[data-key="description"]`)
-                if (des) des.focus()
-            }   
-        })
-
-    }, [dataTable.length])
-
     /**
      * Load annotations
      */
     const loadRegions = (annotations, wavesurfer) => {
-        annotations.forEach((annotation) => {
-            annotation.color = randomColor(0.6);
-            annotation.data = {};
-            annotation.data.note = annotation['content']['text'];
-            annotation.start = annotation['content']['index']
-            annotation.end = annotation['content']['length'] + annotation['content']['index']
-            wavesurfer.addRegion(annotation);
+        annotations.map((annotation, index) => {
+            const region = {}
+            region.color = randomColor(0.2);
+            region.data = {};
+            
+            region.start = annotation.content.index
+            region.end = annotation.content.length + annotation.content.index
+            region.data.note = annotation.content.text;
+            
+            region.data.audibility = annotation.extra.classify?.audibility || "good";
+            region.data.noise = annotation.extra.classify?.noise || "clean";
+            region.data.echo = annotation.extra.classify?.echo || "clean";
+            wavesurfer.addRegion(region);
         });
-        updateDataTable(wavesurfer);
+
+        const newDataTable = updateDataTableByWavesurfer(wavesurfer);
+        updateResultLabel(newDataTable);
     };
+    
+    const updateDataTableByWavesurfer = (wavesurfer) => {
+        const wavesurferRegionList = Object.values(wavesurfer.regions.list);
+        // sort by start of wavesurfer
+        wavesurferRegionList.sort((a, b) => a.start - b.start);
+
+        const newDataTable = wavesurferRegionList.map((region, index) => {
+            return {
+                ...region.data,
+
+                key: index,        
+                id: index,
+                wave_id: region.id,
+                
+                start_time: Math.round(region.start * 1000) / 1000,
+                end_time: Math.round(region.end * 1000) / 1000,
+                description: region.data.note,
+                color: region.color,
+
+                audibility: region.data.audibility || "good",
+                noise: region.data.noise || "clean",
+                echo: region.data.echo || "clean"
+            }
+        })
+        setDataTable(newDataTable);
+        return newDataTable
+    }
+
+
+    // To do: update wavesurfer
+    const updateWavesurferByDataTable = (dataTable) => {
+        // const wave_id = dataTable.find(data => data.wave_id === 'wave_id')
+        if (wavesurfer){
+            dataTable.forEach((row, rowIndex)=> {
+                const region = wavesurfer.regions.list[row.wave_id]
+
+                region.start = row.start_time;
+                region.end = row.end_time;
+                region.data.note = row.description;
+
+                region.data.audibility = row.audibility;
+                region.data.noise = row.noise;
+                region.data.echo = row.echo;
+            })        
+        }
+    }
 
     /**
      * Update data table
      */
-    const updateDataTable = (wavesurfer) => {
-        const wavesuferObjs = wavesurfer.regions.list;
-        const wavesuferArray = Object.values(wavesuferObjs);
-        // sort value by start time
-        wavesuferArray.sort((a, b) => a.start - b.start);
-
-        const _dataTable = wavesuferArray.map((region, index) => {
-            return {
-                key: index,
-                id: index,
-                start_time: Math.round(region.start * 100) / 100,
-                end_time: Math.round(region.end * 100) / 100,
-                description: region.data.note,
-                color: region.color,
-                id_wave: region.id
-            };
-        });
-
-        setDataTable(_dataTable);
-        updateDataAnnotations(wavesurfer);
-    };
-
-    const formatDataAnnotaions = (wavesurfer) => {
-        if (wavesurfer) {
-            const waveArray = Object.values(wavesurfer.regions.list)
-            const formatted = waveArray.map((region, index) => {
-                return {
-                    "class_id": commonInfo[0].id,
-                    "class_name": "Human",
-                    "tag": {
-                        "index": parseInt(region.start * 1000), // start
-                        "length": parseInt((region.end - region.start) * 1000), // end - start
-                        "text": region.data.note || "" // description
-                    },
-                    "extra": {
-                        "hard_level": 1,
-                        "classify": "noise"
-                    },
-                    'data_cat_id': dataLabel[0]['data_cat_id'],
-                    'dataset_id': dataLabel[0]['dataset_id'],
-                    'seed': dataLabel[0]['seed'],
-                    'item_id': dataLabel[0]['id'],
-                }
-            })
-            return formatted
-        }
-    }
-
-    const updateDataAnnotations = (wavesurfer) => {
-        const list_formatted_anns = formatDataAnnotaions(wavesurfer)
-        setAnnotations(list_formatted_anns)
-    }
-
-    const updateWavesurferFromDataTable = (updatedDataTable) => {
-        updatedDataTable.forEach(data => {
-            const id_wave = data['id_wave'];
-            wavesurfer.regions.list[id_wave].start = data.start_time;
-            wavesurfer.regions.list[id_wave].end = data.end_time;
-            wavesurfer.regions.list[id_wave].data.note = data.description;
-        })
-    }
-
-    function getKeyById (id_wave) {
-        // convert table key to wavesurfer id
-        const row = dataTable.find(data => data.id_wave = id_wave)
-        const key_table = row.key
-        return key_table
-    }
-
-    function getIdByKey(key_table) {
-        // convert wavesurfer id to table key
-        const row = dataTable.find(data => data.key === key_table)
-        if (row && row.hasOwnProperty("id_wave")) {
-            return row.id_wave
-        }
-        return
+    const updateDataTablePerCell = (rowIndex, columnId, value) => {
+        // We also turn on the flag to not reset the page
+        console.log(`update data table info: ${rowIndex} ${columnId} ${value}`)
         
+        const newDataTable = dataTable.map((row, index) => {
+            if (index===rowIndex) {
+                return {
+                    ...dataTable[rowIndex],
+                    [columnId]: value
+                }
+            }
+            return row
+        })
+        
+        setDataTable(newDataTable)
+        
+        // To do: update wavesurfer
+        updateWavesurferByDataTable(newDataTable);
+
+        // Update annotaion
+        updateResultLabel(newDataTable);
+    }
+
+
+    // BUTTON NEXT
+    // Todo: update follow both dataTable and wavesurfer
+    const formatResultLabel = (dataTable) => {
+        const formatted = dataTable.map((data, index) => {
+            return {
+                "class_id": commonInfo[0]?.id || undefined,
+                "class_name": "Human",
+                "tag": {
+                    "index": parseInt(data.start_time * 1000),
+                    "length": parseInt(data.end_time * 1000),
+                    "text": data.description || "",
+                },
+                "extra": {
+                    "hard_level": 1,
+                    "classify": {
+                        "audibility": data.audibility,
+                        "noise": data.noise,
+                        "echo": data.echo,
+                    }
+                },
+                'data_cat_id': dataLabel[0]['data_cat_id'],
+                'dataset_id': dataLabel[0]['dataset_id'],
+                'seed': dataLabel[0]['seed'],
+                'item_id': dataLabel[0]['id'],
+            }
+        });
+        
+        return formatted;
+        // if (wavesurfer) {
+        //     const waveArray = Object.values(wavesurfer.regions.list)
+        //     const formatted = waveArray.map((region, index) => {
+        //         return {
+        //             "class_id": commonInfo[0].id,
+        //             "class_name": "Human",
+        //             "tag": {
+        //                 "index": parseInt(region.start * 1000), // start
+        //                 "length": parseInt((region.end - region.start) * 1000), // end - start
+        //                 "text": region.data.note || "" // description
+        //             },
+        //             "extra": {
+        //                 "hard_level": 1,
+        //                 "classify": {
+        //                     "audibility": region.data.audibility,
+        //                     "noise": region.data.noise,
+        //                     "echo": region.data.echo
+        //                 }
+        //             },
+        //             'data_cat_id': dataLabel[0]['data_cat_id'],
+        //             'dataset_id': dataLabel[0]['dataset_id'],
+        //             'seed': dataLabel[0]['seed'],
+        //             'item_id': dataLabel[0]['id'],
+        //         }
+        //     })
+        //     return formatted
+        // }
+        
+    }
+
+    const updateResultLabel = (dataTable) => {
+        const list_formatted_anns = formatResultLabel(dataTable)
+        setResultLabel(list_formatted_anns)
+    }
+
+    // updateDataAnnotations(dataTable);
+    const columns = [
+        {
+            title: "Start Time",
+            dataIndex: "start_time",
+            key: "start_time",
+            width: "10%",
+            editInput: true,
+        },
+        {
+            title: "End Time",
+            dataIndex: "end_time",
+            key: "end_time",
+            width: "10%",
+            editInput: true,
+        },
+        {
+            title: "Description",
+            dataIndex: "description",
+            key: "description",
+            width: "40%",
+            editInput: true,
+        },
+        {
+            title: "Audibility",
+            dataIndex: "audibility",
+            key: "audibility",
+            width: "10%",
+            editSelectOption: [
+                {value: "good", color: "blue"}, 
+                {value: "audible", color: "green"}, 
+                {value: "bad", color: "red"}
+            ]
+        },
+        {
+            title: "Noise",
+            dataIndex: "noise",
+            key: "noise",
+            width: "10%",
+            editSelectOption: [
+                {value:"heavy", color: "red"},
+                {value:"medium", color: "orange"},
+                {value:"light", color: "green"},
+                {value:"clean", color: "blue"}
+            ]
+        },
+        {
+            title: "Echo",
+            dataIndex: "echo",
+            key: "echo",
+            width: "10%",
+            editSelectOption: [
+                {value:"heavy", color: "red"},
+                {value:"medium", color: "orange"},
+                {value:"light", color: "green"},
+                {value:"clean", color: "blue"}
+            ]
+        },
+        {
+            title: "Operations",
+            dataIndex: "operations",
+            key: "operations",
+            width: "5%",
+            buttonTypes: [
+                {type: 'delete', handleFunction: handleDeleteRow}
+            ],
+        }
+    ]
+
+    function handleDeleteRow(record) {
+        wavesurfer.regions.list[record.wave_id].remove();
+        const newDataTable = [...dataTable];
+        const id = newDataTable.findIndex((item) => item.wave_id === record.wave_id);
+        newDataTable.splice(id, 1);
+        
+        setDataTable(newDataTable)
+        updateResultLabel(newDataTable)
+        setSelectedRegionKey(null);
     }
 
     return (
@@ -322,193 +437,26 @@ function Waveform(props) {
             </div>
 
             <div className={cx("row")}>
-                {dataTable && (
-                    <Form form={form}>
-                        <Table
-                            pagination={{ pageSize: 5 }}
-                            dataSource={dataTable}
-                            onRow={(record, rowIndex) => {
-                                return {
-                                    onClick: event => {
-                                        setSelectedRegionKey(record.key);
+                    <TableCustom 
+                        columns={columns}
+                        dataTable={dataTable}
+                        setDataTable={setDataTable}
+                        updateDataTablePerCell={updateDataTablePerCell}
 
-                                        form.setFieldsValue({
-                                            start_time: record.start_time,
-                                            end_time: record.end_time,
-                                            description: record.description
-                                        })
+                        playWaveform={wavesurfer}
 
-                                        // play region
-                                        const region = wavesurfer.regions.list[record.id_wave]
-                                        if (region) {
-                                            region.play();
-                                        }
-                                    },
-                                    // onBlur: event => {
-                                    //     console.log("onblur: ", record);
-                                    //     setSelectedRegionKey(null);
-                                    // },
-                                    onChange: event => {
-                                        let tmp_values = form.getFieldsValue()
-                                        
-                                        // parse Int
-                                        const values = {
-                                            ...tmp_values,
-                                            start_time: parseFloat(tmp_values.start_time),
-                                            end_time: parseFloat(tmp_values.end_time)
-                                        }
+                        setSelectedRegionKey={setSelectedRegionKey}
+                        selectedRegionKey={selectedRegionKey}
+                        setFocusCell={setFocusCell}
+                        focusCell={focusCell}
 
-                                        // update data when change input
-                                        let updateData = [...dataTable]
+                        updateWavesurferByDataTable={updateWavesurferByDataTable}
 
-                                        updateData.splice(selectedRegionKey, 1, { ...record, ...values, key: selectedRegionKey })
-                                        setDataTable(updateData);
-
-
-                                        updateWavesurferFromDataTable(updateData);
-
-                                        // update annotation after change value typing
-                                        updateDataAnnotations(wavesurfer)
-                                    }
-                                }
-                            }}                            
-
-                            columns={[
-                                // { title: "Index", dataIndex: "id", key: "id" },
-                                {
-                                    title: "Start Time",
-                                    dataIndex: "start_time",
-                                    key: "start_time",
-                                    width: "10%",
-                                    onCell: (record, rowIndex) => {
-                                        return {
-                                            onClick: event => {
-                                                setFocusCell({ row: rowIndex, col: "start_time" });
-                                            }
-                                        }
-                                    },
-                                    render: (text, record, index) => {
-                                        if (record.key === selectedRegionKey) {
-                                            const shouldFocus = focusCell.row === index && focusCell.col === "start_time";
-                                            
-                                            return (<Form.Item
-                                                name="start_time"
-                                                rules={[
-                                                    {
-                                                        required: true,
-                                                        message: "Enter your start time"
-                                                    }
-                                                ]}
-                                            >
-                                                <Input data-key="start_time" autoFocus={shouldFocus}/>
-                                            </Form.Item>)
-                                        } else {
-                                            return <p>{text}</p>
-                                        }
-                                    }
-                                },
-                                {
-                                    title: "End Time",
-                                    dataIndex: "end_time",
-                                    key: "end_time",
-                                    width: "10%",
-                                    onCell: (record, rowIndex) => {
-                                        return {
-                                            onClick: event => {
-                                                setFocusCell({ row: rowIndex, col: "end_time" });
-                                            }
-                                        }
-                                    },
-                                    render: (text, record, index) => {
-                                        if (record.key === selectedRegionKey) {
-                                            const shouldFocus = focusCell.row === index && focusCell.col === "end_time";
-                                            
-                                            return (
-                                                <Form.Item
-                                                    name="end_time"
-                                                    rules={[
-                                                        {
-                                                            required: true,
-                                                            message: "Enter your end time"
-                                                        }
-                                                    ]}
-                                                >
-                                                    <Input data-key="end_time" autoFocus={shouldFocus}/>
-                                                </Form.Item>)
-                                        } else {
-                                            return <p>{text}</p>
-                                        }
-                                    }
-                                },
-                                {
-                                    title: "Description",
-                                    dataIndex: "description",
-                                    key: "description",
-                                    width: "70%",
-                                    onCell: (record, rowIndex) => {
-                                        return {
-                                            onClick: event => {
-                                                setFocusCell({ row: rowIndex, col: "description" });
-                                            }
-                                        }
-                                    },
-                                    render: (text, record, index) => {
-                                        if (record.key === selectedRegionKey) {
-                                            const shouldFocus = focusCell.row === index && focusCell.col === "description";
-                                            
-                                            return (<Form.Item
-                                                name="description"
-                                                rules={[
-                                                    {
-                                                        required: true,
-                                                        message: "Enter your description"
-                                                    }
-                                                ]}
-                                            >
-                                                <Input data-key="description" autoFocus={shouldFocus}/>
-                                            </Form.Item>)
-                                        } else {
-                                            return <p>{text}</p>
-                                        }
-                                    }
-                                },
-                                {
-                                    title: "Operations",
-                                    dataIndex: "operations",
-                                    key: "operations",
-                                    width: "10%",
-                                    onCell: record => {
-                                        return {
-                                            onClick: event => {
-                                                event.stopPropagation(); // this will avoid onRow being called
-                                            }
-                                        }
-                                    },
-                                    render: (_, record) => {
-                                        return (
-                                            <>
-                                                <button
-                                                    className={cx("btn btn-danger")}
-                                                    onClick={() => {
-                                                        wavesurfer.regions.list[record.id_wave].remove();
-                                                        updateDataTable(wavesurfer)
-
-                                                        setSelectedRegionKey(null)
-
-                                                    }}
-                                                >Delete</button>
-                                            </>
-                                        )
-                                    }
-                                }
-                            ]}
-                        >
-                        </Table>
-                    </Form>
-                )}
+                    />    
             </div>
         </div >
     );
 }
+
 
 export default Waveform;
