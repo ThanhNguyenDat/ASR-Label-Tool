@@ -1,0 +1,16 @@
+version: '3'
+services:
+  frontend:
+    stdin_open: true
+    tty: true
+    container_name: ailab-label-react
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    env_file: .env
+    ports:
+      - "${REACT_APP_DEVELOPMENT_PORT}:3000"
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    
