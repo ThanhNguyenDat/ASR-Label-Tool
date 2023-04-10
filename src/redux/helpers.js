@@ -21,9 +21,11 @@ export const callbackError = (ctx, result) => {
 
 export const callbackSuccess = (ctx, result) => {
   if (ctx && ctx.reject && _.isFunction(ctx.resolve)) {
+    console.log(`callbackSuccess  System error: ctx: ${ctx} \t result: ${result}`)
     return ctx.resolve(result || 'System error.');
   }
   if (ctx && ctx.onSuccess && _.isFunction(ctx.onSuccess)) {
+    console.log(`callbackSuccess  System succes: ctx: ${ctx} \t result: ${result}`)
     return ctx.onSuccess(result || null);
   }
 };

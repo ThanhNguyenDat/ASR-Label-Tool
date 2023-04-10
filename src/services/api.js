@@ -4,13 +4,14 @@ import { parseJSONtoParam } from '../utils/commonUtils';
 const BASE_URL = process.env.BASE_API_URL;
 
 export const signInRequest = data => {
-  console.log(data);
-  return APIUtils.Post(`${BASE_URL}/api/account/signin`, data);
+  // return APIUtils.Post(`${BASE_URL}/api/account/signin`, data);
+  return APIUtils.Post(`http://0.0.0.0:5000/api/account/signin`, data);
 };
 
 export const logoutRequest = () => APIUtils.Get(`${BASE_URL}/api/account/logout`);
 
-export const getLoginInfo = () => APIUtils.Get(`${BASE_URL}/api/account/login-info`);
+// export const getLoginInfo = () => APIUtils.Get(`${BASE_URL}/api/account/login-info`); // sua
+export const getLoginInfo = () => APIUtils.Get(`http://0.0.0:5000/api/account/login-info`);
 
 export const getListUserRole = () => APIUtils.Get(`${BASE_URL}/api/account/get-roles`);
 

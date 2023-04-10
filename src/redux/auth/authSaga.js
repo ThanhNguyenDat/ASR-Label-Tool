@@ -10,11 +10,16 @@ function* handleGeSignIn({ ctx }) {
     const username = ctx?.username ?? '';
     const password = ctx?.password ?? '';
     yield put({ type: SIGN_IN_ASYNC.START });
+    console.log('handleGeSignIn before call api: ', username)
     const result = yield call(signInRequest, { username, password });
-    yield put({ type: SIGN_IN_ASYNC.SUCCESS, data: result.data });
-    callbackSuccess(ctx, result);
+    console.log('handleGeSignIn after call api: ', result);
+
+    yield put({ type: SIGN_IN_ASYNC.SUCCESS, data: result.data }); // why put but dont ????
+    
+    callbackSuccess(ctx, result); // why error system?
+    console.log('handleGeSignIn Final: ', result);
   } catch (err) {
-    console.error(err);
+    console.error(`handleGeSignIn Error: ${err}`);
     callbackError(ctx, err);
   }
 }
