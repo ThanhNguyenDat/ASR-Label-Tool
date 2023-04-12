@@ -1,8 +1,11 @@
 version: '3'
 services:
-  database:
+  db:
     image: postgres:11-alpine
-    env_file: .env
+    # restart: unless-stopped
+    restart: always
+    env_file: 
+      - .env
     hostname: ${POSTGRES_HOSTNAME}
     ports:
       - "${POSTGRES_PORT}:5432"
@@ -13,13 +16,13 @@ services:
     volumes:
       - ./postgres_data/dump:/tmp/dump
       - ./postgres_data/script:/docker-entrypoint-initdb.d
-    restart: unless-stopped
 
-  backend-fastapi:
-    stdin_open: true
-    tty: true
+  server:
+    # stdin_open: true
+    # tty: true
     env_file: .env
     container_name: backend-fastapi
+    command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; uvicorn app:app --reload --host 0.0.0.0 --port 8000'
     build: 
       context: .
       dockerfile: Dockerfile
@@ -27,8 +30,10 @@ services:
       - "8000:8000"
     volumes:
       - ./app:/code/app
+    environment:
+      - POSTGRES_CONNECT_STRING=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
     depends_on:
-      - database
+      - db
 
 volumes:
   postgres_data:

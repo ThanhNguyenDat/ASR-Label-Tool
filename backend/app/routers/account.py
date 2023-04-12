@@ -25,8 +25,7 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 router = APIRouter(
-    # dependencies=[Depends()],
-    
+    # dependencies=[Depends()],    
 )
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -45,15 +44,13 @@ def get_user(username):
 
 def add_user(username, password, email):
     session = DBSession()
-    
     user = session.query(User).filter_by(username=username).first()
     if user:
         session.close()
         return False
     
-
     password_hashed = pwd_context.hash(password)
-    user = User(username, password_hashed, email)
+    user = User(username=username, password=password_hashed, email=email)
     session.add(user)
     session.commit()
     session.close()
@@ -168,13 +165,27 @@ async def signup(request: Request):
     username = req.get("username")
     password = req.get("password")
     email = req.get("email", "")
-    add_user(username, password, email)
-    content = {
-        "data": "sucess"
-    }
+    isSuccess = add_user(username, password, email)
+    if isSuccess:
+        content = {
+            "data": "sucess"
+        }
+    else:
+        content = {
+            "data": "fail"
+        }
     response = JSONResponse(content=content)
     return response
 
+
+@router.get("/users-roles")
+async def user_role():
+    session = DBSession()
+    # users_roles = session.query(User, Role).select_from(UserRole).join(User).join(Role).all()
+    users_roles = session.query(User, Role).select_from(UserRole).join(User).join(Role).filter(User.username == 'admin').all()
+
+    for user, role in users_roles:
+         print(f"User '{user.username}' is in role '{role.name}'")
 
 
 @router.get("/test_query_sql")
