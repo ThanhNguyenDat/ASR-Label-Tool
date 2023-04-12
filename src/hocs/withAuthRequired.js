@@ -1,5 +1,6 @@
-import React, { Suspense, Component, useState, useEffect } from 'react';
-import { connect } from 'react-redux';
+import React, { useCallback, useEffect } from 'react';
+import { connect, useSelector, useDispatch } from 'react-redux';
+
 import * as _ from 'lodash';
 
 import { getLoginInfoAsync } from '@redux/auth/authActions';
@@ -8,42 +9,47 @@ import { getListUserRoleAsync } from '@redux/user-role/user-role.action';
 import { getRoleNameById } from '@helpers/common';
 
 import { withPromiseAndDispatch } from '../helpers';
+import { useNavigate } from 'react-router-dom';
 
 
-function AuthComponent(Children, roles) {
-  // console.log(Children)
-  // console.log(roles)
-  // const [loaded, setLoaded] = useState(false)
+function AuthComponent ({children, roles}) {  
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  // useEffect(() => {
-    
-  // }, [])
+  const user = useSelector(state => state.authReducer.user);
+  // const userRoles = useSelector(state => state.userRoleReducer?.list ?? []);
+  
+  // const getLoginInfo = useCallback(ctx => withPromiseAndDispatch(getLoginInfoAsync, ctx, dispatch), [dispatch]);
+  // const getRoles = useCallback(ctx => withPromiseAndDispatch(getListUserRoleAsync, ctx, dispatch), [dispatch]);
+  const [isAuthen, setIsAuthen] = React.useState(false);
+  
 
-  function checkUserPermission(user, allRoles, permissionRoles) {
-    if (user?.roleId === -1) {
-      throw new Error(`RoleId: ${user?.roleId} is denied !!!`);
+  useEffect(() => {
+    let checkUserPermission = (userRoleName, permissionRoles) => {
+        if (!_.isEmpty(permissionRoles) && !permissionRoles.includes(userRoleName)) {
+          return false
+        }
+        return true
+    };
+
+    if (user && checkUserPermission(user.roles[0], roles)) {
+      setIsAuthen(true);
+    } else {
+      setIsAuthen(false);
+      navigate("/notfound");
     }
-  }
+  }, [])
 
 
   return (
-    <Suspense fallback={<div className='loading'/>}>
-      <Children />
-    </Suspense>
+    <>
+      {isAuthen ? (
+        <React.Suspense fallback={<div className='loading'/>}>
+          {children}
+        </React.Suspense>
+      ) : <div className="loading"></div>}
+    </>
   )
 }
 
-const mapStateToProps = state => ({
-  user: state.authReducer.user,
-  userRoles: state.userRoleReducer?.list ?? [],
-});
-
-const mapDispatchToProps = dispatch => ({
-  getLoginInfo: ctx => withPromiseAndDispatch(getLoginInfoAsync, ctx, dispatch),
-  getRoles: ctx => withPromiseAndDispatch(getListUserRoleAsync, ctx, dispatch),
-});
-
 export default AuthComponent
-
-// error: 
-// export default connect(mapStateToProps, mapDispatchToProps)(AuthComponent);

@@ -10,5 +10,4 @@ export const signInAsync = ctx => ({ type: SIGN_IN_ASYNC.HANDLER, ctx });
 
 export const getLoginInfoAsync = ctx => ({ type: GET_LOGIN_INFO_ASYNC.HANDLER, ctx });
 
-
 export const changeUserPasswordAsync = ctx => ({ type: CHANGE_USER_PASSWORD_ASYNC.HANDLER, ctx });

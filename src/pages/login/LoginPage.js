@@ -26,14 +26,13 @@ const Login = ({ history }) => {
     initialValues: { username: '', password: '' },
     validationSchema: SignInSchema,
     onSubmit: async values => {
-      // console.log("user pass: ", values);
       // Store.removeNotification(); //bug
       try {
         const result = await signIn(values);
         console.log('logined: ', result);
         // history.push('/react_label_ui'); // ??? what is history?
         // console.log("history: ", history)
-        // navigate("/react_label_ui") // redirect /react_label_ui
+        navigate("/") // redirect /react_label_ui
       } catch (err) {
         Store.addNotification({
           title: 'Error!',

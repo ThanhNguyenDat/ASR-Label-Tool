@@ -45,7 +45,6 @@ export default class APIUtils {
 
   static Post = (url, data) =>
   {
-    console.log(`url: ${url} \t data: ${data}`)
     return new Promise((resolve, reject) =>
     fetch(url, {
       method: 'post',

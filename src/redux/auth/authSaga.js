@@ -1,3 +1,4 @@
+
 import { takeLatest, call, put } from 'redux-saga/effects';
 
 import { signInRequest, getLoginInfo, changePassword } from '@services/api';
@@ -10,12 +11,28 @@ function* handleGeSignIn({ ctx }) {
     const username = ctx?.username ?? '';
     const password = ctx?.password ?? '';
     yield put({ type: SIGN_IN_ASYNC.START });
-    console.log('handleGeSignIn before call api: ', username)
-    const result = yield call(signInRequest, { username, password });
-    console.log('handleGeSignIn after call api: ', result);
-
-    yield put({ type: SIGN_IN_ASYNC.SUCCESS, data: result.data }); // why put but dont ????
     
+    // const result = yield call(signInRequest, { username, password });
+    const result = {
+      "data": {
+          "user": {
+              "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6dHJ1ZSwiaWF0IjoxNjgxMTc5OTA4LCJqdGkiOiJmOThiOGQ5Yy04MmVmLTQyNTctYTdhNS1kOTEzMmVhNGI0MDciLCJ0eXBlIjoiYWNjZXNzIiwic3ViIjoxLCJuYmYiOjE2ODExNzk5MDgsImV4cCI6MTY4MTE4MTcwOH0.vTaAs2_1g0BECNXFvgqtAiVUjaF8XCRAQbz5bLo3Woc",
+              "email": "root_ailab@gmail.com",
+              "id": 1,
+              "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY4MTE3OTkwOCwianRpIjoiZWFkNzM2MWQtYTk1Mi00OWE2LTkyNTAtODRkZjlkOGI0NjMzIiwidHlwZSI6InJlZnJlc2giLCJzdWIiOjEsIm5iZiI6MTY4MTE3OTkwOCwiZXhwIjoxNjgzNzcxOTA4fQ.3nAyA1hujlLw6UPS8gGeEFhmaTH9is3um_cO2jlDeqI",
+              "roles": [
+                  "admin"
+              ],
+              "username": "admin"
+          }
+      },
+      "error_code": 0,
+      "message": "Login successful",
+      "success": true
+    };
+
+    console.log(`result call api: ${JSON.stringify(result)}`)
+    yield put({ type: SIGN_IN_ASYNC.SUCCESS, data: result.data }); // why put but dont ????
     callbackSuccess(ctx, result); // why error system?
     console.log('handleGeSignIn Final: ', result);
   } catch (err) {
