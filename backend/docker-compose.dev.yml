@@ -1,0 +1,35 @@
+version: '3'
+services:
+  database:
+    image: postgres:11-alpine
+    env_file: .env
+    hostname: ${POSTGRES_HOSTNAME}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ./postgres_data/dump:/tmp/dump
+      - ./postgres_data/script:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+
+  backend-fastapi:
+    stdin_open: true
+    tty: true
+    env_file: .env
+    container_name: backend-fastapi
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/code/app
+    depends_on:
+      - database
+
+volumes:
+  postgres_data:
+  app:
