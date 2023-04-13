@@ -3,10 +3,11 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames/bind';
 
 import { Form, Input, Table, Tag } from "antd";
+import { propTypes } from 'react-bootstrap/esm/Image';
 
 const cx = classNames.bind();
 
-function TableCustom ({columns, dataTable, ...rest}) {   
+function TableWaveform ({columns, dataTable, ...rest}) {   
     const [form] = Form.useForm();
 
     const {
@@ -63,6 +64,10 @@ function TableCustom ({columns, dataTable, ...rest}) {
                         )  
                         
                     } else {
+                        if (col.tagColor)
+                        {
+                            return <Tag color={col.tagColor}>{text}</Tag>
+                        }
                         return <p>{text}</p>
                     }
                 }
@@ -88,8 +93,7 @@ function TableCustom ({columns, dataTable, ...rest}) {
                     const color = selectOptions.find(option => option.value === text).color;
 
                     if (record.key === selectedRegionKey) {
-                        const shouldFocus = focusCell.row === index && focusCell.col === col.key;
-
+                        
                         return (    
                             <Form.Item
                                 name={col.key}
@@ -103,8 +107,7 @@ function TableCustom ({columns, dataTable, ...rest}) {
                                 <select 
                                     className={cx('form-select')}
                                     style={{color: color}}
-                                    // autoFocus={shouldFocus}
-                                    // openMenuOnFocus={shouldFocus}
+                                    
                                 >
                                     {selectOptions.map(option => {
                                         return (
@@ -119,9 +122,8 @@ function TableCustom ({columns, dataTable, ...rest}) {
                     }
                     }
                 }
-            }
+        }
         
-
         if (col.buttonTypes) {
             return {
                 ...col,
@@ -133,47 +135,17 @@ function TableCustom ({columns, dataTable, ...rest}) {
                     }
                 },
                 render: (text, record, index) => {
-                    let checker = (arr, target) => {
+                    let checkEvery = (arr, target) => {
                         return (typeof target === 'string') ? 
                         arr.includes(target) : target.every(v=> arr.includes(v))
                     };
-
-                    // const buttonTypes = col.buttonTypes;
-                    
                     
                     const buttonTypes = col.buttonTypes.map(button => {
                         return button.type
                     })
                     
-
-                    // both delete and edit
-                    if (checker(buttonTypes, ['delete', 'edit'])) {
-                        return (
-                            <div className={cx('row')}>
-                                <div className={cx('col')}>
-                                    <button
-                                        className={cx("btn btn-primary")}
-                                        onClick={() => {
-                                            // wavesurfer.regions.list[record.id_wave].remove();
-                                            setSelectedRegionKey(null)
-                                        }}
-                                    >Edit</button>
-                                </div>
-                                <div className={cx('col')}>
-                                    <button
-                                        className={cx("btn btn-danger")}
-                                        onClick={() => {
-                                            // wavesurfer.regions.list[record.id_wave].remove();
-                                            setSelectedRegionKey(null)
-                                        }}
-                                    >Delete</button>
-                                </div>
-                            </div>
-                        )
-                    }
-                    
                     // only delete button
-                    if (checker(buttonTypes, 'delete')) {
+                    if (checkEvery(buttonTypes, 'delete')) {
                         return (
                             <button
                                 className={cx("btn btn-danger")}
@@ -186,19 +158,15 @@ function TableCustom ({columns, dataTable, ...rest}) {
                             >Delete</button>
                         )
                     }
+                }
+            }
+        }
 
-                    // only edit button
-                    if (checker(buttonTypes, 'edit')) {
-                        return (
-                            <button
-                                className={cx("btn btn-primary")}
-                                onClick={() => {
-                                    // wavesurfer.regions.list[record.id_wave].remove();
-                                    setSelectedRegionKey(null)
-                                }}
-                            >Edit</button>
-                        )
-                    }
+        if (col.tagColor) {
+            return {
+                ...col,
+                render: (text, record, index) => {
+                    return <Tag color={col.tagColor}>{text}</Tag>
                 }
             }
         }
@@ -232,8 +200,8 @@ function TableCustom ({columns, dataTable, ...rest}) {
     );
 };
 
-TableCustom.propTypes = {
-    
+TableWaveform.propTypes = {
+
 };
 
-export default TableCustom;
+export default TableWaveform;

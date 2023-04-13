@@ -5,6 +5,7 @@ import WaveSurfer from "wavesurfer.js";
 
 import RegionsPlugin from "wavesurfer.js/dist/plugin/wavesurfer.regions.min.js";
 import TimelinePlugin from "wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js";
+// import TimelinePlugin from "wavesurfer.js/src/plugin/timeline";
 import MinimapPlugin from "wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js";
 
 import styles from "./Waveform.scss";
@@ -14,12 +15,9 @@ import { useHotkeys } from "react-hotkeys-hook";
 
 import {iterifyArr} from '@utils/common/customArray'
 
-import TableCustom from "../../containers/TableCustom/TableCustom";
+import TableWaveform from "../../containers/TableWaveform";
 
 const cx = classNames.bind(styles);
-// const { Column, ColumnGroup } = Table;
-// const { Option } = Select;
-// const { CheckableTag } = Tag;
 
 const colors = {
     low: 'green',
@@ -69,14 +67,40 @@ function Waveform(props) {
             minimap: true,
             backend: 'WebAudio',
             plugins: [
-                RegionsPlugin.create(),
-                MinimapPlugin.create({
-                    height: 30,
-                    waveColor: "#ddd",
-                    progressColor: "#999",
-                    cursorColor: "#999",
-                    scrollParent: false
+                TimelinePlugin.create({
+                    container: timelineRef.current,
+                    timeInterval: (pxPerSec) => {
+                        var retval = 1;
+                        if (pxPerSec >= 25 * 100) {
+                            retval = 0.01;
+                        } else if (pxPerSec >= 25 * 40) {
+                            retval = 0.025;
+                        } else if (pxPerSec >= 25 * 10) {
+                            retval = 0.1;
+                        } else if (pxPerSec >= 25 * 4) {
+                            retval = 0.25;
+                        } else if (pxPerSec >= 25) {
+                            retval = 1;
+                        } else if (pxPerSec * 5 >= 25) {
+                            retval = 5;
+                        } else if (pxPerSec * 15 >= 25) {
+                            retval = 15;
+                        } else {
+                            retval = Math.ceil(0.5 / pxPerSec) * 60;
+                        }
+                        return retval;
+                    },
+                    fontSize: 12,
+
                 }),
+                RegionsPlugin.create(),
+                // MinimapPlugin.create({
+                //     height: 30,
+                //     waveColor: "#ddd",
+                //     progressColor: "#999",
+                //     cursorColor: "#999",
+                //     scrollParent: false
+                // }),
             ],
         });
 
@@ -86,7 +110,7 @@ function Waveform(props) {
             wavesurferInstance.on("ready", function (region) {
                 wavesurferInstance.enableDragSelection({
                     slop: 5,
-                    color: randomColor(0.1),
+                    color: randomColor(0.2),
                 });
 
                 wavesurferInstance.clearRegions();
@@ -107,7 +131,7 @@ function Waveform(props) {
         if (wavesurfer) {
             wavesurfer.on("region-created", function (region, event) {
                 region.update({
-                    color: randomColor(0.6),
+                    color: randomColor(0.2),
                 });
             });
 
@@ -168,7 +192,7 @@ function Waveform(props) {
             // update new color region
             wavesurfer.on("region-dblclick", function (region, event) {
                 region.update({
-                    color: randomColor(0.6),
+                    color: randomColor(0.2),
                 });
             });
         }
@@ -340,14 +364,12 @@ function Waveform(props) {
             dataIndex: "start_time",
             key: "start_time",
             width: "5%",
-            
         },
         {
             title: "End Time",
             dataIndex: "end_time",
             key: "end_time",
             width: "5%",
-            
         },
         {
             title: "Description",
@@ -421,14 +443,14 @@ function Waveform(props) {
             <div className={cx('row')}>
                 {Object.keys(dataLabel).length ? (
                     <div>
-                        <div ref={timelineRef}></div>
                         <div ref={waveRef}></div>
+                        <div ref={timelineRef}></div>
                     </div>
                 ) : (
                     <div>
                         <h2>Audio not found</h2>
-                        <div ref={timelineRef}></div>
                         <div ref={waveRef}></div>
+                        <div ref={timelineRef}></div>
                     </div>)
                 }
             </div>
@@ -437,7 +459,7 @@ function Waveform(props) {
             </div>
 
             <div className={cx("row")}>
-                    <TableCustom 
+                    <TableWaveform
                         columns={columns}
                         dataTable={dataTable}
                         setDataTable={setDataTable}
