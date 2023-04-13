@@ -20,7 +20,6 @@ function* handleGeSignIn({ ctx }) {
     
     callbackSuccess(ctx, result); // why error system?
   } catch (err) {
-    console.error(`handleGeSignIn Error: ${err}`);
     callbackError(ctx, err);
   }
 }
@@ -29,23 +28,7 @@ function* handleGetLoginInfoInfo({ ctx }) {
   try {
     yield put({ type: GET_LOGIN_INFO_ASYNC.START });
     const result = yield call(getLoginInfo);
-    console.log("handleGetLoginInfoInfo: ", result)
     yield put({ type: GET_LOGIN_INFO_ASYNC.SUCCESS, data: result });
-    callbackSuccess(ctx, result);
-  } catch (err) {
-    console.error(err);
-    callbackError(ctx, err);
-  }
-}
-
-function* handleChangeUserPassword({ ctx }) {
-  try {
-    const userId = ctx?.userId;
-    const password = ctx?.password;
-    const oldPassword = ctx?.oldPassword;
-    yield put({ type: CHANGE_USER_PASSWORD_ASYNC.START });
-    const result = yield call(changePassword, { password, userId, oldPassword });
-    yield put({ type: CHANGE_USER_PASSWORD_ASYNC.SUCCESS, data: result });
     callbackSuccess(ctx, result);
   } catch (err) {
     console.error(err);
@@ -56,5 +39,4 @@ function* handleChangeUserPassword({ ctx }) {
 export default function* auth() {
   yield takeLatest(SIGN_IN_ASYNC.HANDLER, handleGeSignIn);
   yield takeLatest(GET_LOGIN_INFO_ASYNC.HANDLER, handleGetLoginInfoInfo);
-  yield takeLatest(CHANGE_USER_PASSWORD_ASYNC.HANDLER, handleChangeUserPassword);
 }

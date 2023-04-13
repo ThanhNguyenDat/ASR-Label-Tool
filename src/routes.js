@@ -41,8 +41,7 @@ const routes = [
         children: [
             {
                 path: '/react_label_ui',
-                element: <AuthComponent roles={['admin']}><h1>App Default</h1></AuthComponent>   // content of children // col 1
-                // element: <h1>App</h1>
+                element: <AuthComponent><h1>App Default</h1></AuthComponent>
             },
             {
                 path: '/react_label_ui/ui/asr',

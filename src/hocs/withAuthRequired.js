@@ -27,7 +27,7 @@ function AuthComponent (props) {
   const [isAuthen, setIsAuthen] = React.useState(false);
   
   useEffect(() => {
-    if (!user?.logged) { // haven't login yet if logged == true => user.logged == true => !user.logged == false
+    if (!user?.logged) { // haven't login yet
       setIsAuthen(true);
       bootstrapAsync();
     } else { // login
@@ -38,13 +38,9 @@ function AuthComponent (props) {
   }, [])
 
   function checkUserPermission (user, allRoles, permissionRoles) {
-    console.log("CHECK USER PERMISSION")
-    user = user.data
-    allRoles = allRoles.data
-
     const userRoleNames = []    
     user.role_ids.forEach(role_id => {
-      const userRoleName = getRoleNameById(role_id, allRoles); // neu user nhieu role thi sao?
+      const userRoleName = getRoleNameById(role_id, allRoles);
       userRoleNames.push(userRoleName);
     });
 
@@ -67,18 +63,17 @@ function AuthComponent (props) {
 
   const bootstrapAsync = async () => {
     try {
-      const user = await getLoginInfo({});
-      const userRoles = await getRoles({});
-      console.log(`bootstrapAsync: ${JSON.stringify(user)} \t ${JSON.stringify(userRoles)}`)
-      const isPermissionAccess = checkUserPermission(user, userRoles, roles)
-      
-      // check here ! optimize here => code dang bi ngu
-      if (!isPermissionAccess) {
-        navigate("/auth/login") // direct: public router
-      }
+        const user = await getLoginInfo({});
+        const userRoles = await getRoles({});
+        const isPermissionAccess = checkUserPermission(user, userRoles, roles)
+        
+        // check here ! optimize here => code dang bi ngu
+        if (!isPermissionAccess) {
+          navigate("/react_label_ui") // redirect: public router
+        }
     } catch (err) {
-      console.error("err", err);
-      navigate("/auth/login");
+        console.error("err", err);
+        navigate("/auth/login");
     }
   }
 

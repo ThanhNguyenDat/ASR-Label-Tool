@@ -8,7 +8,6 @@ const LabelASR = (props) => {
     
     const dispatch = useDispatch();
     const user = useSelector(state => {
-        console.log("app: ", state.authReducer)
         return state
     })
 

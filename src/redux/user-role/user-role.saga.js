@@ -10,7 +10,7 @@ function* handleGetListUserRole({ ctx }) {
     yield put({ type: GET_LIST_USER_ROLE_ASYNC.START });
     const result = yield call(getListUserRole);
     console.log("handleGetListUserRole: ", result)
-    yield put({ type: GET_LIST_USER_ROLE_ASYNC.SUCCESS, data: result.data });
+    yield put({ type: GET_LIST_USER_ROLE_ASYNC.SUCCESS, data: result });
     callbackSuccess(ctx, result);
   } catch (err) {
     console.error(err);

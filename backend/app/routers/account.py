@@ -67,7 +67,7 @@ async def signin(
                 "id": user.id,
                 "roleIds": user.role_ids
             }
-        },
+        },       
         "error_code": 0,
         "message": "Login successful",
         "success": True
@@ -86,7 +86,9 @@ async def get_login_info(
         "error_code": 0,
         "success": True,
         "data": {
-            "role_ids": current_user.role_ids
+            "role_ids": current_user.role_ids,
+            "email": current_user.email,
+            "id": current_user.id,
         }
     }
     response = JSONResponse(content=content)

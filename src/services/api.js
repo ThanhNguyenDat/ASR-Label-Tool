@@ -9,7 +9,6 @@ export const getLoginInfo = () => {
     return APIUtils.get(`/api/account/login-info`)
 }
 
-
 export const logoutRequest = () => {
     return APIUtils.get(`/api/account/logout`)
 }
@@ -21,4 +20,3 @@ export const getListUserRole = () => {
 export const changePassword = data => {
     return APIUtils.post(`/api/account/change-password`, data)
 }
-

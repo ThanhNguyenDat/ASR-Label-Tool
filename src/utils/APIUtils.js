@@ -35,23 +35,20 @@ APIUtils.interceptors.request.use(
     }
 )
 
-// APIUtils.interceptors.response.use(
-//     (response) => {
-//         if (response && response.data) {
-//             return response.data;
-//         }
-//         return response;
-//     },
-//     (error) => {
-//         // Handle errors
-//         throw error;
-//     },
-// );
+const responseHandler = (returnedValue) => {
+    if (returnedValue.error_code == 0) {
+        const { data } = returnedValue;
+        return data
+    } else {
+        console.log("responseHandler error: ", returnedValue)
+    }
+}
 
 export const get = async (path, data={}) => {
     try {
         const response = await APIUtils.get(path, data);
-        return response.data;
+        
+        return responseHandler(response.data);
     } catch (error) {
         throw error;
     }

@@ -16,7 +16,6 @@ export default function userRoleReducer(state = initialUserRoleState, action) {
       return { ...state, list: action.data, fetching: false };
     }
 
-
     case GET_LIST_USER_ROLE_ASYNC.FAIL: {
       return { ...state, fetching: false };
     }
