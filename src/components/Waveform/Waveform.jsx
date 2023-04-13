@@ -14,7 +14,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 
 import {iterifyArr} from '@utils/common/customArray'
 
-import TableCustom from "../../custom-fields/TableCustom/TableCustom";
+import TableCustom from "../../containers/TableCustom/TableCustom";
 
 const cx = classNames.bind(styles);
 // const { Column, ColumnGroup } = Table;
@@ -339,15 +339,15 @@ function Waveform(props) {
             title: "Start Time",
             dataIndex: "start_time",
             key: "start_time",
-            width: "10%",
-            editInput: true,
+            width: "5%",
+            
         },
         {
             title: "End Time",
             dataIndex: "end_time",
             key: "end_time",
-            width: "10%",
-            editInput: true,
+            width: "5%",
+            
         },
         {
             title: "Description",
