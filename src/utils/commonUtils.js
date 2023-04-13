@@ -4,6 +4,11 @@ import Global from '../constants/Global';
 import Cipher from './Cipher';
 import $ from 'jquery';
 
+export const refreshToken = () => {
+  // get new access token
+}
+
+
 export const parseJSONtoParam = obj => {
   const str = [];
   for (const key in obj) {

@@ -6,6 +6,7 @@ import * as Yup from 'yup';
 import { Store } from 'react-notifications-component';
 import { withPromiseAndDispatch } from '@helpers';
 
+
 import { signInAsync } from '@redux/auth/authActions';
 
 import styles from './styles.module.scss';
@@ -16,11 +17,12 @@ const SignInSchema = Yup.object().shape({
   password: Yup.string().required('Please enter your password'),
 });
 
-const Login = ({ history }) => {
+const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const signIn = ctx => withPromiseAndDispatch(signInAsync, ctx, dispatch);
+  
 
   const formik = useFormik({
     initialValues: { username: '', password: '' },
@@ -30,6 +32,7 @@ const Login = ({ history }) => {
       try {
         const result = await signIn(values);
         console.log('logined: ', result);
+        // console.log("history: ", history)
         // history.push('/react_label_ui'); // ??? what is history?
         // console.log("history: ", history)
         navigate("/") // redirect /react_label_ui

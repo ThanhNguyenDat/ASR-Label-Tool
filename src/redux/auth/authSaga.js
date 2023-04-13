@@ -5,36 +5,20 @@ import { signInRequest, getLoginInfo, changePassword } from '@services/api';
 
 import { callbackSuccess, callbackError } from '../helpers';
 import { SIGN_IN_ASYNC, GET_LOGIN_INFO_ASYNC, CHANGE_USER_PASSWORD_ASYNC } from './authActions';
+import { useCookies } from '../../hooks/useCookies';
 
 function* handleGeSignIn({ ctx }) {
   try {
     const username = ctx?.username ?? '';
     const password = ctx?.password ?? '';
     yield put({ type: SIGN_IN_ASYNC.START });
-    
-    // const result = yield call(signInRequest, { username, password });
-    const result = {
-      "data": {
-          "user": {
-              "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6dHJ1ZSwiaWF0IjoxNjgxMTc5OTA4LCJqdGkiOiJmOThiOGQ5Yy04MmVmLTQyNTctYTdhNS1kOTEzMmVhNGI0MDciLCJ0eXBlIjoiYWNjZXNzIiwic3ViIjoxLCJuYmYiOjE2ODExNzk5MDgsImV4cCI6MTY4MTE4MTcwOH0.vTaAs2_1g0BECNXFvgqtAiVUjaF8XCRAQbz5bLo3Woc",
-              "email": "root_ailab@gmail.com",
-              "id": 1,
-              "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY4MTE3OTkwOCwianRpIjoiZWFkNzM2MWQtYTk1Mi00OWE2LTkyNTAtODRkZjlkOGI0NjMzIiwidHlwZSI6InJlZnJlc2giLCJzdWIiOjEsIm5iZiI6MTY4MTE3OTkwOCwiZXhwIjoxNjgzNzcxOTA4fQ.3nAyA1hujlLw6UPS8gGeEFhmaTH9is3um_cO2jlDeqI",
-              "roles": [
-                  "admin"
-              ],
-              "username": "admin"
-          }
-      },
-      "error_code": 0,
-      "message": "Login successful",
-      "success": true
-    };
-
-    console.log(`result call api: ${JSON.stringify(result)}`)
+    const result = yield call(signInRequest, { username, password });
     yield put({ type: SIGN_IN_ASYNC.SUCCESS, data: result.data }); // why put but dont ????
+    
+    // set tam cho nay nao co cach optimize hon thi lam => cach nay ngu qua
+    document.cookie = `access_token=${result.data.user.access_token}`
+    
     callbackSuccess(ctx, result); // why error system?
-    console.log('handleGeSignIn Final: ', result);
   } catch (err) {
     console.error(`handleGeSignIn Error: ${err}`);
     callbackError(ctx, err);
@@ -45,6 +29,7 @@ function* handleGetLoginInfoInfo({ ctx }) {
   try {
     yield put({ type: GET_LOGIN_INFO_ASYNC.START });
     const result = yield call(getLoginInfo);
+    console.log("handleGetLoginInfoInfo: ", result)
     yield put({ type: GET_LOGIN_INFO_ASYNC.SUCCESS, data: result });
     callbackSuccess(ctx, result);
   } catch (err) {

@@ -13,16 +13,16 @@ from fastapi_sqlalchemy import DBSessionMiddleware, db
 from .internal import admin
 from .routers import account
 
-
-
 app = FastAPI()
 
 # cors
-origins = ["*"]
-
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins="*",
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -35,7 +35,7 @@ app.include_router(
     account.router,
     prefix="/api/account",
     tags=["account"],
-    responses={404: {"description": "Not found"}}
+    responses={404: {"description": "Not found"}},
 )
 # app.include_router(
 #     admin.router,

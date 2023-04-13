@@ -1,102 +1,70 @@
-import 'whatwg-fetch';
+import axios from 'axios';
 
-export default class APIUtils {
-  static headerCommonConfig = {
-    'Content-Type': 'application/json',
-  };
-
-  static errorHandler = (err, next) => {
-    console.log("errorHandler: ", err)
-    return next(err)
-  };
-
-  static responseHandler = (returnedValue, resolve, reject) => {
-    if (returnedValue.error_code == 0) {
-      console.log("responseHandler data: ", returnedValue)
-      const { data } = returnedValue;
-      resolve(data);
-    } else {
-      console.log("responseHandler error: ", returnedValue)
-      this.errorHandler(returnedValue, err => reject(err));
+function getCookie(cname) {
+    let name = cname + "=";
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(';');
+    for(let i = 0; i <ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+        }
     }
-  };
-
-  static Get = url =>
-    new Promise((resolve, reject) =>
-      fetch(url, { credentials: 'include', method: 'get', headers: this.headerCommonConfig })
-        .then(resp => resp.json())
-        .then(returnedValue => this.responseHandler(returnedValue, resolve, reject))
-        .catch(err => this.errorHandler(err, reject))
-    );
-
-  // static Post = (url, data) =>
-  //   new Promise((resolve, reject) =>
-  //     fetch(url, {
-  //       method: 'post',
-  //       credentials: 'include',
-  //       headers: this.headerCommonConfig,
-  //       body: JSON.stringify(data),
-  //     })
-  //       .then(resp => resp.json())
-  //       .then(returnedValue => this.responseHandler(returnedValue, resolve, reject))
-  //       .catch(err => this.errorHandler(err, reject))
-  //   );
-
-
-  static Post = (url, data) =>
-  {
-    return new Promise((resolve, reject) =>
-    fetch(url, {
-      method: 'post',
-      credentials: 'include',
-      headers: this.headerCommonConfig,
-      body: JSON.stringify(data),
-    })
-      .then(resp => resp.json())
-      .then(returnedValue => this.responseHandler(returnedValue, resolve, reject))
-      .catch(err => this.errorHandler(err, reject))    
-    );
-  }
-
-  static PostFormData = (url, formData) =>
-    new Promise((resolve, reject) =>
-      fetch(url, {
-        method: 'post',
-        credentials: 'include',
-        body: formData,
-      })
-        .then(resp => resp.json())
-        .then(returnedValue => this.responseHandler(returnedValue, resolve, reject))
-        .catch(err => this.errorHandler(err, reject))
-    );
-
-  
-
-  static PostWithoutEncrypt = (url, data) =>
-    new Promise((resolve, reject) =>
-      fetch(url, {
-        method: 'post',
-        credentials: 'include',
-        headers: this.headerCommonConfig,
-        body: JSON.stringify(data),
-      })
-        .then(resp => resp.json())
-        .then(returnedValue => this.responseHandler(returnedValue, resolve, reject))
-        .catch(err => this.errorHandler(err, reject))
-    );
-
-  static PostWithFormUrlencoded = (url, data) =>
-    new Promise((resolve, reject) =>
-      fetch(url, {
-        method: 'post',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams(data),
-      })
-        .then(resp => resp.json())
-        .then(returnedValue => this.responseHandler(returnedValue, resolve, reject))
-        .catch(err => this.errorHandler(err, reject))
-    );
+    return "";
 }
+
+const APIUtils = axios.create({
+    baseURL: "http://0.0.0.0:8000",
+    headers: {
+        'Content-Type': 'Application/json',
+    },
+    withCredentials: true,
+})
+
+APIUtils.interceptors.request.use(
+    config => {
+        // handle token here...
+        config.headers['Authorization'] = `Bearer ${getCookie('access_token')}`
+        return config;
+    },
+    error => {
+        return Promise.reject(error);
+    }
+)
+
+// APIUtils.interceptors.response.use(
+//     (response) => {
+//         if (response && response.data) {
+//             return response.data;
+//         }
+//         return response;
+//     },
+//     (error) => {
+//         // Handle errors
+//         throw error;
+//     },
+// );
+
+export const get = async (path, data={}) => {
+    try {
+        const response = await APIUtils.get(path, data);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const post = async (path, data={}) => {
+    try {
+        const response = await APIUtils.post(path, data);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+
+export default APIUtils;

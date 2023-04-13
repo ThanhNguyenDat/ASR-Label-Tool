@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import Union
 import json
 
-from fastapi import Depends, HTTPException, status, APIRouter, Request
+from fastapi import Depends, HTTPException, status, APIRouter, Request, Cookie
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
 
@@ -15,14 +15,16 @@ from typing_extensions import Annotated
 from sqlalchemy.sql import text
 
 from ..models.accountModel import User, Role, UserRole
-from ..schema.accountSchema import Token, TokenData, User as UserSchema
+from ..schema.accountSchema import User as UserSchema
 
 # from ..dependencies import get_token_header
 from ..database.postgres import engine, DBSession
+from .common import *
+from .http_exceptions import incorrect_username_password_exception, permission_denied_exception
 
 SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 1
 
 router = APIRouter(
     # dependencies=[Depends()],    
@@ -32,88 +34,10 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-def get_user(username):
-    session = DBSession()
-    user = session.query(User).filter_by(username=username).first()
-    session.close()
-
-    if not user:
-        return False
-    
-    return user
-
-def add_user(username, password, email):
-    session = DBSession()
-    user = session.query(User).filter_by(username=username).first()
-    if user:
-        session.close()
-        return False
-    
-    password_hashed = pwd_context.hash(password)
-    user = User(username=username, password=password_hashed, email=email)
-    session.add(user)
-    session.commit()
-    session.close()
-    return True
-
-
-
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
-
-def authenticate_user(username:str, password:str):    
-    user = get_user(username)
-
-    if not user:
-        return False
-    
-    # code to test
-    if user.username == 'admin':
-        if password == user.password:
-            return user
-        else:
-            return False
-    
-    # optimize here
-    if not verify_password(password, user.password):
-        return False
-    
-    return user
-
-def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
-
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM]) # error
-        
-        username: str = payload.get("sub")
-        if username is None:
-            raise credentials_exception
-        token_data = TokenData(username=username)
-    except JWTError:
-        raise credentials_exception
-
-    user = get_user(token_data.username)
-    
-    if user is None:
-        raise credentials_exception
-    return user
-
 @router.get("/")
-async def root():
+async def root(
+
+):
     return 200
 
 
@@ -124,25 +48,73 @@ async def signin(
 ):
     req = await request.json()
     if ("username" not in req.keys() or "password" not in req.keys()):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        raise incorrect_username_password_exception
     
     user = authenticate_user(req['username'], req['password'])
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        raise incorrect_username_password_exception
+    
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
 
-    return {"access_token": access_token, "token_type": "bearer"}
+    content = {
+        "data": {
+            "user": {
+                "access_token": access_token,
+                "email": user.email,
+                "id": user.id,
+                "roleIds": user.role_ids
+            }
+        },
+        "error_code": 0,
+        "message": "Login successful",
+        "success": True
+    }
+    response = JSONResponse(content=content)
+    # response.set_cookie("access_token", access_token)
+    return response
+
+
+@router.get("/login-info")
+async def get_login_info(
+    current_user: Annotated[UserSchema, Depends(get_current_user)]
+):
+    # user = current_user # username va password
+    content = {
+        "error_code": 0,
+        "success": True,
+        "data": {
+            "role_ids": current_user.role_ids
+        }
+    }
+    response = JSONResponse(content=content)
+    return response
+
+
+@router.get("/get-roles")
+async def get_roles(
+    current_user: Annotated[UserSchema, Depends(get_current_user)]
+):
+    session = DBSession()
+    roles = session.query(Role).all()
+    
+    def get_info_role(role):
+        return {
+            "role_id": role.id,
+            "role_name": role.name,
+            "role_description": role.description
+        }
+    
+    content = {
+        "data": [get_info_role(role) for role in roles],
+        "error_code": 0,
+        "success": True,
+    }
+    response = JSONResponse(content=content)
+    session.close()
+    return response
 
 
 @router.get("/users/me/", response_model=UserSchema)
@@ -178,18 +150,81 @@ async def signup(request: Request):
     return response
 
 
-@router.get("/users-roles")
-async def user_role():
+@router.get("/users-roles") # only admin
+async def user_role(
+    current_user: Annotated[UserSchema, Depends(get_current_user)]
+):
+    if not check_user_permission(current_user=current_user, role_name='admin'):
+        raise permission_denied_exception
+    
     session = DBSession()
-    # users_roles = session.query(User, Role).select_from(UserRole).join(User).join(Role).all()
-    users_roles = session.query(User, Role).select_from(UserRole).join(User).join(Role).filter(User.username == 'admin').all()
-
+    users_roles = session.query(User, Role).select_from(UserRole).join(User).join(Role).all()
+    
+    res = {}
     for user, role in users_roles:
-         print(f"User '{user.username}' is in role '{role.name}'")
+        if user in res.keys():
+            res[user.username].append(role.name)
+        
+        if user not in res.keys():
+            res[user.username] = [role.name]
+    
+    content = {
+        "data": res
+    }
+    session.close()
 
+    response = JSONResponse(content=content)
+    return response
+
+
+@router.post("/create-role")
+async def create_role(
+    current_user: Annotated[UserSchema, Depends(get_current_user)],
+    request: Request
+):
+    if not check_user_permission(current_user=current_user, role_name='admin'):
+        return permission_denied_exception
+    
+    role = await request.json()
+    
+    role_name = role.get("name", "")
+    role_desp = role.get("description", "")
+
+    role = check_role_exist(role_name=role_name)
+    if role:
+        return role_exist_exception
+    
+    new_role = add_role(name=role_name, description=role_desp)
+    if not new_role:
+        return False
+    
+    content = {
+        "success": "ok"
+    }
+    response = JSONResponse(content=content)
+    return response
+
+
+@router.patch("/update-role")
+async def update_user_role(
+    current_user: Annotated[UserSchema, Depends(get_current_user)],
+    request: Request
+):
+    session = DBSession()
+
+    req = await request.json()
+    new_roles = req.get("roles", [])
+    user = session.query(User).filter_by(id=current_user.id).first()
+
+    old_roles = [ur.role_id for ur in user.roles]
+    
+    return old_roles
 
 @router.get("/test_query_sql")
-async def test_query_sql(request: Request):
+async def test_query_sql(    
+    current_user: Annotated[UserSchema, Depends(get_current_user)],
+    request: Request,
+):
     # with engine.connect() as con:
     #     statement = text('''SELECT * FROM "user"''')
 
@@ -205,5 +240,8 @@ async def test_query_sql(request: Request):
     #     response = JSONResponse(content=content)
     #     return response
     req = await request.json()
-    response = JSONResponse(content={"data": str(req)})
+    user = {
+        "username": current_user.username
+    }
+    response = JSONResponse(content={"data": str(req), "user": user})
     return response

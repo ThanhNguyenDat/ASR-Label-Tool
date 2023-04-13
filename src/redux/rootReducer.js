@@ -9,6 +9,7 @@ import { combineReducers } from 'redux';
 import authReducer from './auth/authReducer';
 import userRoleReducer from './user-role/user-role.reducer';
 // import userReducer from './user/user.reducer';
+// import cookieReducer from './cookies/reducer';
 
 const rootReducer = combineReducers({
   // settings,
@@ -19,7 +20,7 @@ const rootReducer = combineReducers({
   // serviceReducer,
   authReducer,
   userRoleReducer,
-  // userReducer
+  // userReducer,
 });
 
 export default rootReducer;

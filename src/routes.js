@@ -32,7 +32,7 @@ class WaitingComponent extends React.Component {
 const routes = [
     {
         path: '/',
-        element: <Navigate to="/react_label_ui/" replace/>,
+        element: <Navigate to="/react_label_ui/ui/asr" replace/>,
         exact: true,
     },
     {
@@ -41,11 +41,12 @@ const routes = [
         children: [
             {
                 path: '/react_label_ui',
-                element: <h1>App Default</h1>,  // content of children // col 1
+                element: <AuthComponent roles={['admin']}><h1>App Default</h1></AuthComponent>   // content of children // col 1
+                // element: <h1>App</h1>
             },
             {
                 path: '/react_label_ui/ui/asr',
-                element: <AuthComponent roles={['admin', 'colab']}><LabelASR /></AuthComponent>,
+                element: <AuthComponent roles={['admin']}><LabelASR /></AuthComponent>,
             },
         ]
     },
