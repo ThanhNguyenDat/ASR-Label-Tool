@@ -28,8 +28,8 @@ function AuthComponent (props) {
   
   useEffect(() => {
     if (!user?.logged) { // haven't login yet
-      setIsAuthen(true);
       bootstrapAsync();
+      setIsAuthen(true);
     } else { // login
       const isPermissionAccess = checkUserPermission(user, userRoles, roles)
       setIsAuthen(false);
@@ -38,6 +38,7 @@ function AuthComponent (props) {
   }, [])
 
   function checkUserPermission (user, allRoles, permissionRoles) {
+    // allow multi roles
     const userRoleNames = []    
     user.role_ids.forEach(role_id => {
       const userRoleName = getRoleNameById(role_id, allRoles);

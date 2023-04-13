@@ -2,15 +2,21 @@
 import * as React from 'react';
 import { Outlet } from 'react-router-dom';
 
+import { Col, Row } from 'reactstrap';
+import style from './styles.module.scss';
 
-function LabelUILayout() {
-  return (
-    <div id='labelui-container' className='row'>
-      <div className='col-sm-2'><h1>col 1</h1></div>
-      <div className='col-sm-10'><Outlet /></div>
-    </div>
 
-  )
+function LabelUILayout(props) {
+    return (
+        <Row>
+            <Col sm={2} className={style.controlPart}>
+                <h1>col 1</h1>
+            </Col>
+            <Col sm={10}>
+                <Outlet />
+            </Col>
+        </Row>
+    )
 }
 
 export default LabelUILayout

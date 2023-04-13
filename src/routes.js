@@ -45,7 +45,7 @@ const routes = [
             },
             {
                 path: '/react_label_ui/ui/asr',
-                element: <AuthComponent roles={['admin']}><LabelASR /></AuthComponent>,
+                element: <AuthComponent roles={['admin1', 'admin2']}><LabelASR /></AuthComponent>,
             },
         ]
     },
