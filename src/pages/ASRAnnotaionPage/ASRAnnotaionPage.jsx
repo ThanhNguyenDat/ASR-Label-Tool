@@ -67,20 +67,20 @@ const data = {
 
 
 function ASRAnnotaionPage(props) {
-    const [commonInfo, setCommonInfo] = useState([
-        { color: '#474747', description: 'Other class', id: 3709, name: 'Other' },
-        { color: '#0000FF', description: 'noise', id: 3710, name: 'noise' }
-    ])
-    const [dataLabel, setDataLabel] = useState(data['data']);
-    const [annotations, setAnnotations] = useState(data['annotation']);
+    // const [commonInfo, setCommonInfo] = useState([
+    //     { color: '#474747', description: 'Other class', id: 3709, name: 'Other' },
+    //     { color: '#0000FF', description: 'noise', id: 3710, name: 'noise' }
+    // ])
+    // const [dataLabel, setDataLabel] = useState(data['data']);
+    // const [annotations, setAnnotations] = useState(data['annotation']);
     
-    // const [commonInfo, setCommonInfo] = useState([])
-    // const [dataLabel, setDataLabel] = useState([
-    //     {
-    //         "file_name": "https://assets.mixkit.co/active_storage/sfx/1714/1714-preview.mp3" //url
-    //     }
-    // ]);
-    // const [annotations, setAnnotations] = useState([]);
+    const [commonInfo, setCommonInfo] = useState([])
+    const [dataLabel, setDataLabel] = useState([
+        {
+            "file_name": "https://assets.mixkit.co/active_storage/sfx/1714/1714-preview.mp3" //url
+        }
+    ]);
+    const [annotations, setAnnotations] = useState([]);
     
 
     const [resultLabel, setResultLabel] = useState([]);
