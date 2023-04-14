@@ -42,7 +42,6 @@ function TableWaveform ({columns, dataTable, ...rest}) {
 
                             updateDataTablePerCell(rowIndex, col.key, formData[col.key]);
                         }
-
                     }
                 },
 
@@ -191,6 +190,9 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                             
                             // play region
                             playWaveform?.regions.list[record.wave_id].play()
+                        },
+                        onBlur: event => {
+                            setSelectedRegionKey(null)
                         }
                     }
                 }}
