@@ -28,6 +28,9 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                         onClick: event => {
                             setFocusCell({ row: rowIndex, col: col.key });
                         },
+                        onMouseEnter: event => {
+                            setFocusCell({ row: rowIndex, col: col.key });
+                        },
                         onChange: event => {
                             const roundNumber = (str) => {return Math.round(parseFloat(str) * 1000) / 1000}
 
@@ -194,8 +197,18 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                         // onBlur: event => {
                         //     setSelectedRegionKey(null)
                         // }
+                        onMouseEnter: event => {
+                            setSelectedRegionKey(record.key);
+                            form.setFieldsValue({
+                                ...record
+                            })
+                        },
+                        onMouseLeave: event => {
+                            setSelectedRegionKey(null)
+                        }
                     }
                 }}
+                
             >
             </Table> 
         </Form>   
