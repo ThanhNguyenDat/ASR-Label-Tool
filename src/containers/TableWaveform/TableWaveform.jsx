@@ -191,9 +191,9 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                             // play region
                             playWaveform?.regions.list[record.wave_id].play()
                         },
-                        onBlur: event => {
-                            setSelectedRegionKey(null)
-                        }
+                        // onBlur: event => {
+                        //     setSelectedRegionKey(null)
+                        // }
                     }
                 }}
             >
