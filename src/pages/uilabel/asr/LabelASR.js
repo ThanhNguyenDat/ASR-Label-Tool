@@ -1,8 +1,9 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux';
-import { getLoginInfo } from "@services/api";
+import { getLoginInfo, testJinja2 } from "@services/api";
 import * as APIUtils from '@utils/APIUtils';
-
+import $ from 'jquery';
+import axios from "axios";
 
 const LabelASR = (props) => {
     
@@ -11,6 +12,7 @@ const LabelASR = (props) => {
         return state
     })
 
+    
     useEffect(() => {
         console.log("user: ", user)
     })
@@ -20,8 +22,9 @@ const LabelASR = (props) => {
         const fetchApi = async () => {
             try {
                 const res = await getLoginInfo();
-                console.log("getLoginInfo: ", res)
-                return res // khong choi return nhe vi dang bat dong bo
+                console.log("getLoginInfo: ", res);
+                
+                // return res // khong choi return nhe vi dang bat dong bo
             } catch (error) {
                 throw error
             }

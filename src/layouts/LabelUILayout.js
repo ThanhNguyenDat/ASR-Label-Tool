@@ -10,7 +10,7 @@ function LabelUILayout(props) {
     return (
         <Row>
             <Col sm={2} className={style.controlPart}>
-                <h1>col 1</h1>
+                <h1>LabelUI</h1>
             </Col>
             <Col sm={10}>
                 <Outlet />
