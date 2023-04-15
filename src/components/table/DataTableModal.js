@@ -318,7 +318,8 @@ const DataTable = ({columns, dataSource, setDataSource, ...rest}) => {
                     record[newCol.key].toString().toLowerCase().includes(value.toLowerCase()),
                   onFilterDropdownOpenChange: (visible) => {
                     if (visible) {
-                      setTimeout(() => searchInput.current?.select(), 100);
+                    //   setTimeout(() => searchInput.current?.select(), 100);
+                        searchInput.current?.select()
                     }
                   },
                   render: (text) =>
