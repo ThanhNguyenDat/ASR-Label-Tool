@@ -10,7 +10,8 @@ const data = [
         key: 1, // drag
         first_name: "Vo",
         last_name: "Danh",
-        tags: ['admin', 'leader']
+        tags: ['admin', 'leader'],
+        to: "/danhvo"
     },
     {
         id: 2,
@@ -19,7 +20,8 @@ const data = [
         first_name: "Nguyen",
         last_name: "Thanh",
         tags: ['member'],
-        status: "processing"
+        status: "processing",
+        to: "/thanhnguyen"
     },
 ]
 
@@ -49,7 +51,7 @@ const columns = [
         editText: {
 
         },
-        // to: "/abc",
+        to: true,
         enableSearch: true,
         enableSort: true,
         icon: "icon",
