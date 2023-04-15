@@ -51,7 +51,7 @@ const columns = [
         editText: {
 
         },
-        to: true,
+        navigate: true,
         enableSearch: true,
         enableSort: true,
         icon: "icon",

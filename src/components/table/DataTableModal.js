@@ -174,7 +174,7 @@ const DataTable = ({columns, dataSource, setDataSource, ...rest}) => {
                 },
                 onClick: event => {
                     // navigate
-                    if (newCol.to) {
+                    if (newCol.navigate) {
                         navigate(record.to)
                     }
                 }
