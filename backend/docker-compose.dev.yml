@@ -30,6 +30,8 @@ services:
       - "8000:8000"
     volumes:
       - ./app:/code/app
+      - ./templates:/code/templates
+      - ./static:/code/static
     environment:
       - POSTGRES_CONNECT_STRING=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
     depends_on:

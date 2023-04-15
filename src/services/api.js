@@ -20,3 +20,7 @@ export const getListUserRole = () => {
 export const changePassword = data => {
     return APIUtils.post(`/api/account/change-password`, data)
 }
+
+export const testJinja2 = () => {
+    return APIUtils.get(`/api/jinja2-test/items/1`)
+}

@@ -11,7 +11,7 @@ from fastapi_sqlalchemy import DBSessionMiddleware, db
 # from .dependencies import get_query_token, get_token_header
 
 from .internal import admin
-from .routers import account
+from .routers import account, jinja2_test
 
 app = FastAPI()
 
@@ -36,6 +36,7 @@ app.include_router(
     prefix="/api/account",
     tags=["account"],
     responses={404: {"description": "Not found"}},
+    # dependencies=[Depends()],    
 )
 # app.include_router(
 #     admin.router,
@@ -44,6 +45,14 @@ app.include_router(
 #     dependencies=[],
 #     response={418, {"description": "I'm Iron Man"}}
 # )
+
+# test template jinja2
+app.include_router(
+    jinja2_test.router,
+    prefix="/api/jinja2-test",
+    tags=["jinja2_test"],
+    responses={404: {"description": "Not found"}},
+)
 
 
 if __name__ == '__main__':

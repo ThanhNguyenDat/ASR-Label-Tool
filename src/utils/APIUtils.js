@@ -35,20 +35,29 @@ APIUtils.interceptors.request.use(
     }
 )
 
+// APIUtils.interceptors.response.use(
+//     returnedValue => {
+
+//     }
+// )
+
 const responseHandler = (returnedValue) => {
-    if (returnedValue.error_code == 0) {
-        const { data } = returnedValue;
-        return data
-    } else {
-        console.log("responseHandler error: ", returnedValue)
+    try {
+        if (returnedValue.error_code == 0) { // api request data
+            const { data } = returnedValue; // data: key of api
+            return data
+        } else { // return template
+            return returnedValue
+        }
+    } catch (error) {
+        throw error
     }
 }
 
 export const get = async (path, data={}) => {
     try {
         const response = await APIUtils.get(path, data);
-        
-        return responseHandler(response.data);
+        return responseHandler(response.data); // data of axios config
     } catch (error) {
         throw error;
     }
@@ -57,7 +66,7 @@ export const get = async (path, data={}) => {
 export const post = async (path, data={}) => {
     try {
         const response = await APIUtils.post(path, data);
-        return response.data;
+        return responseHandler(response.data);
     } catch (error) {
         throw error;
     }

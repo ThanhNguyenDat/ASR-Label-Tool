@@ -4,3 +4,6 @@ python-jose[cryptography]
 passlib[bcrypt]
 sqlalchemy
 psycopg2
+
+# template jinja2
+jinja2
