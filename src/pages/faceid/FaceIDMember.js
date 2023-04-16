@@ -3,11 +3,12 @@ import PropTypes from 'prop-types';
 
 import DataTableModal from '@components/table/DataTableModal'
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { table_color } from '../../constants/table';
 
 const data = [
     {
         id: 1,
-        key: 1, // drag
+        key: 1, // for drag
         first_name: "Vo",
         last_name: "Danh",
         tags: ['admin', 'leader'],
@@ -21,15 +22,14 @@ const data = [
         last_name: "Thanh",
         tags: ['member'],
         status: "processing",
+        progress: {
+            percent: 50
+        },
         to: "/thanhnguyen"
     },
 ]
 
 const columns = [
-    {
-        key: "sort",
-        width: "2%"
-    },
     {
         title: "Avatar",
         key: "image",
@@ -49,8 +49,11 @@ const columns = [
         //     rows: 4
         // },
         editText: {
-
+            
         },
+
+
+        showTag: true,
         navigate: true,
         enableSearch: true,
         enableSort: true,
@@ -59,17 +62,37 @@ const columns = [
     {
         title: "Last Name",
         key: "last_name",
-        dataIndex: "last_name"
+        dataIndex: "last_name",
+
+        // editSelect: {
+        //     config: {},
+            
+        //     options: [
+        //     {
+        //         value: 'gold',
+        //     },
+        //     {
+        //         value: 'red',
+        //     },
+        //     {
+        //         value: 'yellow',
+        //     }
+        // ]}
     },
     {
         title: "Tags",
         key: "tags",
         dataIndex: "tags",  
+        options: {
+            // ...table_color,
+            admin: "yellow" // admin trong tung page khac mau nhau
+        }
     },
     {
         title: "Status",
         key: "status",
-        dataIndex: "status"
+        dataIndex: "status",
+        
     },
     {
         title: "Progress",
@@ -99,7 +122,7 @@ function FaceIDMember ( props ) {
 
     const tableProps = {
         loading: loading,
-        enableDrag: false,
+        enableDrag: true,
 
         // paginationPosition: "bottomCenter" // egs: none, topLeft
     }

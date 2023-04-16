@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { useNavigate } from 'react-router-dom';
-import { Table, Tag, Modal, Input, Image, Space, Button, Badge } from "antd";
+import { Table, Tag, Modal, Input, Image, Space, Button, Badge, Select, Progress } from "antd";
 import { 
     DeleteOutlined, 
     EditOutlined, 
@@ -130,14 +130,19 @@ const DataTable = ({columns, dataSource, setDataSource, ...rest}) => {
         if (newCol.key === "tags") {
             // get config of column tags
             const config = newCol.config
+            const options = {...table_color, ...newCol.editSelectOption}
+            
             newCol = {
                 ...newCol,
                 render: (_, { tags }) => (
                     <>
                         {
                             tags.map(tag => {
-                                
                                 let color = table_color[tag] || table_color["default"]
+                                if (options) {
+                                    color = options[tag]
+                                }
+                                
                                 return (
                                     <Tag 
                                         {...config}
@@ -182,6 +187,15 @@ const DataTable = ({columns, dataSource, setDataSource, ...rest}) => {
             newCol = {
                 ...newCol,
                 render: (_, record) => <Badge status={record.status} text={record.status}/>
+            }
+        }
+
+        if (newCol.key === "progress") {
+            newCol = {
+                ...newCol,
+                render: (_, record) => {
+                    return <Progress {...record[newCol.key]}/>
+                }
             }
         }
 
@@ -238,24 +252,24 @@ const DataTable = ({columns, dataSource, setDataSource, ...rest}) => {
                         </Button>
                       </Space>
                     </div>
-                  ),
+                ),
 
-                  filterIcon: (filtered) => (
+                filterIcon: (filtered) => (
                     <SearchOutlined
                       style={{
                         color: filtered ? '#1890ff' : undefined,
                       }}
                     />
-                  ),
-                  onFilter: (value, record) =>
+                ),
+                onFilter: (value, record) =>
                     record[newCol.key].toString().toLowerCase().includes(value.toLowerCase()),
-                  onFilterDropdownOpenChange: (visible) => {
+                onFilterDropdownOpenChange: (visible) => {
                     if (visible) {
                     //   setTimeout(() => searchInput.current?.select(), 100);
                         searchInput.current?.select()
                     }
-                  },
-                  render: (text) =>
+                },
+                render: (text) =>
                     searchedColumn === newCol.key ? (
                       <Highlighter
                         highlightStyle={{
@@ -277,6 +291,13 @@ const DataTable = ({columns, dataSource, setDataSource, ...rest}) => {
                 ...newCol,
                 sorter: (a, b) => a[newCol.key].length - b[newCol.key].length,
                 sortDirections: ['descend', 'ascend'],
+            }
+        }
+
+        if (newCol.showTag) {
+            newCol = {
+                ...newCol,
+                render: (_, record) => <Tag>{record[newCol.key]}</Tag>
             }
         }
 
@@ -307,49 +328,63 @@ const DataTable = ({columns, dataSource, setDataSource, ...rest}) => {
                 })}
             />
         </TableDrag>
-        
-        
-            <Modal 
-                title="Edit Data"
-                open={isEditing}
-                okText="Save"
-                onCancel={()=>{resetDataCell()}}
-                onOk={()=>{
-                    setDataSource(pre=>(
-                        pre.map((row, rowIndex) => {
-                            if (dataCell.id === row.id) {
-                                return dataCell
-                            }
-                            return row
-                        })
-                    ))
-                    resetDataCell()}
+        <Modal 
+            title="Edit Data"
+            open={isEditing}
+            okText="Save"
+            onCancel={()=>{resetDataCell()}}
+            onOk={()=>{
+                setDataSource(pre=>(
+                    pre.map((row, rowIndex) => {
+                        if (dataCell.id === row.id) {
+                            return dataCell
+                        }
+                        return row
+                    })
+                ))
+                resetDataCell()}
+            }
+        >
+            {newColumns.map(col => {
+                if (col.editTextArea) {
+                    return (         
+                        <>           
+                            <Input.TextArea
+                                {...col.editTextArea}
+                                key={col.key}
+                                value={dataCell && dataCell[col.key]}
+                                onChange={event => {setDataCell(pre=> ({...pre, [col.key]: event.target.value}))}}
+                            />
+                        </>
+                    )
                 }
-            >
-                {newColumns.map(col => {
-                    if (col.editTextArea) {
-                        return (         
-                            <>           
-                                <Input.TextArea
-                                    {...col.editTextArea}
-                                    key={col.key}
-                                    value={dataCell && dataCell[col.key]}
-                                    onChange={event => {setDataCell(pre=> ({...pre, [col.key]: event.target.value}))}}
-                                />
-                            </>
-                        )
-                    }
-                    if (col.editText) {
-                        return (
+                if (col.editText) {
+                    return (
+                        <>
                             <Input   
                                 {...col.editText}
                                 key={col.key}
                                 value={dataCell && dataCell[col.key]}
                                 onChange={event => {setDataCell(pre=> ({...pre, [col.key]: event.target.value}))}}
-                            />)
-                    }
-                })}
-            </Modal>
+                            />
+                        </>)
+                }
+                if (col.editSelect) {
+                    return (
+                        <>
+                            <Select 
+                                {...col.editSelect}
+
+                                style={{
+                                    width: '100%',
+                                }}
+                                onChange={value => {setDataCell(pre => ({...pre, [col.key]: value}))}}
+                            />
+                        </>
+                    )
+                }
+            })}
+        </Modal>
         </>
     );
 };
