@@ -108,9 +108,11 @@ const DataTable = ({columns, dataSource, setDataSource, ...rest}) => {
                 onClick: event => {
                     // navigate
                     if (newCol.navigate) {
+                        event.stopPropagation();
                         navigate(record.to)
                     }
                 }
+
             }),
         }
 

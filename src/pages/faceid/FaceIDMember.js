@@ -51,8 +51,6 @@ const columns = [
         editText: {
             
         },
-
-
         showTag: true,
         navigate: true,
         enableSearch: true,
@@ -122,7 +120,7 @@ function FaceIDMember ( props ) {
 
     const tableProps = {
         loading: loading,
-        enableDrag: true,
+        // enableDrag: true,
 
         // paginationPosition: "bottomCenter" // egs: none, topLeft
     }

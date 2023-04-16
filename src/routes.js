@@ -20,20 +20,22 @@ const FaceIDAdmin = lazy(() => import('./pages/faceid/FaceIDAdmin'))
 const TestJinja2 = lazy(() => import('./pages/uitest/testjinja2'))
 
 
-function WaitingComponent (props) {
-  return (
-    <React.Suspense fallback={<div className='loading'/>}>
-      {props.children}
-    </React.Suspense>
+function WaitingComponent ({children, ...props}) {
 
-  )
+    return (
+        <React.Suspense fallback={<div className='loading'/>}>
+            {React.Children.map(children, child => {
+                return React.cloneElement(child, {...props})
+            })}
+        </React.Suspense>
+    )
 }
 
 
 const routes = [
     {
         path: '/',
-        element: <Navigate to="/react_label_ui" replace/>,
+        element: <Navigate to="/react_label_ui/ui/asr" replace/>,
         exact: true,
     },
     {
