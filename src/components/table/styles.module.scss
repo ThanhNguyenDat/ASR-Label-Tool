@@ -1,0 +1,11 @@
+// .table-modal tr:nth-child(2n) td {
+//     background-color: #eb0505;
+// }
+
+.table-modal thead {
+    background-color: #f1f1f1;
+}
+
+.table-modal tr td:first-child {
+    cursor: move;
+}

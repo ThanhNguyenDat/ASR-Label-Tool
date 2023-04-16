@@ -2,78 +2,26 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { useNavigate } from 'react-router-dom';
-import { Table, Form, Tag, Modal, Input, Image, Space, Button, Badge } from "antd";
+import { Table, Tag, Modal, Input, Image, Space, Button, Badge } from "antd";
 import { 
     DeleteOutlined, 
     EditOutlined, 
     ExclamationCircleOutlined, 
     SearchOutlined,
-    MenuOutlined
 } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
 import { DndContext } from '@dnd-kit/core';
 import {
   arrayMove,
   SortableContext,
-  useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 
 import { table_color } from '../../constants/table';
+import Row from './Row';
 
-
-const Row = ({ children, ...props }) => {
-    const {
-      attributes,
-      listeners,
-      setNodeRef,
-      setActivatorNodeRef,
-      transform,
-      transition,
-      isDragging,
-    } = useSortable({
-      id: props['data-row-key'],
-    });
-    const style = {
-      ...props.style,
-      transform: CSS.Transform.toString(
-        transform && {
-          ...transform,
-          scaleY: 1,
-        },
-      )?.replace(/translate3d\(([^,]+),/, 'translate3d(0,'),
-      transition,
-      ...(isDragging
-        ? {
-            position: 'relative',
-            zIndex: 9999,
-          }
-        : {}),
-    };
-    return (
-      <tr {...props} ref={setNodeRef} style={style} {...attributes}>
-        {React.Children.map(children, (child) => {
-          if (child.key === 'sort') {
-            return React.cloneElement(child, {
-              children: (
-                <MenuOutlined
-                  ref={setActivatorNodeRef}
-                  style={{
-                    touchAction: 'none',
-                    cursor: 'move',
-                  }}
-                  {...listeners}
-                />
-              ),
-            });
-          }
-          return child;
-        })}
-      </tr>
-    );
-  };
-
+import styles from './styles.module.scss';
+import TableDrag from './TableDrag';
 
 const DataTable = ({columns, dataSource, setDataSource, ...rest}) => {
     const { confirm } = Modal;
@@ -83,12 +31,14 @@ const DataTable = ({columns, dataSource, setDataSource, ...rest}) => {
     const [isEditing, setIsEditing] = React.useState(false);
     const [dataCell, setDataCell] = React.useState(null);
 
-    // search
+    // searchkìa
     const [searchText, setSearchText] = React.useState('');
     const [searchedColumn, setSearchedColumn] = React.useState('');
 
     const searchInput = React.useRef(null);
     
+    const TableDragContext = React.createContext();
+
     // table parmas
     const [tableParams, setTableParams] = React.useState({
         pagination: {
@@ -151,13 +101,13 @@ const DataTable = ({columns, dataSource, setDataSource, ...rest}) => {
     // Drab Table
     const onDragEnd = ({ active, over }) => {
         if (active.id !== over?.id) {
-          setDataSource((previous) => {
-            const activeIndex = previous.findIndex((i) => i.key === active.id);
-            const overIndex = previous.findIndex((i) => i.key === over?.id);
-            return arrayMove(previous, activeIndex, overIndex);
+          setDataSource((prev) => {
+            const activeIndex = prev.findIndex((i) => i.key === active.id);
+            const overIndex = prev.findIndex((i) => i.key === over?.id);
+            return arrayMove(prev, activeIndex, overIndex);
           });
         }
-    };
+      };
 
     let newColumns = columns.map(oldCol =>  {
         let newCol = {
@@ -352,36 +302,29 @@ const DataTable = ({columns, dataSource, setDataSource, ...rest}) => {
 
     return (
         <>
-        <DndContext onDragEnd={onDragEnd}>
-            <SortableContext
-                // rowKey array
-                items={dataSource.map((i) => i.key)}
-                strategy={verticalListSortingStrategy}
-            >
-                <Table 
-                    {...rest}
-                    columns={newColumns}
-                    dataSource={dataSource}
-                    
-                    components={{
-                        body: {
-                            row: Row
-                        }
-                    }}
+        <TableDrag
+            {...rest}
+            enableDrag={rest.enableDrag}
+            columns={newColumns}
+            dataSource={dataSource}
+            setDataSource={setDataSource}
+        >
+            <Table 
+                className={styles['table-modal']}
 
-                    pagination={tableParams.pagination}
-                    onChange={handleTableChange}
-                    onRow={(record, rowIndex) => ({
-                        onMouseEnter: event => {
-                            
-                        },
-                        onMouseLeave: event => {
-                            
-                        }
-                    })}
-                />
-            </SortableContext>
-        </DndContext>
+                pagination={tableParams.pagination}
+                onChange={handleTableChange}
+                onRow={(record, rowIndex) => ({
+                    onMouseEnter: event => {
+                        
+                    },
+                    onMouseLeave: event => {
+                        
+                    }
+                })}
+            />
+        </TableDrag>
+        
         
             <Modal 
                 title="Edit Data"

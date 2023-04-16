@@ -89,6 +89,7 @@ function FaceIDMember ( props ) {
 
     const [loading, setLoading] = React.useState(false);
 
+    // fetch data from api
     // React.useEffect(() => {
     //     setLoading(true)
     //     setTimeout(() => {
@@ -97,7 +98,8 @@ function FaceIDMember ( props ) {
     // }, [])
 
     const tableProps = {
-        loading: loading
+        loading: loading,
+        enableDrag: false,
     }
 
     return (
