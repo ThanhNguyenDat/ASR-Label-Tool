@@ -20,11 +20,7 @@ function TableDrag (props) {
         setDataSource ,
         enableDrag,
     } = props
-    console.log("enableDrag: ", enableDrag)
     
-
-
-
     const onDragEnd = ({ active, over }) => {
         if (active.id !== over?.id) {
           setDataSource((prev) => {

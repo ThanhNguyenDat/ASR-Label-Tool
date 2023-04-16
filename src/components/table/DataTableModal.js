@@ -9,16 +9,10 @@ import {
     ExclamationCircleOutlined, 
     SearchOutlined,
 } from '@ant-design/icons';
+
 import Highlighter from 'react-highlight-words';
-import { DndContext } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
 
 import { table_color } from '../../constants/table';
-import Row from './Row';
 
 import styles from './styles.module.scss';
 import TableDrag from './TableDrag';
@@ -38,10 +32,10 @@ const DataTable = ({columns, dataSource, setDataSource, ...rest}) => {
     const searchInput = React.useRef(null);
     
     const TableDragContext = React.createContext();
-
     // table parmas
     const [tableParams, setTableParams] = React.useState({
         pagination: {
+            position: [rest.paginationPosition || "bottomRight"],
             showQuickJumper:true,
             current: 1,
             pageSize: 5,
@@ -97,17 +91,6 @@ const DataTable = ({columns, dataSource, setDataSource, ...rest}) => {
             ...sorter,
         });
     }
-
-    // Drab Table
-    const onDragEnd = ({ active, over }) => {
-        if (active.id !== over?.id) {
-          setDataSource((prev) => {
-            const activeIndex = prev.findIndex((i) => i.key === active.id);
-            const overIndex = prev.findIndex((i) => i.key === over?.id);
-            return arrayMove(prev, activeIndex, overIndex);
-          });
-        }
-      };
 
     let newColumns = columns.map(oldCol =>  {
         let newCol = {

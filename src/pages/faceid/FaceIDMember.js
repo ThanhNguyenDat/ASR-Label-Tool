@@ -100,6 +100,8 @@ function FaceIDMember ( props ) {
     const tableProps = {
         loading: loading,
         enableDrag: false,
+
+        // paginationPosition: "bottomCenter" // egs: none, topLeft
     }
 
     return (
