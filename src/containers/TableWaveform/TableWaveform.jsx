@@ -61,7 +61,7 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                                     }
                                 ]}
                             >
-                                <Input data-key={col.key} autoFocus={shouldFocus}/>
+                                <Input.TextArea data-key={col.key} autoFocus={shouldFocus} rows={3}/>
                             </Form.Item>
                         )  
                         
@@ -196,16 +196,16 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                         },
                         // onBlur: event => {
                         //     setSelectedRegionKey(null)
-                        // }
+                        // },
                         onMouseEnter: event => {
                             setSelectedRegionKey(record.key);
                             form.setFieldsValue({
                                 ...record
                             })
                         },
-                        onMouseLeave: event => {
-                            setSelectedRegionKey(null)
-                        }
+                        // onMouseLeave: event => {
+                        //     setSelectedRegionKey(null)
+                        // }
                     }
                 }}
                 
