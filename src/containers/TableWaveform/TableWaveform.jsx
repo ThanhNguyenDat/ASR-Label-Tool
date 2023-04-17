@@ -9,6 +9,7 @@ const cx = classNames.bind();
 
 function TableWaveform ({columns, dataTable, ...rest}) {   
     const [form] = Form.useForm();
+    const inputRef = React.useRef();
 
     const {
         playWaveform,
@@ -51,6 +52,7 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                 render: (text, record, index) => {
                     if (record.key === selectedRegionKey) {
                         const shouldFocus = focusCell.row === index && focusCell.col === col.key;
+                        
                         return (
                             <Form.Item
                                 name={col.key}
@@ -61,7 +63,14 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                                     }
                                 ]}
                             >
-                                <Input.TextArea data-key={col.key} autoFocus={shouldFocus} rows={3}/>
+                                <Input.TextArea 
+                                    data-key={col.key} 
+                                    rows={3}
+                                    autoFocus={shouldFocus} 
+                                    onFocus={(event)=>{
+                                        event.target.selectionStart = event.target.value.length;
+                                    }} 
+                                />
                             </Form.Item>
                         )  
                         
@@ -190,6 +199,8 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                             form.setFieldsValue({
                                 ...record
                             })
+
+                            setFocusCell({ row: rowIndex, col: "description" });
                             
                             // play region
                             playWaveform?.regions.list[record.wave_id].play()
@@ -197,12 +208,13 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                         // onBlur: event => {
                         //     setSelectedRegionKey(null)
                         // },
-                        onMouseEnter: event => {
-                            setSelectedRegionKey(record.key);
-                            form.setFieldsValue({
-                                ...record
-                            })
-                        },
+                        // onMouseEnter: event => {
+                        //     setSelectedRegionKey(record.key);
+                        //     form.setFieldsValue({
+                        //         ...record
+                        //     })
+                        //     setFocusCell({ row: rowIndex, col: "description" });
+                        // },
                         // onMouseLeave: event => {
                         //     setSelectedRegionKey(null)
                         // }
