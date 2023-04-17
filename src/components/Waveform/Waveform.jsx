@@ -7,15 +7,19 @@ import RegionsPlugin from "wavesurfer.js/dist/plugin/wavesurfer.regions.min.js";
 import TimelinePlugin from "wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js";
 // import TimelinePlugin from "wavesurfer.js/src/plugin/timeline";
 import MinimapPlugin from "wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js";
+import { PlayCircleOutlined, SettingOutlined } from "@ant-design/icons";
 
-import styles from "./Waveform.scss";
 
-import { randomColor } from "@utils/randomColor";
 import { useHotkeys } from "react-hotkeys-hook";
 
+
 import {iterifyArr} from '@utils/common/customArray'
+import { randomColor } from "@utils/randomColor";
 
 import TableWaveform from "../../containers/TableWaveform";
+
+import styles from "./Waveform.scss";
+import { Button, Menu, Modal, Popover } from "antd";
 
 const cx = classNames.bind(styles);
 
@@ -119,6 +123,7 @@ function Waveform(props) {
                 loadRegions(annotations, wavesurferInstance);
                 setWavesurfer(wavesurferInstance);
             });
+            
         }
 
         return () => {
@@ -134,7 +139,7 @@ function Waveform(props) {
                     color: randomColor(0.2),
                 });
             });
-
+            
             wavesurfer.on("region-click", function (region, event) {
                 console.log("wavesurfer: ", wavesurfer.regions.list);
                 const newDataTable = updateDataTableByWavesurfer(wavesurfer);
@@ -159,16 +164,16 @@ function Waveform(props) {
 
                 // focus description
                 const row = newDataTable.find((d) => d.wave_id === region.id)
-                console.log('row: ', row)
                 if (row && row.hasOwnProperty('key')) {
                     setSelectedRegionKey(row.key);
                     setFocusCell({ row: row.id, col: "description" });
                 };
                 const rowElement = document.querySelector(`tr[data-row-key="${row?.key}"]`);
-                if (rowElement) {
+                if (rowElement) { // bug click lan 2 khong forcus
                     rowElement.click();
                     rowElement.querySelector(`input[data-key="description"]`)?.focus()
                 }
+                
             });
 
             // Set Annotaions and Length Wavesurfer
@@ -197,7 +202,7 @@ function Waveform(props) {
             });
         }
     }, [wavesurfer]);
-
+    
     /**
      * Load annotations
      */
@@ -349,7 +354,6 @@ function Waveform(props) {
         //     })
         //     return formatted
         // }
-        
     }
 
     const updateResultLabel = (dataTable) => {
@@ -435,7 +439,54 @@ function Waveform(props) {
         setSelectedRegionKey(null);
     }
 
+
+    function setPlaybackRate(rate) {
+        wavesurfer?.setPlaybackRate(rate)
+    }
+
+    const onClickSettingButton = (value) => {
+        console.log('click ', value);
+
+        if (value && value.keyPath.includes("PlaybackSpeed")) {
+            setPlaybackRate(value.key)
+        }
+    };
+
+    function getItem(label, key, icon, children, type) {
+        return {
+          key,
+          icon,
+          children,
+          label,
+          type,
+        };
+    }
+
+    const items = [
+        getItem('Playback speed', 'PlaybackSpeed', <PlayCircleOutlined />, [
+            getItem(
+                null, 
+                'groupPlaybackSpeed', 
+                null, 
+                [getItem('0.25', '0.25'), getItem('0.5', '0.5'), getItem('Normal', '1.0'), getItem('1.5', '1.5'), getItem('2.0', '2.0')], 
+                'group'
+            ),
+        ]),
+    ]
+
+    // tach code ra thanh 1 file rieng
+    const contentIconSetting = (
+        <>
+            <Menu 
+                onClick={onClickSettingButton}
+                items={items}
+                mode="inline"
+            />
+        </>
+    );
+
     return (
+        
         <div className={cx("container overflow-hidden")}>
             <div className={cx("row")}>
                 <p></p>
@@ -454,8 +505,12 @@ function Waveform(props) {
                     </div>)
                 }
             </div>
-            <div className={cx("row")}>
-                <p></p>
+            <div className={cx("row")} style={{padding: 15}}>
+                <div className={cx("col")} style={{ textAlign: "right"}}>
+                    <Popover trigger="click" title="Setting" content={contentIconSetting} placement="leftTop">
+                        <SettingOutlined  style={{fontSize: '25px', paddingRight: 15}}/>
+                    </Popover>
+                </div>
             </div>
 
             <div className={cx("row")}>
@@ -477,6 +532,7 @@ function Waveform(props) {
                     />    
             </div>
         </div >
+       
     );
 }
 

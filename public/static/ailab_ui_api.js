@@ -37,16 +37,40 @@ var AL = {};
             throw "Event " + ename + " is not registed or not exist";
         (handler = n[ename]), handler(event_package_data.data);
     }),
+        // $(document).on("keypress", function (e) {
+        //     a("event:got_key_press", {
+        //         key: e.key,
+        //         keyCode: e.keyCode,
+        //         charCode: e.charCode,
+        //         shiftKey: e.shiftKey,
+        //         ctrlKey: e.ctrlKey,
+        //         altKey: e.altKey
+        //     });
+        // }),
         $(document).on("keypress", function (e) {
-            a("event:got_key_press", {
-                key: e.key,
-                keyCode: e.keyCode,
-                charCode: e.charCode,
-                shiftKey: e.shiftKey,
-                ctrlKey: e.ctrlKey,
-                altKey: e.altKey
-            });
+            // console.log('keypress e ', e)
+            if (e.ctrlKey) {
+                a("event:got_key_press", {
+                    key: e.key,
+                    keyCode: e.keyCode,
+                    charCode: e.charCode,
+                    shiftKey: e.shiftKey,
+                    ctrlKey: e.ctrlKey,
+                    altKey: e.altKey
+                });
+            } else {
+                a("event:got_key_press", {});
+            }
+            // a("event:got_key_press", {
+            //     key: e.key,
+            //     keyCode: e.keyCode,
+            //     charCode: e.charCode,
+            //     shiftKey: e.shiftKey,
+            //     ctrlKey: e.ctrlKey,
+            //     altKey: e.altKey
+            // });
         }),
+
         (e.onReceiveCommonInfo = function (e) {
             o("cevent:got_common_info", e);
         }),
