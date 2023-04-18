@@ -29,10 +29,12 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                 onCell: (record, rowIndex) => {
                     return {
                         onClick: event => {
-                            setFocusCell({ row: rowIndex, col: col.key });
+                            console.log("click rowIndex: ", rowIndex)
+                            console.log("click record: ", record)
+                            setFocusCell({ row: record.key, col: col.key });
                         },
                         onMouseEnter: event => {
-                            setFocusCell({ row: rowIndex, col: col.key });
+                            setFocusCell({ row: record.key, col: col.key });
                         },
                         onChange: event => {
                             const roundNumber = (str) => {return Math.round(parseFloat(str) * 1000) / 1000}
@@ -193,7 +195,7 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                 columns={new_columns}
                 dataSource={dataTable}
                 rowKey="id"
-                pagination={{ pageSize: 2 }}
+                pagination={{ pageSize: 5 }}
                 onRow={(record, rowIndex) => {
                     return {
                         onClick: event => {
