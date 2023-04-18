@@ -1,14 +1,10 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Union
 import json
 
-from fastapi import Depends, HTTPException, status, APIRouter, Request, Cookie
+from fastapi import Depends, APIRouter, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
-
-from fastapi_sqlalchemy import db
-
-from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 from typing_extensions import Annotated
@@ -17,8 +13,7 @@ from sqlalchemy.sql import text
 from ..models.accountModel import User, Role, UserRole
 from ..schema.accountSchema import User as UserSchema
 
-# from ..dependencies import get_token_header
-from ..database.postgres import engine, DBSession
+from ..database.postgres import DBSession
 from .common import *
 from .http_exceptions import incorrect_username_password_exception, permission_denied_exception
 
@@ -63,7 +58,14 @@ async def signin(
         "message": "Login successful",
         "success": True
     }
+
+    # Get ip and port of client
+    ip_client = request.client.host
+    port_client = request.client.port
+    print(f'{ip_client}:{port_client}')
+
     response = JSONResponse(content=content)
+    print("response: ", content)
     # response.set_cookie("access_token", access_token)
     return response
 

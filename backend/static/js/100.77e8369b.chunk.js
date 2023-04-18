@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunk=self.webpackChunk||[]).push([[100],{7100:function(e,t,a){a.r(t);var n=a(9439),l=a(2791);a(4390);t.default=function(e){var t=l.useState(""),a=(0,n.Z)(t,2);a[0],a[1];return l.createElement(l.Fragment,null,l.createElement("div",{className:"row"},l.createElement("div",{className:"col"},l.createElement("h1",null,"React - Jinja 2"))))}}}]);
+//# sourceMappingURL=100.77e8369b.chunk.js.map

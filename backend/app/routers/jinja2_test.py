@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Request
 
 from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+import requests
 
 router = APIRouter()
 
@@ -12,7 +12,6 @@ templates = Jinja2Templates(directory="templates")
 async def read_item_1(request: Request):
     return templates.TemplateResponse("item.html", {"request": request, "id": 1})
 
-
-@router.get("/items/2", response_class=HTMLResponse)
-async def read_item_2(request: Request):
-    return templates.TemplateResponse("item2.html", {"request": request, "id": 2})
+@router.get("/test_react")
+async def test_react(request: Request):
+    return templates.TemplateResponse("build/index.html", {"request": request, "id": 1})

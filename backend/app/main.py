@@ -11,7 +11,7 @@ from fastapi_sqlalchemy import DBSessionMiddleware, db
 # from .dependencies import get_query_token, get_token_header
 
 from .internal import admin
-from .routers import account, jinja2_test
+from .routers import account, jinja2_test, resources, faceid
 
 app = FastAPI()
 
@@ -19,7 +19,10 @@ app = FastAPI()
 origins = [
     "http://localhost",
     "http://localhost:3000",
+    "http://localhost:5000"
+    
 ]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -46,6 +49,14 @@ app.include_router(
 #     response={418, {"description": "I'm Iron Man"}}
 # )
 
+app.include_router(
+    faceid.router,
+    prefix="/api/faceid",
+    tags=["faceid"],
+    responses={404: {"description": "Not found"}},
+)
+
+
 # test template jinja2
 app.include_router(
     jinja2_test.router,
@@ -53,6 +64,14 @@ app.include_router(
     tags=["jinja2_test"],
     responses={404: {"description": "Not found"}},
 )
+
+app.include_router(
+    resources.router,
+    prefix="/resources",
+    tags=["resources"],
+    responses={404: {"description": "Not found"}},
+)
+
 
 
 if __name__ == '__main__':

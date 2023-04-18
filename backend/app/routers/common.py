@@ -2,11 +2,8 @@ from datetime import datetime, timedelta
 from typing import Union
 import json
 
-from fastapi import Depends, HTTPException, status, APIRouter, Request
+from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from fastapi.responses import JSONResponse
-
-from fastapi_sqlalchemy import db
 
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -15,9 +12,8 @@ from typing_extensions import Annotated
 from sqlalchemy.sql import text
 
 from ..models.accountModel import User, Role, UserRole
-from ..schema.accountSchema import Token, TokenData, User as UserSchema
+from ..schema.accountSchema import TokenData
 
-# from ..dependencies import get_token_header
 from ..database.postgres import DBSession
 from .http_exceptions import *
 
