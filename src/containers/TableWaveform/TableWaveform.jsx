@@ -95,11 +95,11 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                 onCell: (record, rowIndex) => {
                     return {
                         onClick: event => {
-                            setFocusCell({ row: rowIndex, col: col.key });
+                            setFocusCell({ row: record.key, col: col.key });
                         },
                         onChange: event => {
                             const formData = form.getFieldValue();
-                            updateDataTablePerCell(rowIndex, col.key, formData[col.key]);
+                            updateDataTablePerCell(record.key, col.key, formData[col.key]);
                         }
                     }
                 },
