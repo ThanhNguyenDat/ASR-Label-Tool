@@ -4,7 +4,7 @@ import { Navigate } from 'react-router-dom'
 import AuthComponent from './hocs/withAuthRequired'
 import LabelUILayout from './layouts/LabelUILayout';
 import FaceIDLayout from './layouts/FaceIDLayout';
-
+import TestTextEditor from './pages/uitest/testTextEditor';
 import FaceIDDetail from './pages/faceid/FaceIDDetail';
 
 // import LoginPage from './pages/login'
@@ -27,7 +27,7 @@ const FaceIDMember = lazy(() => import('./pages/faceid/FaceIDMember'))
 
 // test pages
 const TestJinja2 = lazy(() => import('./pages/uitest/testjinja2'))
-// const React2Jinja2 = lazy(() => import('./pages/uitest/react2jinja2'))
+const React2Jinja2 = lazy(() => import('./pages/uitest/react2jinja2'))
 
 function WaitingComponent ({children, ...props}) {
     return (
@@ -86,10 +86,10 @@ const routes = [
                 path: 'jinja2',
                 element: <TestJinja2 />
             },
-            // {
-            //     path: 'testTextEditor',
-            //     element: <TestTextEditor />
-            // },
+            {
+                path: 'testTextEditor',
+                element: <TestTextEditor />
+            },
             
         ]
     },
