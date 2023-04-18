@@ -95,10 +95,12 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                 onCell: (record, rowIndex) => {
                     return {
                         onClick: event => {
+                            console.log("Select onCell onClick: ", record, rowIndex)
                             setFocusCell({ row: record.key, col: col.key });
                         },
                         onChange: event => {
                             const formData = form.getFieldValue();
+                            console.log("Select onCell onChange: ", record, rowIndex, formData)
                             updateDataTablePerCell(record.key, col.key, formData[col.key]);
                         }
                     }
