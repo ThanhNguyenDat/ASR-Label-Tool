@@ -5,6 +5,7 @@ load_dotenv('.env')
 
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from fastapi_sqlalchemy import DBSessionMiddleware, db
 
@@ -72,7 +73,13 @@ app.include_router(
     responses={404: {"description": "Not found"}},
 )
 
-
+@app.get("/")
+async def hello():
+    content = {
+        "error_code": 0,
+        "data": {}
+    }
+    return JSONResponse(content=content)
 
 if __name__ == '__main__':
     import uvicorn

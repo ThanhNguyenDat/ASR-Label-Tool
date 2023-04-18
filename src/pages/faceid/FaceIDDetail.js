@@ -15,7 +15,7 @@ function FaceIDDetail (props) {
 
     React.useEffect(() => {
         const fetchAPI = async () => {
-            await APIUtils.get(`http://127.0.0.1:8000/api/faceid/get-user-by-id/${uid}`)
+            await APIUtils.get(`http://127.0.0.1:8000/api/faceid/get-user/${uid}`)
             .then(response => {
                 console.log("response: ", response)
                 form.setFieldsValue({
@@ -26,14 +26,26 @@ function FaceIDDetail (props) {
         fetchAPI();
     }, [])
 
-    const handleSubmitForm = () => {
-        const data = form.getFieldsValue()
-        console.log('data: ', data)
+    const handleSubmitForm = (values) => {
+        console.log('data: ', values)
+        const fetchAPI = async () => {
+            await APIUtils.post(`http://127.0.0.1:8000/api/faceid/update-user/${uid}`, values)
+            .then(response => {
+                console.log("response: ", response)
+            })
+        }
+        fetchAPI();
+    
     }
+    const handleSubmitFormFailed = (errorInfo) => {
+        console.log('Failed:', errorInfo);
+    };
+
+
 
     return (
         <>
-            <Form form={form} >    
+            <Form form={form} onFinish={handleSubmitForm} onFinishFailed={handleSubmitFormFailed}>    
                 <div className='row'>
                     <Form.Item label='First name' name="first_name">   
                         <Input></Input>
@@ -47,7 +59,9 @@ function FaceIDDetail (props) {
                         </Form.Item>
                     </div>
                 </div>
-                <Button onClick={handleSubmitForm}>Submit</Button>
+                <Form.Item>
+                    <Button htmlType='submit'>Submit</Button>
+                </Form.Item>
             </Form>
         </>
     )
