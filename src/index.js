@@ -4,15 +4,19 @@ import 'bootstrap/dist/js/bootstrap.min.js';
 
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import { Provider } from 'react-redux'
 
 import reportWebVitals from "./reportWebVitals";
+import configureStore from './redux/store';
 
-
+const store = configureStore();
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+  <Provider store={store}>
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  </Provider>
 );
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

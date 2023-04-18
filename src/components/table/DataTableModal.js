@@ -185,13 +185,6 @@ const DataTable = ({columns, dataSource, setDataSource, ...rest}) => {
             }
         }
 
-        if (newCol.key === "status") {
-            newCol = {
-                ...newCol,
-                render: (_, record) => <Badge status={record.status} text={record.status}/>
-            }
-        }
-
         if (newCol.key === "progress") {
             newCol = {
                 ...newCol,

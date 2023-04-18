@@ -70,7 +70,7 @@ function AuthComponent (props) {
         
         // check here ! optimize here => code dang bi ngu
         if (!isPermissionAccess) {
-          navigate("/react_label_ui") // redirect: public router
+          navigate("/") // redirect: public router /react_label_ui
         }
     } catch (err) {
         console.error("err", err);
