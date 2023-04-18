@@ -11,7 +11,9 @@ function TableWaveform ({columns, dataTable, ...rest}) {
     const [form] = Form.useForm();
     const inputRef = React.useRef();
 
-    const {
+    
+
+    const { 
         playWaveform,
         setSelectedRegionKey, 
         selectedRegionKey,
@@ -43,8 +45,8 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                                 start_time: roundNumber(formData1.start_time),
                                 end_time: roundNumber(formData1.end_time)
                             }
-
-                            updateDataTablePerCell(rowIndex, col.key, formData[col.key]);
+                            console.log("Data update: ", record, rowIndex, col.key, formData[col.key]) // rowIndex = 0 
+                            updateDataTablePerCell(record.key, col.key, formData[col.key]);
                         }
                     }
                 },
@@ -191,11 +193,12 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                 columns={new_columns}
                 dataSource={dataTable}
                 rowKey="id"
-                pagination={{ pageSize: 5 }}
+                pagination={{ pageSize: 2 }}
                 onRow={(record, rowIndex) => {
                     return {
                         onClick: event => {
                             setSelectedRegionKey(record.key);
+                            console.log('row', record, rowIndex)
                             form.setFieldsValue({
                                 ...record
                             })
