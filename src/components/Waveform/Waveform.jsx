@@ -38,6 +38,7 @@ const colors = {
   
 
 function Waveform(props) {
+    const start_time = performance.now();
     let { 
         commonInfo, 
         dataLabel, 
@@ -485,9 +486,11 @@ function Waveform(props) {
         </>
     );
 
+    const end_time = performance.now();
+    console.log(`Thời gian render waveform: ${end_time - start_time} ms`);
     return (
         
-        <div className={cx("container overflow-hidden")}>
+        <div className={cx("overflow-hidden")}>
             <div className={cx("row")}>
                 <p></p>
             </div>

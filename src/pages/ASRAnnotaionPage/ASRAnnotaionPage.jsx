@@ -178,8 +178,8 @@ function ASRAnnotaionPage(props) {
     return (
         <div className={cx("ASRAnnotaionPage")}>
             <Waveform {...waveform_props} />
-            {/* <button onClick={()=>{console.log(`result push ${resultLabel.length}: ${JSON.stringify(resultLabel)}`)}}>resultLabel</button>
-            <button onClick={()=>{console.log(`annota push ${annotations.length}: ${JSON.stringify(annotations)}`)}}>annotations</button> */}
+            <button onClick={()=>{console.log(`result push ${resultLabel.length}: ${JSON.stringify(resultLabel)}`)}}>resultLabel</button>
+            <button onClick={()=>{console.log(`annota push ${annotations.length}: ${JSON.stringify(annotations)}`)}}>annotations</button>
         </div>
     );
 }
