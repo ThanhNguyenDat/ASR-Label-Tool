@@ -38,7 +38,6 @@ const colors = {
   
 
 function WaveformReview(props) {
-    const start_time = performance.now();
     let { 
         commonInfo, 
         dataLabel, 
@@ -281,7 +280,6 @@ function WaveformReview(props) {
      */
     const updateDataTablePerCell = (rowIndex, columnId, value) => {
         // We also turn on the flag to not reset the page
-        console.log(`update data table info: ${rowIndex} ${columnId} ${value}`)
         
         const newDataTable = dataTable.map((row, index) => {
             if (index===rowIndex) {
@@ -313,6 +311,7 @@ function WaveformReview(props) {
                 "tag": {
                     "index": parseInt(data.start_time * 1000),
                     "length": parseInt((data.end_time - data.start_time) * 1000),
+                    // "length": parseInt(data.end_time * 1000),
                     "text": data.description || "",
                 },
                 "extras": {
@@ -439,7 +438,6 @@ function WaveformReview(props) {
     }
 
     const onClickSettingButton = (value) => {
-        console.log('click ', value);
 
         if (value && value.keyPath.includes("PlaybackSpeed")) {
             setPlaybackRate(value.key)
@@ -479,8 +477,6 @@ function WaveformReview(props) {
         </>
     );
 
-    const end_time = performance.now();
-    console.log(`Thời gian render waveform: ${end_time - start_time} ms`);
     return (
         
         <div className={cx("overflow-hidden")}>

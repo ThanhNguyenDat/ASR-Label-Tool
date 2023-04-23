@@ -38,7 +38,6 @@ const colors = {
   
 
 function Waveform(props) {
-    const start_time = performance.now();
     let { 
         commonInfo, 
         dataLabel, 
@@ -96,8 +95,8 @@ function Waveform(props) {
                         return retval;
                     },
                     fontSize: 12,
-
                 }),
+
                 RegionsPlugin.create(),
                 // MinimapPlugin.create({
                 //     height: 30,
@@ -213,8 +212,8 @@ function Waveform(props) {
             region.color = randomColor(0.2);
             region.data = {};
             
-            region.start = annotation.content.index
-            region.end = annotation.content.length + annotation.content.index
+            region.start = annotation.content.index;
+            region.end = annotation.content.length + annotation.content.index;
             region.data.note = annotation.content.text;
             
             region.data.audibility = annotation.extra?.classify?.audibility || "good";
@@ -278,7 +277,6 @@ function Waveform(props) {
      */
     const updateDataTablePerCell = (rowIndex, columnId, value) => {
         // We also turn on the flag to not reset the page
-        console.log(`update data table info: ${rowIndex} ${columnId} ${value}`)
         
         const newDataTable = dataTable.map((row, index) => {
             if (index===rowIndex) {
@@ -310,6 +308,7 @@ function Waveform(props) {
                 "tag": {
                     "index": parseInt(data.start_time * 1000),
                     "length": parseInt((data.end_time - data.start_time) * 1000),
+                    // "length": parseInt(data.end_time * 1000),
                     "text": data.description || "",
                 },
                 "extras": {
@@ -326,35 +325,7 @@ function Waveform(props) {
                 'item_id': dataLabel[0]['id'],
             }
         });
-        
         return formatted;
-        // if (wavesurfer) {
-        //     const waveArray = Object.values(wavesurfer.regions.list)
-        //     const formatted = waveArray.map((region, index) => {
-        //         return {
-        //             "class_id": commonInfo[0].id,
-        //             "class_name": "Human",
-        //             "tag": {
-        //                 "index": parseInt(region.start * 1000), // start
-        //                 "length": parseInt((region.end - region.start) * 1000), // end - start
-        //                 "text": region.data.note || "" // description
-        //             },
-        //             "extra": {
-        //                 "hard_level": 1,
-        //                 "classify": {
-        //                     "audibility": region.data.audibility,
-        //                     "noise": region.data.noise,
-        //                     "echo": region.data.echo
-        //                 }
-        //             },
-        //             'data_cat_id': dataLabel[0]['data_cat_id'],
-        //             'dataset_id': dataLabel[0]['dataset_id'],
-        //             'seed': dataLabel[0]['seed'],
-        //             'item_id': dataLabel[0]['id'],
-        //         }
-        //     })
-        //     return formatted
-        // }
     }
 
     const updateResultLabel = (dataTable) => {
@@ -486,8 +457,6 @@ function Waveform(props) {
         </>
     );
 
-    const end_time = performance.now();
-    console.log(`Thời gian render waveform: ${end_time - start_time} ms`);
     return (
         
         <div className={cx("overflow-hidden")}>

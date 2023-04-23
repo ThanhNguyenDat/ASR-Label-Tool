@@ -242,27 +242,9 @@ function ASRAnnotationReviewPage(props) {
         
         if (data) {
             setDataLabel(data['data']);
-            
-            // const anns = data['annotation']
-            
-            // if (anns.length > 0) {
-            //     const formatted_anns = anns.map(ele => ({
-            //         ...ele,
-            //         content: {
-            //             ...ele['content'],
-            //             index: ele['content']['index']/1000,
-            //             length: ele['content']['length']/1000
-            //         }
-            //     }))
-            //     console.log('123: ', formatted_anns)
-            //     setAnnotations(formatted_anns)
-            // } else {
-            //     setAnnotations([])
-            // }
         }
 
         if (result) {
-            
             const anns = result[0]
             if (anns.length > 0) {
                 const formatted_anns = anns.map(ele => ({
