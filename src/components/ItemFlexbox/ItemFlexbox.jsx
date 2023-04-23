@@ -1,157 +1,149 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Box from '@mui/material/Box';
-import styled, { css } from "styled-components";
 
-import useContextMenu from '@hooks/useContextMenu';
-import { Button, Checkbox, Input } from 'antd';
+import { Button, Dropdown } from 'antd';
+import { TfiAlert, TfiEye, TfiBackLeft, TfiCheck, TfiClose } from 'react-icons/tfi';
 
-const ContextMenu = styled.div`
-  position: absolute;
-  font-size: 13px;
-  width: 100px;
-  background-color: #f5f5f5;
-  border-radius: 5px;
-
-  z-index: 999;
-  ${({ top, left }) => css`
-    top: ${top}px;
-    left: ${left}px;
-  `}
-
-  ul {
-    box-sizing: border-box;
-    margin: 0;
-    list-style: none;
-    box-shadow: 0 0 0 2px black;
-    border-radius: 10px;
-    padding: 0;
-  }
-  ul li {
-    padding: 9px 0px;
-    border-radius: 10px;
-  }
-  /* hover */
-  ul li:hover {
-    cursor: pointer;
-    background-color: white;
-  }
-`;
+import styles from './styles.module.css';
 
 function ItemFlexbox(props) {
     let { 
         sx, 
         id, 
-        resultLabel, 
-        setResultLabel, 
-        // onClick: originalOnClick,
+        entireResultLabel,
+        setEntireResultLabel, 
+        dataLabelId,
+
         clicked,
         points,
-        color,
-        setColor,
         ...other 
     } = props;
 
+    const colors = {
+        null: '#f5f5f5',
+        'Other': '#808080',
+        'Good': '#0080ff',
+        'Bad': '#ff0000',
+        'Remake': '#bfff00'
+    }
+    
+    const current_result_data_label = entireResultLabel.find(resultLabel => resultLabel[0][0].item_id === id)
+    // console.log('_resultLabel: ', _resultLabel)
+    // get review
+    const review = current_result_data_label[0][0].extras.review || null;
+    let color = colors[review]
+
+
+
+    function updateStatusReview(review) {
+      const indexResultLabel = entireResultLabel.findIndex(resultLabel => resultLabel[0][0].item_id === dataLabelId)
+      console.log('index: ', indexResultLabel)
+      const currentResult = entireResultLabel[indexResultLabel]
+      // console.log('current: ', currentResult)
+      
+      const updateResult = [currentResult[0].map(current => {
+        current.extras.review = review;
+        return current
+      })]
+
+      const _entireResultLabel = entireResultLabel
+      _entireResultLabel[indexResultLabel] = updateResult
+      
+      return _entireResultLabel
+    }
+    
+  
     
     // console.log("props: ", props)
     return (
         <>
-            <Button 
-                style={{
-                    ":hover": {
-                        cursor: 'pointer',
-                        opacity: 0.5
+            <Dropdown
+              menu={{
+                items: [
+                  {
+                    label: 'Other',
+                    key: 0,
+                    style: {
+                      backgroundColor: colors['Other'],
+                      color: 'white'
                     },
-                    ":active": {
-                        // color: 'blue'
+                    icon: <TfiEye />,
+                    onClick: () => {
+                      const _entireResultLabel = updateStatusReview('Other')
+                      setEntireResultLabel(_entireResultLabel)
                     },
+                  },
+                {
+                  label: 'Good',
+                  key: 1,
+                  style: {
+                    backgroundColor: colors['Good'],
+                  },
+                  icon: <TfiCheck />,
+                  onClick: () => {
+                    const _entireResultLabel = updateStatusReview('Good')
+                    setEntireResultLabel(_entireResultLabel)
+                  }
+                },
+                {
+                  label: 'Bad',
+                  key: 2,
+                  style: {
+                    backgroundColor: colors['Bad']
+                  },
+                  icon: <TfiClose />,
+                  onClick: () => {
+                    const _entireResultLabel = updateStatusReview('Bad')
+                    setEntireResultLabel(_entireResultLabel)
+                  }
+                },
+                {
+                  label: 'Remake',
+                  key: 3,
+                  style: {
+                    backgroundColor: colors['Remake']
+                  },
+                  icon: <TfiAlert />,
+                  onClick: () => {
+                    const _entireResultLabel = updateStatusReview('Remake')
+                    setEntireResultLabel(_entireResultLabel)
+                  }
+                },
+                {
+                  label: 'Undo',
+                  key: 4,
+                  style: {
+                    backgroundColor: colors[null]
+                  },
+                  icon: <TfiBackLeft />,
+                  onClick: () => {
+                    const _entireResultLabel = updateStatusReview(null)
+                    setEntireResultLabel(_entireResultLabel)
+                  }  
+                },
+              ]}}
+              trigger={['contextMenu']}
+            >
+              <Button 
+                  key={id}
+                  className={`${styles['btnDataLabel']}`}
+                  style={{
+                      background: color,
+                  }}
 
-                    background: color,
-                }}
-                {...other}
-                
-                onClick={() => {
-                    props.onClick();
+                  {...other}
+                  
+                  onClick={(e) => {
+                      props.onClick(e);
+                      e.currentTarget.classList.add(
+                          'op03',
+                      );
 
-                    setColor(pre => {
-                        if (pre) return pre
-                    })
-                    console.log("click id: ", id)
-                    // setClicked(false)
-                    
+                      console.log("click id: ", id)
+                  }}
 
-                }}
-
-                // onContextMenu={(e) => {
-                //     e.preventDefault();
-                //     props.onContextMenu();
-                    
-                //     setClicked(false);
-                    
-                //     console.log("right click", id)
-                    
-                //     console.log(e)
-                //     setPoints({
-                //         x: e.pageX,
-                //         y: e.pageY,
-                //     });
-                //     setClicked(true);
-                // }}
-            />
-            {clicked && (
-                <ContextMenu top={points.y} left={points.x}>
-                
-                <ul> 
-                    <li
-                        onClick={() => {
-                            setColor('#f5f5f5')
-                            setResultLabel(pre => (pre.map(p => ({
-                                    ...p,
-                                    "class_id": 0, // commonInfo
-                                    "class_name": "Other"
-                            }))))
-                        }} 
-                        style={{backgroundColor: '#f5f5f5'}}
-                    >Other</li>
-                    <li 
-                        onClick={() => {
-                            setColor('cyan')
-                            setResultLabel(pre => (pre.map(p => ({
-                                ...p,
-                                "class_id": 1, // commonInfo
-                                "class_name": "Good"
-                        }))))
-                        }} 
-                        style={{backgroundColor: 'cyan'}}
-                    >Good</li>
-                    <li 
-                        onClick={() => {
-
-                            setColor('red')
-                            
-                            setResultLabel(pre => (pre.map(p => ({
-                                ...p,
-                                "class_id": 2, // commonInfo
-                                "class_name": "Bad"
-                        }))))
-                        }} 
-                        style={{backgroundColor: 'red'}}
-                    >Bad</li>
-                    <li
-                        onClick={() => {
-                            setColor('#00ff33')
-                            setResultLabel(pre => (pre.map(p => ({
-                                ...p,
-                                "class_id": 3, // commonInfo
-                                "class_name": "Redo"
-                        }))))
-                        }} 
-                        style={{backgroundColor: '#00ff33'}}
-                    >Redo</li>
-                   
-                </ul>
-                </ContextMenu>
-            )}
+              >{id}</Button>
+            </Dropdown>
       </>
     );
 }

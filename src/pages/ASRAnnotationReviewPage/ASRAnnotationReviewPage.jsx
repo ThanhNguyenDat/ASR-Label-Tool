@@ -1,8 +1,7 @@
 import classNames from "classnames/bind";
 import React, { useEffect, useState } from "react";
 
-// import Waveform from "../../components/Waveform"
-import Waveform from "@components/Waveform";
+import WaveformReview from "@components/WaveformReview";
 import useScript from "@hooks/useScript";
 import { Button, Layout, Pagination, Table } from "antd";
 import axios from 'axios';
@@ -111,84 +110,83 @@ function ASRAnnotationReviewPage(props) {
 
 
     const { clicked, setClicked, points, setPoints } = useContextMenu();
-    const [color, setColor] = React.useState('#f5f5f5')
-    const [colors, setColors] = React.useState({});
+    
 
         // Full flow when anntations change
-    useEffect(() => {
-        console.log('on change use effect ')
-        if (window.AL) {
-            window.AL.onReceiveRequestResult(function (data) {
-                // const final_annotations = annotations
-                // window.AL.pushResultFail();
-                console.log("data push result: dataLabels ", annotations);
-                console.log("data push result: resultLabel ", resultLabel);
-                // window.AL.pushResultFail();
-                window.AL.pushResult({ 'postags': resultLabel, 'fetch_number': 1 });
-                // window.AL.pushResult({'postags': dataLabels['annotations'], 'fetch_number': 1});
+    // useEffect(() => {
+    //     console.log('on change use effect ')
+    //     if (window.AL) {
+    //         window.AL.onReceiveRequestResult(function (data) {
+    //             // const final_annotations = annotations
+    //             // window.AL.pushResultFail();
+    //             console.log("data push result: dataLabels ", annotations);
+    //             console.log("data push result: resultLabel ", resultLabel);
+    //             // window.AL.pushResultFail();
+    //             window.AL.pushResult({ 'postags': resultLabel, 'fetch_number': 1 });
+    //             // window.AL.pushResult({'postags': dataLabels['annotations'], 'fetch_number': 1});
 
-            })
-            window.AL.onReceiveData(function (data) {
-                console.log('onReceiveData', data)
-                if (data.length > 0) {
-                    // update data - annotations
-                    setDataLabel(data[0]['data'])
-                    const anns = data[0]['annotation']
-                    if (anns.length > 0) {
-                        const formatted_anns = anns.map(ele => {
-                            return {
-                                ...ele,
-                                content: {
-                                    ...ele['content'],
-                                    index: ele['content']['index']/1000,
-                                    length: ele['content']['length']/1000
-                                }
-                            }
-                        })
-                        setAnnotations(formatted_anns)
-                    } 
+    //         })
+    //         window.AL.onReceiveData(function (data) {
+    //             console.log('onReceiveData', data)
+    //             if (data.length > 0) {
+    //                 // update data - annotations
+    //                 setDataLabel(data[0]['data'])
+    //                 const anns = data[0]['annotation']
+    //                 if (anns.length > 0) {
+    //                     const formatted_anns = anns.map(ele => {
+    //                         return {
+    //                             ...ele,
+    //                             content: {
+    //                                 ...ele['content'],
+    //                                 index: ele['content']['index']/1000,
+    //                                 length: ele['content']['length']/1000
+    //                             }
+    //                         }
+    //                     })
+    //                     setAnnotations(formatted_anns)
+    //                 } 
 
-                }
+    //             }
 
-            })
+    //         })
 
-            window.AL.onPushResultFail(function (data) {
-                alert('fail to push' + data['message']);
-            });
+    //         window.AL.onPushResultFail(function (data) {
+    //             alert('fail to push' + data['message']);
+    //         });
 
-            window.AL.onReceiveCommonInfo(function (data) {
-                console.log('onReceiveCommonInfo in', data)
-                var classes = data['classes'];
-                setCommonInfo(classes)
-                window.AL.pushSettings({
-                    'settings': [
-                        {
-                            'type': 'text',
-                            'id': 1,
-                            'name': 'Video Name',
-                            'options': []
-                        },
-                        {
-                            'type': 'text',
-                            'id': 2,
-                            'name': 'Frame ID',
-                            'options': []
-                        },
-                    ]
-                });
-                console.log('onReceiveCommonInfo out ', data)
+    //         window.AL.onReceiveCommonInfo(function (data) {
+    //             console.log('onReceiveCommonInfo in', data)
+    //             var classes = data['classes'];
+    //             setCommonInfo(classes)
+    //             window.AL.pushSettings({
+    //                 'settings': [
+    //                     {
+    //                         'type': 'text',
+    //                         'id': 1,
+    //                         'name': 'Video Name',
+    //                         'options': []
+    //                     },
+    //                     {
+    //                         'type': 'text',
+    //                         'id': 2,
+    //                         'name': 'Frame ID',
+    //                         'options': []
+    //                     },
+    //                 ]
+    //             });
+    //             console.log('onReceiveCommonInfo out ', data)
 
-            });
+    //         });
 
-            window.AL.onUpdateSelectClass(function (data) {
-                console.log('onUpdateSelectClass data', data)
-            });
+    //         window.AL.onUpdateSelectClass(function (data) {
+    //             console.log('onUpdateSelectClass data', data)
+    //         });
 
-            window.AL.onReceiveRequestResetCurrent(function (data) {
-                console.log('onReceiveRequestResetCurrent ', data)
-            });
-        }
-    }, [annotations, resultLabel])
+    //         window.AL.onReceiveRequestResetCurrent(function (data) {
+    //             console.log('onReceiveRequestResetCurrent ', data)
+    //         });
+    //     }
+    // }, [annotations, resultLabel])
 
     function formatResultData (data) {
         const childResult = []
@@ -219,7 +217,7 @@ function ASRAnnotationReviewPage(props) {
             .then(response => {
                 console.log('response: ', response)
                 const data = response.data.data;
-
+                console.log('data: ', data)
                 const ids = data.map(d => {
                     return  d.data[0].id
                 })
@@ -240,6 +238,7 @@ function ASRAnnotationReviewPage(props) {
     }, [])
 
     React.useEffect(() => {
+        
         const data = entireDataLabel.find(d => d.data[0].id == dataLabelId)
         if (data) {
             setDataLabel(data['data']);
@@ -267,6 +266,10 @@ function ASRAnnotationReviewPage(props) {
 
         dataLabel,
         annotations,
+
+        dataLabelId,
+        entireResultLabel,
+        setEntireDataLabel,
 
         setResultLabel,
         ...props
@@ -297,10 +300,10 @@ function ASRAnnotationReviewPage(props) {
                         <div className="col-10">
                             {dataLabelId && (
                             <>
-                                <Waveform {...waveform_props} />
+                                <WaveformReview {...waveform_props} />
                                 
-                                <button onClick={()=>{console.log(`result push ${resultLabel.length}: ${JSON.stringify(resultLabel)}`)}}>resultLabel</button>
-                                <button onClick={()=>{console.log(`annota push ${annotations.length}: ${JSON.stringify(annotations)}`)}}>annotations</button>
+                                <button onClick={()=>{console.log(`result push ${entireDataLabel.length}: `, entireResultLabel)}}>entireResultLabel</button>
+                                <button onClick={()=>{console.log(`annota push ${resultLabel.length}: `, resultLabel)}}>resultLabel</button>
                             </>
                             )}
                         </div>
@@ -314,27 +317,26 @@ function ASRAnnotationReviewPage(props) {
                                 }}
                             >
                                 {dataLabelIds.map(id => {
-                                    // get review by id
-                                    // const review = entireResultLabel.find(rsLabel => rsLabel.)
-
-                                    // color = colors[id]
                                     return (
                                         <div className="col-sm-3" style={{paddingBottom: 10}}>
                                             <ItemFlexbox
                                                 key={id}
                                                 
                                                 id={id}
-                                                resultLabel={resultLabel}
-                                                setResultLabel={setResultLabel}
+                                                entireResultLabel={entireResultLabel}
+                                                setEntireResultLabel={setEntireResultLabel}
                                                 
+                                                dataLabelId={dataLabelId}
+
                                                 onClick={(e)=>{
                                                     setDataLabelId(id)
+                                                    
                                                 }}
 
                                                 onContextMenu={(e) => {
                                                     e.preventDefault();
+                                                    
                                                     setClicked(false);
-                                                    console.log('id ', id)
                                                     setPoints({
                                                         x: e.pageX,
                                                         y: e.pageY,
@@ -343,13 +345,12 @@ function ASRAnnotationReviewPage(props) {
                                                     setClicked(true);
                                                     setDataLabelId(id)
                                                 }}
+
                                                 clicked={clicked}
                                                 points={points}
-                                                color={color}
-                                                setColor={setColor}
                                                 
 
-                                            >{id}</ItemFlexbox>
+                                            />
                                             
                                         </div>
                                     )

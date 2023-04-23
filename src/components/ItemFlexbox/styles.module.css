@@ -1,0 +1,13 @@
+.btnDataLabel {
+    
+}
+
+.btnDataLabel:hover {
+    opacity: 0.5 !important;
+    color: 'black';
+}
+
+.btnDataLabel:focus {
+    opacity: 0.3;
+}
+
