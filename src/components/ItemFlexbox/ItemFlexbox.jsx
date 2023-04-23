@@ -52,9 +52,6 @@ function ItemFlexbox(props) {
       return _entireResultLabel
     }
     
-  
-    
-    // console.log("props: ", props)
     return (
         <>
             <Dropdown
