@@ -74,6 +74,8 @@ const data = {
 
 
 function ASRAnnotationReviewPage(props) {
+    document.body.style.overflow = 'hidden';
+    
     // do performance
     const start = performance.now();
 
@@ -286,7 +288,7 @@ function ASRAnnotationReviewPage(props) {
         <div className={cx("ASRAnnotaionPage")}>
             <div className="row" style={{height: "100vh"}}>
                 <div className="col-2" >
-                    <Button 
+                    {/* <Button 
                         style={{ 
                             
                             height: 100,
@@ -294,7 +296,7 @@ function ASRAnnotationReviewPage(props) {
                             bottom: 0,
 
                         }}
-                    >Next</Button>
+                    >Next</Button> */}
                 </div>
                 <div className="container col row">
                         <div className="col-10">

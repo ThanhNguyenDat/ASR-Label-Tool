@@ -334,14 +334,31 @@ function WaveformReview(props) {
     }
 
     const updateResultLabel = (dataTable) => {
-        const index_result_data_label = entireResultLabel.findIndex(resultLabel => resultLabel[0][0].item_id === dataLabelId)
-        const current_result_data_label = entireResultLabel[index_result_data_label]
+        const indexResultLabel = entireResultLabel.findIndex(resultLabel => resultLabel[0][0].item_id === dataLabelId)
+        const currentResult = entireResultLabel[indexResultLabel]
         
-        console.log('abc: ', current_result_data_label)
+        // get review
+        const review = currentResult[0][0].extras.review || null;
+        
+        console.log('abc: ', currentResult);
+        console.log('review: ', review)
+        // update current data label deal with dataTable
 
         const list_formatted_anns = formatResultLabel(dataTable)
+        console.log('data format: ', list_formatted_anns)
         
+        const updateResult = [list_formatted_anns.map(anno => {
+            anno.extras.review = review
+            console.log(anno)
+            return anno
+        })]
+        console.log('data combined: ', updateResult)
+
+        const _entireResultLabel  = entireResultLabel
+        _entireResultLabel[indexResultLabel] = updateResult
         setResultLabel(list_formatted_anns)
+        setEntireDataLabel(_entireResultLabel)
+
     }
 
     // updateDataAnnotations(dataTable);
