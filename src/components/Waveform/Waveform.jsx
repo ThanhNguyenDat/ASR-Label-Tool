@@ -309,7 +309,7 @@ function Waveform(props) {
                 "class_name": "Human",
                 "tag": {
                     "index": parseInt(data.start_time * 1000),
-                    "length": parseInt(data.end_time * 1000),
+                    "length": parseInt((data.end_time - data.start_time) * 1000),
                     "text": data.description || "",
                 },
                 "extras": {

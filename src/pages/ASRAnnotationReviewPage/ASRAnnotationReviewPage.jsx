@@ -75,7 +75,7 @@ const data = {
 
 function ASRAnnotationReviewPage(props) {
     document.body.style.overflow = 'hidden';
-    
+
     // do performance
     const start = performance.now();
 
@@ -196,11 +196,11 @@ function ASRAnnotationReviewPage(props) {
         const anns = data['annotation']
         if (anns.length > 0) {
             childResult.push(anns.map(anno => ({
-                'class_id': 0,
-                'class_name': 'Other',
-                'tag': {...[anno.content]},
+                'class_id': anno['class_id'],
+                'class_name': anno['class_name'],
+                'tag': {...anno.content},
                 'extras': { 
-                    ...[anno.extra],
+                    ...anno.extra,
                     'review': null,
                 },
                 'data_cat_id': data['data'][0]['data_cat_id'],
@@ -217,9 +217,7 @@ function ASRAnnotationReviewPage(props) {
         const fetchAPI = async () => {
             await axios.get(`http://0.0.0.0:8211/get-full-data`)
             .then(response => {
-                console.log('response: ', response)
                 const data = response.data.data;
-                console.log('data: ', data)
                 const ids = data.map(d => {
                     return  d.data[0].id
                 })
@@ -229,7 +227,6 @@ function ASRAnnotationReviewPage(props) {
 
                 // console.log('data: ', data);
                 const _result = data.map(d => formatResultData(d));
-                console.log('result: ', _result)
                 setEntireResultLabel(_result); // set here
 
 
@@ -240,26 +237,51 @@ function ASRAnnotationReviewPage(props) {
     }, [])
 
     React.useEffect(() => {
-        
         const data = entireDataLabel.find(d => d.data[0].id == dataLabelId)
+        const result = entireResultLabel.find(r => r[0][0].item_id === dataLabelId)
+        
         if (data) {
             setDataLabel(data['data']);
-            const anns = data['annotation']
+            
+            // const anns = data['annotation']
+            
+            // if (anns.length > 0) {
+            //     const formatted_anns = anns.map(ele => ({
+            //         ...ele,
+            //         content: {
+            //             ...ele['content'],
+            //             index: ele['content']['index']/1000,
+            //             length: ele['content']['length']/1000
+            //         }
+            //     }))
+            //     console.log('123: ', formatted_anns)
+            //     setAnnotations(formatted_anns)
+            // } else {
+            //     setAnnotations([])
+            // }
+        }
+
+        if (result) {
+            
+            const anns = result[0]
             if (anns.length > 0) {
                 const formatted_anns = anns.map(ele => ({
-                    ...ele,
-                    content: {
-                        ...ele['content'],
-                        index: ele['content']['index']/1000,
-                        length: ele['content']['length']/1000
-                    }
+                    'class_id': ele['class_id'],
+                    'class_name': ele['class_name'],
+                    'content': {
+                        ...ele['tag'],
+                        index: ele['tag']['index'] / 1000,
+                        length: ele['tag']['length'] / 1000,
+                    },
+                    'extra': ele['extras']
                 }))
                 setAnnotations(formatted_anns)
             } else {
                 setAnnotations([])
             }
         }
-        
+
+
     }, [dataLabelId])
 
     // update props
@@ -271,7 +293,7 @@ function ASRAnnotationReviewPage(props) {
 
         dataLabelId,
         entireResultLabel,
-        setEntireDataLabel,
+        setEntireResultLabel,
 
         setResultLabel,
         ...props

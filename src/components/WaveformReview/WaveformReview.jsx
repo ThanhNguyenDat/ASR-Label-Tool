@@ -46,7 +46,7 @@ function WaveformReview(props) {
 
         dataLabelId,
         entireResultLabel,
-        setEntireDataLabel,
+        setEntireResultLabel,
         setResultLabel,
     } = props;
     const audioUrl = dataLabel[0]["file_name"]
@@ -312,7 +312,7 @@ function WaveformReview(props) {
                 "class_name": "Human",
                 "tag": {
                     "index": parseInt(data.start_time * 1000),
-                    "length": parseInt(data.end_time * 1000),
+                    "length": parseInt((data.end_time - data.start_time) * 1000),
                     "text": data.description || "",
                 },
                 "extras": {
@@ -350,9 +350,9 @@ function WaveformReview(props) {
         const _entireResultLabel  = entireResultLabel
         _entireResultLabel[indexResultLabel] = updateResult
         setResultLabel(list_formatted_anns)
+        console.log(entireResultLabel)
         console.log(_entireResultLabel)
-        // setEntireDataLabel(_entireResultLabel)
-
+        setEntireResultLabel(_entireResultLabel)
     }
 
     // updateDataAnnotations(dataTable);
