@@ -275,7 +275,7 @@ function ASRAnnotationReviewPage(props) {
 
     React.useEffect(() => {
         const fetchAPI = async () => {
-            await axios.get(`http://0.0.0.0:8211/get-full-data-error`)
+            await axios.get(`http://0.0.0.0:8211/get-full-data`)
             .then(response => {
                 const data = response.data.data;
                 console.log('data response: ', data)
@@ -372,8 +372,8 @@ function ASRAnnotationReviewPage(props) {
     return (
         <div className={cx("ASRAnnotaionPage")}>
             <div className="row" style={{height: "100vh"}}>
-                <div className="col-2" >
-                    {/* <Button 
+                {/* <div className="col-2" >
+                    <Button 
                         style={{ 
                             
                             height: 100,
@@ -381,8 +381,8 @@ function ASRAnnotationReviewPage(props) {
                             bottom: 0,
 
                         }}
-                    >Next</Button> */}
-                </div>
+                    >Next</Button>
+                </div> */}
                 <div className="container col row">
                         <div className="col-10">
                             {dataLabelId && (
@@ -400,6 +400,7 @@ function ASRAnnotationReviewPage(props) {
                                     // position: 'relative', // left right
                                     height: '30vh', 
                                     overflowY: 'scroll',
+                                    overflowX: 'hidden',
                                     paddingTop: 20,
                                 }}
                             >
