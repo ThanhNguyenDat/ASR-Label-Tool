@@ -349,8 +349,6 @@ function WaveformReview(props) {
         const _entireResultLabel  = entireResultLabel
         _entireResultLabel[indexResultLabel] = updateResult
         setResultLabel(list_formatted_anns)
-        console.log(entireResultLabel)
-        console.log(_entireResultLabel)
         setEntireResultLabel(_entireResultLabel)
     }
 

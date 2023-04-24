@@ -72,6 +72,66 @@ const data = {
     ]
 }
 
+const default_data = [
+    {
+        "annotation": [
+            {
+                "class_id": 3715,
+                "class_name": "Other",
+                "content": {
+                    "index": 290,
+                    "length": 4920,
+                    "text": "mi có ăn chay trường cái tâm mi mới mới tịnh lại thôi."
+                },
+                "extra": {}
+            }
+        ],
+        "data": [
+            {
+                "data_cat_id": 2,
+                "dataset_id": 1970,
+                "seed": 380,
+                "id": 1470,
+                "file_name": "https://api.twilio.com//2010-04-01/Accounts/AC25aa00521bfac6d667f13fec086072df/Recordings/RE6d44bc34911342ce03d6ad290b66580c.mp3"
+            }
+        ]
+    },
+    {
+        "annotation": [
+            {
+                "class_id": 3709,
+                "class_name": "Other",
+                "content": {
+                    "index": 430,
+                    "length": 1230,
+                    "text": "chạy không nói nhanh nhe"
+                },
+                "extra": {}
+            },
+            {
+                "class_id": 3709,
+                "class_name": "Other",
+                "content": {
+                    "index": 1670,
+                    "length": 3080,
+                    "text": "xe vô gần tới rồi nữa tiếng nữa là xe chạy rồi"
+                },
+                "extra": {}
+            }
+        ],
+        "data": [
+            {
+                "data_cat_id": 2,
+                "dataset_id": 1970,
+                "seed": 380,
+                "id": 1471,
+                "file_name": "https://assets.mixkit.co/active_storage/sfx/667/667-preview.mp3"
+            }
+        ]
+    },
+    
+]
+
 
 function ASRAnnotationReviewPage(props) {
     document.body.style.overflow = 'hidden';
@@ -215,9 +275,10 @@ function ASRAnnotationReviewPage(props) {
 
     React.useEffect(() => {
         const fetchAPI = async () => {
-            await axios.get(`http://0.0.0.0:8211/get-full-data`)
+            await axios.get(`http://0.0.0.0:8211/get-full-data-error`)
             .then(response => {
                 const data = response.data.data;
+                console.log('data response: ', data)
                 const ids = data.map(d => {
                     return  d.data[0].id
                 })
@@ -232,8 +293,30 @@ function ASRAnnotationReviewPage(props) {
 
                 setDataLabelId(ids[0])
             })
+            .catch(error => {
+                const data = default_data;
+                const ids = data.map(d => {
+                    return  d.data[0].id
+                })
+                
+                setDataLabelIds(ids);
+                setEntireDataLabel(data);
+    
+                // console.log('data: ', data);
+                const _result = data.map(d => formatResultData(d));
+                setEntireResultLabel(_result); // set here
+    
+                setDataLabelId(ids[0])
+            })
         }
-        fetchAPI();
+
+
+        try {
+            
+            fetchAPI();
+        } catch (error) {
+            
+        } 
     }, [])
 
     React.useEffect(() => {
@@ -262,8 +345,6 @@ function ASRAnnotationReviewPage(props) {
                 setAnnotations([])
             }
         }
-
-
     }, [dataLabelId])
 
     // update props
