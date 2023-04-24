@@ -175,80 +175,118 @@ function ASRAnnotationReviewPage(props) {
     
 
         // Full flow when anntations change
-    // useEffect(() => {
-    //     console.log('on change use effect ')
-    //     if (window.AL) {
-    //         window.AL.onReceiveRequestResult(function (data) {
-    //             // const final_annotations = annotations
-    //             // window.AL.pushResultFail();
-    //             console.log("data push result: dataLabels ", annotations);
-    //             console.log("data push result: resultLabel ", resultLabel);
-    //             // window.AL.pushResultFail();
-    //             window.AL.pushResult({ 'postags': resultLabel, 'fetch_number': 1 });
-    //             // window.AL.pushResult({'postags': dataLabels['annotations'], 'fetch_number': 1});
+    useEffect(() => {
+        if (window.AL) {
+            window.AL.onReceiveRequestResult(function (data) {
+                // const final_annotations = annotations
+                // window.AL.pushResultFail();
+                console.log("data push result: dataLabels ", annotations);
+                console.log("data push result: resultLabel ", resultLabel);
+                // window.AL.pushResultFail();
+                window.AL.pushResult({ 'postags': resultLabel, 'fetch_number': 5 });
+                // window.AL.pushResult({'postags': dataLabels['annotations'], 'fetch_number': 1});
 
-    //         })
-    //         window.AL.onReceiveData(function (data) {
-    //             console.log('onReceiveData', data)
-    //             if (data.length > 0) {
-    //                 // update data - annotations
-    //                 setDataLabel(data[0]['data'])
-    //                 const anns = data[0]['annotation']
-    //                 if (anns.length > 0) {
-    //                     const formatted_anns = anns.map(ele => {
-    //                         return {
-    //                             ...ele,
-    //                             content: {
-    //                                 ...ele['content'],
-    //                                 index: ele['content']['index']/1000,
-    //                                 length: ele['content']['length']/1000
-    //                             }
-    //                         }
-    //                     })
-    //                     setAnnotations(formatted_anns)
-    //                 } 
+            })
+            window.AL.onReceiveData(function (data) {
+                console.log('onReceiveData', data)
+                if (data.length > 0) {
 
-    //             }
+                    const ids = data.map(d => {
+                        return  d.data[0].id
+                    })
+                    
+                    setDataLabelIds(ids);
+                    setEntireDataLabel(data);
+        
+                    // console.log('data: ', data);
+                    const _result = data.map(d => formatResultData(d));
+                    setEntireResultLabel(_result); // set here
+        
+                    setDataLabelId(ids[0])
 
-    //         })
 
-    //         window.AL.onPushResultFail(function (data) {
-    //             alert('fail to push' + data['message']);
-    //         });
 
-    //         window.AL.onReceiveCommonInfo(function (data) {
-    //             console.log('onReceiveCommonInfo in', data)
-    //             var classes = data['classes'];
-    //             setCommonInfo(classes)
-    //             window.AL.pushSettings({
-    //                 'settings': [
-    //                     {
-    //                         'type': 'text',
-    //                         'id': 1,
-    //                         'name': 'Video Name',
-    //                         'options': []
-    //                     },
-    //                     {
-    //                         'type': 'text',
-    //                         'id': 2,
-    //                         'name': 'Frame ID',
-    //                         'options': []
-    //                     },
-    //                 ]
-    //             });
-    //             console.log('onReceiveCommonInfo out ', data)
+                    // update data - annotations
+                    // setDataLabel(data[0]['data'])
+                    // const anns = data[0]['annotation']
+                    // if (anns.length > 0) {
+                    //     const formatted_anns = anns.map(ele => {
+                    //         return {
+                    //             ...ele,
+                    //             content: {
+                    //                 ...ele['content'],
+                    //                 index: ele['content']['index']/1000,
+                    //                 length: ele['content']['length']/1000
+                    //             }
+                    //         }
+                    //     })
+                    //     setAnnotations(formatted_anns)
+                    // } 
 
-    //         });
+                }
 
-    //         window.AL.onUpdateSelectClass(function (data) {
-    //             console.log('onUpdateSelectClass data', data)
-    //         });
+            })
 
-    //         window.AL.onReceiveRequestResetCurrent(function (data) {
-    //             console.log('onReceiveRequestResetCurrent ', data)
-    //         });
-    //     }
-    // }, [annotations, resultLabel])
+            window.AL.onPushResultFail(function (data) {
+                alert('fail to push' + data['message']);
+            });
+
+            window.AL.onReceiveCommonInfo(function (data) {
+                console.log('onReceiveCommonInfo in', data)
+                var classes = data['classes'];
+                setCommonInfo(classes)
+                window.AL.pushSettings({'settings': [
+                    {
+                        'type': 'text', 
+                        'id': 1,
+                        'name': 'From Idx', 
+                        'options': []
+                    },
+                    {
+                        'type': 'text', 
+                        'id': 2,
+                        'name': 'Num Items', 
+                        'options': []
+                    },
+                ]});
+
+                // window.AL.pushSettings({
+                //     'settings': [
+                //         {
+                //             'type': 'text',
+                //             'id': 1,
+                //             'name': 'FromID',
+                //             'options': []
+                //         },
+                //         {
+                //             'type': 'text',
+                //             'id': 2,
+                //             'name': 'Num Items',
+                //             'options': []
+                //         },
+                //         {
+                //             'type': 'switch',
+                //             'id': 3,
+                //             'name': 'ToReview',
+                //             'options': []
+                //         },
+                //     ]
+                // });
+            });
+
+            window.AL.onUpdateSelectClass(function (data) {
+                console.log('onUpdateSelectClass data', data)
+            });
+
+            window.AL.onReceiveRequestSettings(function (data) {
+                console.log("onReceiveRequestSettings ", data)
+            })
+
+            window.AL.onReceiveRequestResetCurrent(function (data) {
+                console.log('onReceiveRequestResetCurrent ', data)
+            });
+        }
+    }, [annotations, resultLabel])
 
     function formatResultData (data) {
         const childResult = []
@@ -273,51 +311,51 @@ function ASRAnnotationReviewPage(props) {
         
     }
 
-    React.useEffect(() => {
-        const fetchAPI = async () => {
-            await axios.get(`http://0.0.0.0:8211/get-full-data`)
-            .then(response => {
-                const data = response.data.data;
-                console.log('data response: ', data)
-                const ids = data.map(d => {
-                    return  d.data[0].id
-                })
+    // React.useEffect(() => {
+    //     const fetchAPI = async () => {
+    //         await axios.get(`http://0.0.0.0:8211/get-full-data-error`)
+    //         .then(response => {
+    //             const data = response.data.data;
+    //             console.log('data response: ', data)
+    //             const ids = data.map(d => {
+    //                 return  d.data[0].id
+    //             })
                 
-                setDataLabelIds(ids);
-                setEntireDataLabel(data);
+    //             setDataLabelIds(ids);
+    //             setEntireDataLabel(data);
 
-                // console.log('data: ', data);
-                const _result = data.map(d => formatResultData(d));
-                setEntireResultLabel(_result); // set here
+    //             // console.log('data: ', data);
+    //             const _result = data.map(d => formatResultData(d));
+    //             setEntireResultLabel(_result); // set here
 
 
-                setDataLabelId(ids[0])
-            })
-            .catch(error => {
-                const data = default_data;
-                const ids = data.map(d => {
-                    return  d.data[0].id
-                })
+    //             setDataLabelId(ids[0])
+    //         })
+    //         .catch(error => {
+    //             const data = default_data;
+    //             const ids = data.map(d => {
+    //                 return  d.data[0].id
+    //             })
                 
-                setDataLabelIds(ids);
-                setEntireDataLabel(data);
+    //             setDataLabelIds(ids);
+    //             setEntireDataLabel(data);
     
-                // console.log('data: ', data);
-                const _result = data.map(d => formatResultData(d));
-                setEntireResultLabel(_result); // set here
+    //             // console.log('data: ', data);
+    //             const _result = data.map(d => formatResultData(d));
+    //             setEntireResultLabel(_result); // set here
     
-                setDataLabelId(ids[0])
-            })
-        }
+    //             setDataLabelId(ids[0])
+    //         })
+    //     }
 
 
-        try {
+    //     try {
             
-            fetchAPI();
-        } catch (error) {
+    //         fetchAPI();
+    //     } catch (error) {
             
-        } 
-    }, [])
+    //     } 
+    // }, [])
 
     React.useEffect(() => {
         const data = entireDataLabel.find(d => d.data[0].id == dataLabelId)

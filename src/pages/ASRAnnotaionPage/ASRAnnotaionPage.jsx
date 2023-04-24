@@ -94,7 +94,7 @@ function ASRAnnotaionPage(props) {
                 console.log("data push result: dataLabels ", annotations);
                 console.log("data push result: resultLabel ", resultLabel);
                 // window.AL.pushResultFail();
-                window.AL.pushResult({ 'postags': resultLabel, 'fetch_number': 1 });
+                window.AL.pushResult({ 'postags': resultLabel, 'fetch_number': 5 });
                 // window.AL.pushResult({'postags': dataLabels['annotations'], 'fetch_number': 1});
 
             })

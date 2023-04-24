@@ -7,11 +7,11 @@ import ASRAnnotationReviewPage from "../pages/ASRAnnotationReviewPage/ASRAnnotat
 const routes = {
   home: "/react_label_ui",
 
-  label: "/react_label_ui/ui/asr",
+  label: "/react_label_ui/ui/asr_review",
 
   asr_transcript: '/react_label_ui/ui/asr_transcript',
 
-  asr_review: "/react_label_ui/ui/asr_review"
+  asr_review: "/react_label_ui/ui/asr"
 };
 
 // Public routes
