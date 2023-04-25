@@ -111,7 +111,7 @@ function WaveformReview(props) {
         });
 
         if (audioUrl) {
-            setTableLoading(true);
+            // setTableLoading(true);
 
             wavesurferInstance.load(audioUrl);
             // audio loaded data
@@ -126,7 +126,7 @@ function WaveformReview(props) {
                 // load new anntations
                 loadRegions(annotations, wavesurferInstance);
                 setWavesurfer(wavesurferInstance);
-                setTableLoading(false);
+                // setTableLoading(false);
             });
             
         }
@@ -212,18 +212,27 @@ function WaveformReview(props) {
      * Load annotations
      */
     const loadRegions = (annotations, wavesurfer) => {
-        annotations.map((annotation, index) => {
+        console.log('loadRegions: ', annotations)
+        annotations.map((annotation, id) => {
+            // const index = annotation.content.tag.index;
+            // const length = annotation.content.tag.length;
+            // const text = annotation.content.tag.text;
+
+            // const audibility = annotation.content.extras?.classify?.audibility || "good";
+            // const noise = annotation.content.extras?.classify?.noise || "clean";
+            // const echo = annotation.content.extras?.classify?.echo || "clean";
+            
             const region = {}
             region.color = randomColor(0.2);
             region.data = {};
             
-            region.start = annotation.content.index
-            region.end = annotation.content.length + annotation.content.index
-            region.data.note = annotation.content.text;
+            region.start = annotation.content.tag.index
+            region.end = annotation.content.tag.length + annotation.content.tag.index
+            region.data.note = annotation.content.tag.text;
             
-            region.data.audibility = annotation.extra?.classify?.audibility || "good";
-            region.data.noise = annotation.extra?.classify?.noise || "clean";
-            region.data.echo = annotation.extra?.classify?.echo || "clean";
+            region.data.audibility = annotation.content.extras?.classify?.audibility || "good";
+            region.data.noise = annotation.content.extras?.classify?.noise || "clean";
+            region.data.echo = annotation.content.extras?.classify?.echo || "clean";
             wavesurfer.addRegion(region);
         });
 
@@ -310,20 +319,24 @@ function WaveformReview(props) {
             return {
                 "class_id": commonInfo[0]?.id || undefined,
                 "class_name": "Human",
-                "tag": {
-                    "index": parseInt(data.start_time * 1000),
-                    "length": parseInt((data.end_time - data.start_time) * 1000),
-                    // "length": parseInt(data.end_time * 1000),
-                    "text": data.description || "",
+                
+                "content": {
+                    "tag": {
+                        "index": parseInt(data.start_time * 1000),
+                        "length": parseInt((data.end_time - data.start_time) * 1000),
+                        // "length": parseInt(data.end_time * 1000),
+                        "text": data.description || "",
+                    },
+                    "extras": {
+                        "hard_level": 1,
+                        "classify": {
+                            "audibility": data.audibility,
+                            "noise": data.noise,
+                            "echo": data.echo,
+                        }
+                    },
                 },
-                "extras": {
-                    "hard_level": 1,
-                    "classify": {
-                        "audibility": data.audibility,
-                        "noise": data.noise,
-                        "echo": data.echo,
-                    }
-                },
+
                 'data_cat_id': dataLabel[0]['data_cat_id'],
                 'dataset_id': dataLabel[0]['dataset_id'],
                 'seed': dataLabel[0]['seed'],
@@ -339,19 +352,19 @@ function WaveformReview(props) {
         const currentResult = entireResultLabel[indexResultLabel]
         
         // get review
-        const review = currentResult[0][0].extras.review || null;
+        const review = currentResult[0][0].content.extras.review || null;
         
         const list_formatted_anns = formatResultLabel(dataTable)
         
         const updateResult = [list_formatted_anns.map(anno => {
-            anno.extras.review = review
+            anno.content.extras.review = review
             return anno
         })]
         
         const _entireResultLabel  = entireResultLabel
         _entireResultLabel[indexResultLabel] = updateResult
         setResultLabel(list_formatted_anns)
-        setEntireResultLabel(_entireResultLabel)
+        // setEntireResultLabel(_entireResultLabel)
     }
 
     // updateDataAnnotations(dataTable);

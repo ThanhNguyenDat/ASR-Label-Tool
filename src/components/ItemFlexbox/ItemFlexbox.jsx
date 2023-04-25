@@ -39,7 +39,7 @@ function ItemFlexbox(props) {
     // get review
     let review = null
     if (current_result_data_label) {
-      review = current_result_data_label[0][0].extras.review
+      review = current_result_data_label[0][0].content.extras.review
 
     }
     let color = colors[review]
@@ -53,7 +53,7 @@ function ItemFlexbox(props) {
       // console.log('current: ', currentResult)
       
       const updateResult = [currentResult[0].map(current => {
-        current.extras.review = review;
+        current.content.extras.review = review;
         return current
       })]
 

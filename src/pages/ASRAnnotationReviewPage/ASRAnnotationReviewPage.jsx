@@ -12,7 +12,7 @@ import { customArray, iterifyArr } from '../../utils/common/customArray'
 
 import Box, { BoxProps } from '@mui/material/Box';
 import ItemFlexbox from "../../components/ItemFlexbox/ItemFlexbox";
-
+// import _ from "lodash";
 
 import useContextMenu from '@hooks/useContextMenu';
 
@@ -79,11 +79,13 @@ const default_data = [
                 "class_id": 3715,
                 "class_name": "Other",
                 "content": {
-                    "index": 290,
-                    "length": 4920,
-                    "text": "mi có ăn chay trường cái tâm mi mới mới tịnh lại thôi."
+                    'tag':{
+                        "index": 290,
+                        "length": 4920,
+                        "text": "mi có ăn chay trường cái tâm mi mới mới tịnh lại thôi."
+                    },
+                    "extras": {}
                 },
-                "extra": {}
             }
         ],
         "data": [
@@ -102,21 +104,25 @@ const default_data = [
                 "class_id": 3709,
                 "class_name": "Other",
                 "content": {
-                    "index": 430,
-                    "length": 1230,
-                    "text": "chạy không nói nhanh nhe"
+                    'tag': {
+                        "index": 430,
+                        "length": 1230,
+                        "text": "chạy không nói nhanh nhe"
+                    },
+                    "extras": {}
                 },
-                "extra": {}
             },
             {
                 "class_id": 3709,
                 "class_name": "Other",
                 "content": {
-                    "index": 1670,
-                    "length": 3080,
-                    "text": "xe vô gần tới rồi nữa tiếng nữa là xe chạy rồi"
+                    "tag":{
+                        "index": 1670,
+                        "length": 3080,
+                        "text": "xe vô gần tới rồi nữa tiếng nữa là xe chạy rồi"
+                    },
+                    "extras": {}
                 },
-                "extra": {}
             }
         ],
         "data": [
@@ -131,6 +137,36 @@ const default_data = [
     },
     
 ]
+
+
+const rv1_fake = {
+    "data": [
+      {
+        "class_id": 3709,
+        "class_name": "Human",
+        "content": {
+          "tag": {
+            "index": 290,
+            "length": 4920,
+            "text": "mi có ăn chay trường cái tâm mi mới mới tịnh lại thôi."
+          },
+          "extras": {
+            "hard_level": 1,
+            "classify": {
+              "audibility": "good",
+              "noise": "clean",
+              "echo": "clean"
+            },
+            "review": "Good"
+          }
+        },
+        "data_cat_id": 2,
+        "dataset_id": 1970,
+        "seed": 380,
+        "item_id": 1470
+      }
+    ]
+  }
 
 
 function ASRAnnotationReviewPage(props) {
@@ -295,10 +331,12 @@ function ASRAnnotationReviewPage(props) {
             childResult.push(anns.map(anno => ({
                 'class_id': anno['class_id'],
                 'class_name': anno['class_name'],
-                'tag': {...anno.content},
-                'extras': { 
-                    ...anno.extra,
-                    'review': null,
+                'content': {
+                    'tag': {...anno.content.tag},
+                    'extras': { 
+                        ...anno.content.extras,
+                        'review': anno.content.extras?.review || null,
+                    },
                 },
                 'data_cat_id': data['data'][0]['data_cat_id'],
                 'dataset_id': data['data'][0]['dataset_id'],
@@ -307,7 +345,6 @@ function ASRAnnotationReviewPage(props) {
             })))
         }
         return childResult
-        
     }
 
     React.useEffect(() => {
@@ -318,16 +355,22 @@ function ASRAnnotationReviewPage(props) {
                 const ids = data.map(d => {
                     return  d.data[0].id
                 })
-                
+                console.log('data: ', data)
                 setDataLabelIds(ids);
                 setEntireDataLabel(data);
 
                 // console.log('data: ', data);
                 const _result = data.map(d => formatResultData(d));
-                
+                console.log('response: ', _result)
                 setEntireResultLabel(_result); // set here
                 
-                setDataLabelId(ids[0])
+                // set origin data when call api first time
+                if (_result.toString() !== entireDataLabel.toString()) {
+                    console.log('reset origin data when call api first time')
+                    setOriginResultLabel(_result);
+                }
+
+                setDataLabelId(ids[0]);
             })
             .catch(error => {
                 const data = default_data;
@@ -344,6 +387,10 @@ function ASRAnnotationReviewPage(props) {
                 setEntireResultLabel(_result); // set here
                 
                 setDataLabelId(ids[0])
+                
+                // for compare 2 array
+                const _oldResult = originResultLabel.find(data => data[0][0].item_id === dataLabelId)
+                setOldResult(_oldResult)
             })
         }
 
@@ -351,15 +398,16 @@ function ASRAnnotationReviewPage(props) {
             
             fetchAPI();
         } catch (error) {
-            
+            console.log('error: ', error)
         } 
     }, [])
 
     React.useEffect(() => {
         const data = entireDataLabel.find(d => d.data[0].id == dataLabelId)
         const result = entireResultLabel.find(r => r[0][0].item_id === dataLabelId)
-        
+        console.log('result: ', result)
         if (data) {
+            console.log('data["data"]: ', data)
             setDataLabel(data['data']);
         }
 
@@ -367,15 +415,27 @@ function ASRAnnotationReviewPage(props) {
             const anns = result[0]
             if (anns.length > 0) {
                 const formatted_anns = anns.map(ele => ({
-                    'class_id': ele['class_id'],
-                    'class_name': ele['class_name'],
-                    'content': {
-                        ...ele['tag'],
-                        index: ele['tag']['index'] / 1000,
-                        length: ele['tag']['length'] / 1000,
-                    },
-                    'extra': ele['extras']
+                    // 'class_id': ele['class_id'],
+                    // 'class_name': ele['class_name'],
+                    // 'content': {
+                    //     'tag':{
+                    //         ...ele['content']['tag'],
+                    //         index: ele['content']['tag']['index'] / 1000,
+                    //         length: ele['content']['tag']['length'] / 1000,
+                    //     },
+                    //     'extra': ele['content']['extras']
+                    // },
+                    ...ele,
+                    content: {
+                        ...ele['content'],
+                        'tag': {
+                            'text': ele['content']['tag']['text'],
+                            'index': ele['content']['tag']['index'] / 1000,
+                            'length': ele['content']['tag']['length'] / 1000,
+                        },
+                    }
                 }))
+                console.log('formatted_anns: ', formatted_anns)
                 setAnnotations(formatted_anns)
             } else {
                 setAnnotations([])
@@ -386,54 +446,138 @@ function ASRAnnotationReviewPage(props) {
         _historyIds.push(dataLabelId)
         setHistoryIds(_historyIds)
         
-        const oldResult = originResultLabel.find(data => data[0][0].item_id === dataLabelId)
-        setOldResult(oldResult)
-    }, [dataLabelId])
+        // const _oldResult = originResultLabel.find(data => data[0][0].item_id === dataLabelId)
+        // setOldResult(_oldResult)
 
 
-    // here is update result 
-    React.useEffect(() => {
-        
-        const fetchAPI = async (data) => {
-            await axios.post('http://10.40.34.15:7111/asr_zalo/update_lb', {'data-raw': data})
-            .then(response => {
-                console.log('update success: ', response)
-            })
-            .catch(error => {
-                console.log('update fail: ', error)
-            })
-            
-        }
+        /*
+        * Code to fix bug id and old result
+        */
 
         // get old result with id
-        const oldId = historyIds[historyIds.length - 2]
+        const oldId = _historyIds[_historyIds.length - 2]
         
+        const oldResult = originResultLabel.find(data => data[0][0].item_id === oldId) // bug -> getting current result -> means entireResultLabel
         const currentResult = entireResultLabel.find(data => data[0][0].item_id === oldId)
         
-        console.log('oldResult: ', oldResult)
-        console.log('currentResult: ', currentResult)
-
-
-        let isSame = false
-        if (oldResult && currentResult) {
-            isSame = JSON.stringify(oldResult) === JSON.stringify(currentResult)
-        }
+        let isSame = true
+        if (oldResult && currentResult){
+            // twoArrayDiff = _.isEqual(oldResult[0], currentResult[0]);
+            isSame = compareTwoArray(oldResult[0], currentResult[0]);
+        } 
         console.log('isSame: ', isSame)
         
         if (isSame === false) {
-            setOriginResultLabel(entireResultLabel);
-            console.log('call api update')    
+            // call api here
+            console.log('call api update and reset origin result label');
+            // setOriginResultLabel(entireResultLabel);
         }
-        // compare 2 value
-        // if (oldResultById !== currentResultById) {
-        //     try {
-        //         fetchAPI(currentResultById);
-        //     } catch (error) {
-        //         throw `Error call api with error ${error}`
-        //     }
-        // }
+
+
+        // console.log('run 1')
     }, [dataLabelId])
 
+    // here is update result 
+    // React.useEffect(() => {
+    //     console.log('run 2')
+    //     const fetchAPI = async (data) => {
+    //         await axios.post('http://10.40.34.15:7111/asr_zalo/update_lb', {'data-raw': data})
+    //         .then(response => {
+    //             console.log('update success: ', response)
+    //         })
+    //         .catch(error => {
+    //             console.log('update fail: ', error)
+    //         })
+            
+    //     }
+
+    //     // // get old result with id
+    //     // const oldId = historyIds[historyIds.length - 2]
+    //     // const currentResult = entireResultLabel.find(data => data[0][0].item_id === oldId)
+        
+    //     // // console.log('oldResult: ', oldResult)
+    //     // // console.log('currentResult: ', currentResult)
+
+    //     // /*
+    //     // * CODE HERE
+    //     // */
+        
+
+    //     // let isSame = true
+    //     // if (oldResult && currentResult){
+    //     //     // twoArrayDiff = _.isEqual(oldResult[0], currentResult[0]);
+    //     //     isSame = compareTwoArray(oldResult[0], currentResult[0]);
+    //     // } 
+    //     // console.log('isSame: ', isSame)
+        
+    //     // if (isSame === false) {
+    //     //     // call api here
+    //     //     console.log('call api update');
+    //     // }
+
+    //     // setOriginResultLabel(entireResultLabel);
+        
+    // }, [dataLabelId])
+
+    const compareTwoArray = (oldResult, currentResult) => {
+        console.log('oldResult: ', oldResult);
+        console.log('currentResult: ', currentResult);
+        
+        // get text (description)
+        const oldText = oldResult.map(old => old.content.tag.text)
+        const currentText = currentResult.map(current => current.content.tag.text)
+        // console.log('oldText: ', oldText)
+        // console.log('currentText: ', currentText)
+        
+        // get extras
+        const oldExtras = oldResult.map(old => old.extras)
+        const currentExtras = currentResult.map(current => current.extras)
+        // console.log('oldExtras: ', oldExtras);
+        // console.log('currentExtras: ', currentExtras);
+        // console.log('extrasSame: ', oldExtras === currentExtras)
+
+        return (oldResult.length === currentResult.length &&
+                oldText.toString() === currentText.toString())
+        // return oldResult.toString() == currentResult.toString()
+    }
+
+
+    const onSubmitSample = (dataLabelId) => {
+        console.log('submit id: ', dataLabelId);
+        // get result label with 
+        const current_result_label = entireResultLabel.find(data => data[0][0].item_id === dataLabelId)
+        // console.log('current: ', current_result_label)
+        const data = current_result_label[0]
+        
+        // format data
+        const dataToUpdate = {
+            'data': data
+        }
+
+        console.log('dataToUpdate: ', dataToUpdate)
+        
+        // call api
+        const fetchAPI = async () => {
+            // await axios.post('http://10.40.34.15:7111/asr_zalo/update_lb', {'data-raw': dataToUpdate}, {
+            //     headers: {
+            //         'Content-Type': 'Application/json',
+            //     }
+            // })
+            await axios.post(`http://0.0.0.0:8211/update_data`, {'raw-data': dataToUpdate}, {
+                headers: {
+                    'Content-Type': 'Application/json',
+                }
+            })
+            .then(response => {
+                console.log('response: ', response)
+            })
+            .catch(error => {
+                console.log('error: ', error)
+            })
+            
+        }
+        fetchAPI();
+    }
 
 
     // update props
@@ -478,49 +622,54 @@ function ASRAnnotationReviewPage(props) {
                         }}
                     >
 
-                    <div className="row row-cols-auto">
-                        {dataLabelIds.map(id => {
-                            return (
-                                <div className="col" style={{paddingBottom: 10}}>
-                                    <ItemFlexbox
-                                        key={id}
-                                        
-                                        id={id}
-                                        entireResultLabel={entireResultLabel}
-                                        setEntireResultLabel={setEntireResultLabel}
-                                        
-                                        dataLabelId={dataLabelId}
-
-                                        onClick={(e)=>{
-                                            setSelectedRegionKey(null)
-                                            setDataLabelId(id)
+                        <div className="row row-cols-auto">
+                            {dataLabelIds.map(id => {
+                                return (
+                                    <div className="col" style={{paddingBottom: 10}}>
+                                        <ItemFlexbox
+                                            key={id}
                                             
-                                        }}
-
-                                        onContextMenu={(e) => {
-                                            e.preventDefault();
+                                            id={id}
+                                            entireResultLabel={entireResultLabel}
+                                            setEntireResultLabel={setEntireResultLabel}
                                             
-                                            setClicked(false);
-                                            setPoints({
-                                                x: e.pageX,
-                                                y: e.pageY,
-                                            });
-                                            
-                                            setClicked(true);
-                                            setDataLabelId(id)
-                                        }}
+                                            dataLabelId={dataLabelId}
 
-                                        clicked={clicked}
-                                        points={points}
+                                            onClick={(e)=>{
+                                                setSelectedRegionKey(null)
+                                                setDataLabelId(id)
+                                                
+                                            }}
+
+                                            onContextMenu={(e) => {
+                                                e.preventDefault();
+                                                
+                                                setClicked(false);
+                                                setPoints({
+                                                    x: e.pageX,
+                                                    y: e.pageY,
+                                                });
+                                                
+                                                setClicked(true);
+                                                setDataLabelId(id)
+                                            }}
+
+                                            clicked={clicked}
+                                            points={points}
+                                            
+
+                                        />
                                         
-
-                                    />
-                                    
-                                </div>
-                            )
-                        })}
+                                    </div>
+                                )
+                            })}
+                        </div>
                     </div>
-                    
+                    <div>
+                        <Button style={{left: 0}} onClick={()=>{
+                            onSubmitSample(dataLabelId)
+                        }
+                        }>Submit</Button>
                     </div>
                 </div>
                 
