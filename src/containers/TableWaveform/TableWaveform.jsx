@@ -20,6 +20,7 @@ function TableWaveform ({columns, dataTable, ...rest}) {
         setFocusCell,
         focusCell,
         updateDataTablePerCell,
+        loading,
     } = rest
     
     const new_columns = columns.map((col) => {
@@ -197,6 +198,7 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                 columns={new_columns}
                 dataSource={dataTable}
                 rowKey="id"
+                loading={loading}
                 pagination={{ pageSize: 5 }}
                 onRow={(record, rowIndex) => {
                     return {

@@ -136,10 +136,6 @@ const default_data = [
 function ASRAnnotationReviewPage(props) {
     document.body.style.overflow = 'hidden';
 
-    // do performance
-    const start = performance.now();
-
-
     const [dataLabelIds, setDataLabelIds] = React.useState([]);
     
     const [entireDataLabel, setEntireDataLabel] = React.useState([]);
@@ -169,124 +165,127 @@ function ASRAnnotationReviewPage(props) {
     const [resultLabel, setResultLabel] = useState([]);
 
     const [entireResultLabel, setEntireResultLabel] = useState([])
-
+    const [originResultLabel, setOriginResultLabel] = useState(entireResultLabel)
+    
+    const [historyIds, setHistoryIds] = useState([]);
+    const [oldResult, setOldResult] = useState([]);
 
     const { clicked, setClicked, points, setPoints } = useContextMenu();
-    
+    const [selectedRegionKey, setSelectedRegionKey] = useState();
 
         // Full flow when anntations change
-    useEffect(() => {
-        if (window.AL) {
-            window.AL.onReceiveRequestResult(function (data) {
-                // const final_annotations = annotations
-                // window.AL.pushResultFail();
-                console.log("data push result: dataLabels ", annotations);
-                console.log("data push result: resultLabel ", resultLabel);
-                // window.AL.pushResultFail();
-                window.AL.pushResult({ 'postags': resultLabel, 'fetch_number': 5 });
-                // window.AL.pushResult({'postags': dataLabels['annotations'], 'fetch_number': 1});
+    // useEffect(() => {
+    //     if (window.AL) {
+    //         window.AL.onReceiveRequestResult(function (data) {
+    //             // const final_annotations = annotations
+    //             // window.AL.pushResultFail();
+    //             console.log("data push result: dataLabels ", annotations);
+    //             console.log("data push result: resultLabel ", resultLabel);
+    //             // window.AL.pushResultFail();
+    //             window.AL.pushResult({ 'postags': resultLabel, 'fetch_number': 5 });
+    //             // window.AL.pushResult({'postags': dataLabels['annotations'], 'fetch_number': 1});
 
-            })
-            window.AL.onReceiveData(function (data) {
-                console.log('onReceiveData', data)
-                if (data.length > 0) {
+    //         })
+    //         window.AL.onReceiveData(function (data) {
+    //             console.log('onReceiveData', data)
+    //             if (data.length > 0) {
 
-                    const ids = data.map(d => {
-                        return  d.data[0].id
-                    })
+    //                 const ids = data.map(d => {
+    //                     return  d.data[0].id
+    //                 })
                     
-                    setDataLabelIds(ids);
-                    setEntireDataLabel(data);
+    //                 setDataLabelIds(ids);
+    //                 setEntireDataLabel(data);
         
-                    // console.log('data: ', data);
-                    const _result = data.map(d => formatResultData(d));
-                    setEntireResultLabel(_result); // set here
+    //                 // console.log('data: ', data);
+    //                 const _result = data.map(d => formatResultData(d));
+    //                 setEntireResultLabel(_result); // set here
         
-                    setDataLabelId(ids[0])
+    //                 setDataLabelId(ids[0])
 
 
 
-                    // update data - annotations
-                    // setDataLabel(data[0]['data'])
-                    // const anns = data[0]['annotation']
-                    // if (anns.length > 0) {
-                    //     const formatted_anns = anns.map(ele => {
-                    //         return {
-                    //             ...ele,
-                    //             content: {
-                    //                 ...ele['content'],
-                    //                 index: ele['content']['index']/1000,
-                    //                 length: ele['content']['length']/1000
-                    //             }
-                    //         }
-                    //     })
-                    //     setAnnotations(formatted_anns)
-                    // } 
+    //                 // update data - annotations
+    //                 // setDataLabel(data[0]['data'])
+    //                 // const anns = data[0]['annotation']
+    //                 // if (anns.length > 0) {
+    //                 //     const formatted_anns = anns.map(ele => {
+    //                 //         return {
+    //                 //             ...ele,
+    //                 //             content: {
+    //                 //                 ...ele['content'],
+    //                 //                 index: ele['content']['index']/1000,
+    //                 //                 length: ele['content']['length']/1000
+    //                 //             }
+    //                 //         }
+    //                 //     })
+    //                 //     setAnnotations(formatted_anns)
+    //                 // } 
 
-                }
+    //             }
 
-            })
+    //         })
 
-            window.AL.onPushResultFail(function (data) {
-                alert('fail to push' + data['message']);
-            });
+    //         window.AL.onPushResultFail(function (data) {
+    //             alert('fail to push' + data['message']);
+    //         });
 
-            window.AL.onReceiveCommonInfo(function (data) {
-                console.log('onReceiveCommonInfo in', data)
-                var classes = data['classes'];
-                setCommonInfo(classes)
-                window.AL.pushSettings({'settings': [
-                    {
-                        'type': 'text', 
-                        'id': 1,
-                        'name': 'From Idx', 
-                        'options': []
-                    },
-                    {
-                        'type': 'text', 
-                        'id': 2,
-                        'name': 'Num Items', 
-                        'options': []
-                    },
-                ]});
+    //         window.AL.onReceiveCommonInfo(function (data) {
+    //             console.log('onReceiveCommonInfo in', data)
+    //             var classes = data['classes'];
+    //             setCommonInfo(classes)
+    //             window.AL.pushSettings({'settings': [
+    //                 {
+    //                     'type': 'text', 
+    //                     'id': 1,
+    //                     'name': 'From Idx', 
+    //                     'options': []
+    //                 },
+    //                 {
+    //                     'type': 'text', 
+    //                     'id': 2,
+    //                     'name': 'Num Items', 
+    //                     'options': []
+    //                 },
+    //             ]});
 
-                // window.AL.pushSettings({
-                //     'settings': [
-                //         {
-                //             'type': 'text',
-                //             'id': 1,
-                //             'name': 'FromID',
-                //             'options': []
-                //         },
-                //         {
-                //             'type': 'text',
-                //             'id': 2,
-                //             'name': 'Num Items',
-                //             'options': []
-                //         },
-                //         {
-                //             'type': 'switch',
-                //             'id': 3,
-                //             'name': 'ToReview',
-                //             'options': []
-                //         },
-                //     ]
-                // });
-            });
+    //             // window.AL.pushSettings({
+    //             //     'settings': [
+    //             //         {
+    //             //             'type': 'text',
+    //             //             'id': 1,
+    //             //             'name': 'FromID',
+    //             //             'options': []
+    //             //         },
+    //             //         {
+    //             //             'type': 'text',
+    //             //             'id': 2,
+    //             //             'name': 'Num Items',
+    //             //             'options': []
+    //             //         },
+    //             //         {
+    //             //             'type': 'switch',
+    //             //             'id': 3,
+    //             //             'name': 'ToReview',
+    //             //             'options': []
+    //             //         },
+    //             //     ]
+    //             // });
+    //         });
 
-            window.AL.onUpdateSelectClass(function (data) {
-                console.log('onUpdateSelectClass data', data)
-            });
+    //         window.AL.onUpdateSelectClass(function (data) {
+    //             console.log('onUpdateSelectClass data', data)
+    //         });
 
-            window.AL.onReceiveRequestSettings(function (data) {
-                console.log("onReceiveRequestSettings ", data)
-            })
+    //         window.AL.onReceiveRequestSettings(function (data) {
+    //             console.log("onReceiveRequestSettings ", data)
+    //         })
 
-            window.AL.onReceiveRequestResetCurrent(function (data) {
-                console.log('onReceiveRequestResetCurrent ', data)
-            });
-        }
-    }, [annotations, resultLabel])
+    //         window.AL.onReceiveRequestResetCurrent(function (data) {
+    //             console.log('onReceiveRequestResetCurrent ', data)
+    //         });
+    //     }
+    // }, [annotations, resultLabel])
 
     function formatResultData (data) {
         const childResult = []
@@ -311,51 +310,50 @@ function ASRAnnotationReviewPage(props) {
         
     }
 
-    // React.useEffect(() => {
-    //     const fetchAPI = async () => {
-    //         await axios.get(`http://0.0.0.0:8211/get-full-data-error`)
-    //         .then(response => {
-    //             const data = response.data.data;
-    //             console.log('data response: ', data)
-    //             const ids = data.map(d => {
-    //                 return  d.data[0].id
-    //             })
+    React.useEffect(() => {
+        const fetchAPI = async () => {
+            await axios.get(`http://0.0.0.0:8211/get-full-data`)
+            .then(response => {
+                const data = response.data.data;
+                const ids = data.map(d => {
+                    return  d.data[0].id
+                })
                 
-    //             setDataLabelIds(ids);
-    //             setEntireDataLabel(data);
+                setDataLabelIds(ids);
+                setEntireDataLabel(data);
 
-    //             // console.log('data: ', data);
-    //             const _result = data.map(d => formatResultData(d));
-    //             setEntireResultLabel(_result); // set here
-
-
-    //             setDataLabelId(ids[0])
-    //         })
-    //         .catch(error => {
-    //             const data = default_data;
-    //             const ids = data.map(d => {
-    //                 return  d.data[0].id
-    //             })
+                // console.log('data: ', data);
+                const _result = data.map(d => formatResultData(d));
                 
-    //             setDataLabelIds(ids);
-    //             setEntireDataLabel(data);
-    
-    //             // console.log('data: ', data);
-    //             const _result = data.map(d => formatResultData(d));
-    //             setEntireResultLabel(_result); // set here
-    
-    //             setDataLabelId(ids[0])
-    //         })
-    //     }
+                setEntireResultLabel(_result); // set here
+                
+                setDataLabelId(ids[0])
+            })
+            .catch(error => {
+                const data = default_data;
+                const ids = data.map(d => {
+                    return  d.data[0].id
+                })
+                
+                setDataLabelIds(ids);
+                setEntireDataLabel(data);
+                
 
+                // console.log('data: ', data);
+                const _result = data.map(d => formatResultData(d));
+                setEntireResultLabel(_result); // set here
+                
+                setDataLabelId(ids[0])
+            })
+        }
 
-    //     try {
+        try {
             
-    //         fetchAPI();
-    //     } catch (error) {
+            fetchAPI();
+        } catch (error) {
             
-    //     } 
-    // }, [])
+        } 
+    }, [])
 
     React.useEffect(() => {
         const data = entireDataLabel.find(d => d.data[0].id == dataLabelId)
@@ -383,7 +381,60 @@ function ASRAnnotationReviewPage(props) {
                 setAnnotations([])
             }
         }
+        
+        const _historyIds = historyIds
+        _historyIds.push(dataLabelId)
+        setHistoryIds(_historyIds)
+        
+        const oldResult = originResultLabel.find(data => data[0][0].item_id === dataLabelId)
+        setOldResult(oldResult)
     }, [dataLabelId])
+
+
+    // here is update result 
+    React.useEffect(() => {
+        
+        const fetchAPI = async (data) => {
+            await axios.post('http://10.40.34.15:7111/asr_zalo/update_lb', {'data-raw': data})
+            .then(response => {
+                console.log('update success: ', response)
+            })
+            .catch(error => {
+                console.log('update fail: ', error)
+            })
+            
+        }
+
+        // get old result with id
+        const oldId = historyIds[historyIds.length - 2]
+        
+        const currentResult = entireResultLabel.find(data => data[0][0].item_id === oldId)
+        
+        console.log('oldResult: ', oldResult)
+        console.log('currentResult: ', currentResult)
+
+
+        let isSame = false
+        if (oldResult && currentResult) {
+            isSame = JSON.stringify(oldResult) === JSON.stringify(currentResult)
+        }
+        console.log('isSame: ', isSame)
+        
+        if (isSame === false) {
+            setOriginResultLabel(entireResultLabel);
+            console.log('call api update')    
+        }
+        // compare 2 value
+        if (oldResultById !== currentResultById) {
+            try {
+                fetchAPI(currentResultById);
+            } catch (error) {
+                throw `Error call api with error ${error}`
+            }
+        }
+    }, [dataLabelId])
+
+
 
     // update props
     const waveform_props = {
@@ -397,96 +448,84 @@ function ASRAnnotationReviewPage(props) {
         setEntireResultLabel,
 
         setResultLabel,
+        selectedRegionKey, 
+        setSelectedRegionKey,
         ...props
     }
 
 
-    // code thực thi trong componentDidMount
-
-    const end = performance.now();
-    console.log(`Thời gian render: ${end - start} ms`);
-
-
     return (
         <div className={cx("ASRAnnotaionPage")}>
-            <div className="row" style={{height: "100vh"}}>
-                {/* <div className="col-2" >
-                    <Button 
-                        style={{ 
-                            
-                            height: 100,
-                            width: 100,
-                            bottom: 0,
-
+            <div className="row" style={{height: "100vh"}} >
+                
+                <div className="col-10">
+                    {dataLabelId && (
+                    <>
+                        <WaveformReview {...waveform_props}/>
+                    </>
+                    )}
+                    <div style={{height: '100%'}} onClick={()=>{setSelectedRegionKey(null)}}></div>
+                </div>
+                <div className="col-2" onClick={()=>{setSelectedRegionKey(null)}}>
+                    <div 
+                        className="container"
+                        style={{
+                            position: 'relative',
+                            height: '30vh', 
+                            overflowY: 'scroll',
+                            overflowX: 'hidden',
+                            paddingTop: 20,
                         }}
-                    >Next</Button>
-                </div> */}
-                <div className="container col row">
-                        <div className="col-10">
-                            {dataLabelId && (
-                            <>
-                                <WaveformReview {...waveform_props} />
-                                
-                                <button onClick={()=>{console.log(`result push ${entireDataLabel.length}: `, entireResultLabel)}}>entireResultLabel</button>
-                                <button onClick={()=>{console.log(`annota push ${resultLabel.length}: `, resultLabel)}}>resultLabel</button>
-                            </>
-                            )}
-                        </div>
-                        <div className="col-2" >
-                            <div className="row" 
-                                style={{
-                                    // position: 'relative', // left right
-                                    height: '30vh', 
-                                    overflowY: 'scroll',
-                                    overflowX: 'hidden',
-                                    paddingTop: 20,
-                                }}
-                            >
-                                {dataLabelIds.map(id => {
-                                    return (
-                                        <div className="col-sm-3" style={{paddingBottom: 10}}>
-                                            <ItemFlexbox
-                                                key={id}
-                                                
-                                                id={id}
-                                                entireResultLabel={entireResultLabel}
-                                                setEntireResultLabel={setEntireResultLabel}
-                                                
-                                                dataLabelId={dataLabelId}
+                    >
 
-                                                onClick={(e)=>{
-                                                    setDataLabelId(id)
-                                                    
-                                                }}
+                    <div className="row row-cols-auto">
+                        {dataLabelIds.map(id => {
+                            return (
+                                <div className="col" style={{paddingBottom: 10}}>
+                                    <ItemFlexbox
+                                        key={id}
+                                        
+                                        id={id}
+                                        entireResultLabel={entireResultLabel}
+                                        setEntireResultLabel={setEntireResultLabel}
+                                        
+                                        dataLabelId={dataLabelId}
 
-                                                onContextMenu={(e) => {
-                                                    e.preventDefault();
-                                                    
-                                                    setClicked(false);
-                                                    setPoints({
-                                                        x: e.pageX,
-                                                        y: e.pageY,
-                                                    });
-                                                    
-                                                    setClicked(true);
-                                                    setDataLabelId(id)
-                                                }}
-
-                                                clicked={clicked}
-                                                points={points}
-                                                
-
-                                            />
+                                        onClick={(e)=>{
+                                            setSelectedRegionKey(null)
+                                            setDataLabelId(id)
                                             
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                            
-                        </div>
-                        
+                                        }}
+
+                                        onContextMenu={(e) => {
+                                            e.preventDefault();
+                                            
+                                            setClicked(false);
+                                            setPoints({
+                                                x: e.pageX,
+                                                y: e.pageY,
+                                            });
+                                            
+                                            setClicked(true);
+                                            setDataLabelId(id)
+                                        }}
+
+                                        clicked={clicked}
+                                        points={points}
+                                        
+
+                                    />
+                                    
+                                </div>
+                            )
+                        })}
+                    </div>
+                    
+                    </div>
+                </div>
+                
                          
-                </div> 
+                
             </div>
             
         </div>

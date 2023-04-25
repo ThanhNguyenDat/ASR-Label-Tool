@@ -47,15 +47,18 @@ function WaveformReview(props) {
         entireResultLabel,
         setEntireResultLabel,
         setResultLabel,
+        selectedRegionKey, 
+        setSelectedRegionKey,
     } = props;
     const audioUrl = dataLabel[0]["file_name"]
 
     const [wavesurfer, setWavesurfer] = useState(null);
-    const [selectedRegionKey, setSelectedRegionKey] = useState();
+    
     // const [lengthWavesurfer, setLengthWavesurfer] = useState(0);
 
     const [dataTable, setDataTable] = useState([])
     const [focusCell, setFocusCell] = useState({ row: null, col: null });
+    const [tableLoading, setTableLoading] = useState(false);
 
     const waveRef = useRef(null);
     const timelineRef = useRef(null);
@@ -64,6 +67,8 @@ function WaveformReview(props) {
      * Initial wavesurfer
      */
     useEffect(() => {
+        // setTableLoading(true);
+
         // create wavesurfer with plugins
         const wavesurferInstance = WaveSurfer.create({
             container: waveRef.current,
@@ -101,17 +106,13 @@ function WaveformReview(props) {
 
                 }),
                 RegionsPlugin.create(),
-                // MinimapPlugin.create({
-                //     height: 30,
-                //     waveColor: "#ddd",
-                //     progressColor: "#999",
-                //     cursorColor: "#999",
-                //     scrollParent: false
-                // }),
+                
             ],
         });
 
         if (audioUrl) {
+            setTableLoading(true);
+
             wavesurferInstance.load(audioUrl);
             // audio loaded data
             wavesurferInstance.on("ready", function (region) {
@@ -125,10 +126,11 @@ function WaveformReview(props) {
                 // load new anntations
                 loadRegions(annotations, wavesurferInstance);
                 setWavesurfer(wavesurferInstance);
+                setTableLoading(false);
             });
             
         }
-
+        // setTableLoading(false);
         return () => {
             wavesurferInstance.destroy();
         };
@@ -477,7 +479,7 @@ function WaveformReview(props) {
 
     return (
         
-        <div className={cx("overflow-hidden")}>
+        <div >
             <div className={cx("row")}>
                 <p></p>
             </div>
@@ -495,7 +497,7 @@ function WaveformReview(props) {
                     </div>)
                 }
             </div>
-            <div className={cx("row")} style={{padding: 15}}>
+            <div className={cx("row")} style={{padding: 15}} onClick={()=>{setSelectedRegionKey(null)}}>
                 <div className={cx("col")} style={{ textAlign: "right"}}>
                     <Popover trigger="click" title="Setting" content={contentIconSetting} placement="leftTop">
                         <SettingOutlined  style={{fontSize: '25px', paddingRight: 15}}/>
@@ -503,13 +505,13 @@ function WaveformReview(props) {
                 </div>
             </div>
 
-            <div className={cx("row")}>
+            <div className={cx("row")} style={{zIndex: 999}}>
                     <TableWaveform
                         columns={columns}
                         dataTable={dataTable}
                         setDataTable={setDataTable}
                         updateDataTablePerCell={updateDataTablePerCell}
-
+                        loading={tableLoading}
                         playWaveform={wavesurfer}
 
                         setSelectedRegionKey={setSelectedRegionKey}
@@ -518,7 +520,6 @@ function WaveformReview(props) {
                         focusCell={focusCell}
 
                         updateWavesurferByDataTable={updateWavesurferByDataTable}
-
                     />    
             </div>
         </div >

@@ -27,10 +27,21 @@ function ItemFlexbox(props) {
         'Remake': '#bfff00'
     }
     
-    const current_result_data_label = entireResultLabel.find(resultLabel => resultLabel[0][0].item_id === id)
+    
+    const current_result_data_label = entireResultLabel.find(resultLabel => {
+      if (resultLabel && resultLabel.length > 0)
+        {
+          return resultLabel[0][0].item_id === id
+        }
+    })
+
     // console.log('_resultLabel: ', _resultLabel)
     // get review
-    const review = current_result_data_label[0][0].extras.review || null;
+    let review = null
+    if (current_result_data_label) {
+      review = current_result_data_label[0][0].extras.review
+
+    }
     let color = colors[review]
 
 
@@ -132,10 +143,6 @@ function ItemFlexbox(props) {
                   
                   onClick={(e) => {
                       props.onClick(e);
-                      e.currentTarget.classList.add(
-                          'op03',
-                      );
-
                       console.log("click id: ", id)
                   }}
 
