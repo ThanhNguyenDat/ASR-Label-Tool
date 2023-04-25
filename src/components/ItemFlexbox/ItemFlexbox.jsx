@@ -10,6 +10,7 @@ function ItemFlexbox(props) {
     let { 
         sx, 
         id, 
+        seed,
         entireResultLabel,
         setEntireResultLabel, 
         dataLabelId,
@@ -146,7 +147,7 @@ function ItemFlexbox(props) {
                       console.log("click id: ", id)
                   }}
 
-              >{id}</Button>
+              >{seed}</Button>
             </Dropdown>
       </>
     );

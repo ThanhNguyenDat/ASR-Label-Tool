@@ -689,11 +689,16 @@ function ASRAnnotationReviewPage(props) {
 
                         <div className="row row-cols-auto">
                             {dataLabelIds.map(id => {
+                                console.log('entireDataLabel: ', entireDataLabel)
+                                const current_data = entireDataLabel.find(d => d.data[0].id === id)
+                                const seed = current_data.data[0].seed
+                                console.log('seed: ', seed)
                                 return (
                                     <div className="col" style={{paddingBottom: 10}}>
                                         <ItemFlexbox
                                             key={id}
-                                            
+                                            seed={seed}
+
                                             id={id}
                                             entireResultLabel={entireResultLabel}
                                             setEntireResultLabel={setEntireResultLabel}
