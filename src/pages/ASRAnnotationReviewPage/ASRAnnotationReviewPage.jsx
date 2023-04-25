@@ -228,7 +228,7 @@ function ASRAnnotationReviewPage(props) {
             window.AL.onReceiveData(function (data) {
                 console.log('onReceiveData ', data)
                 if (data.length > 0) {
-                    data = formatDataFromServer(data);
+                    // data = formatDataFromServer(data);
 
                     const ids = data.map(d => {
                         return  d.data[0].id
