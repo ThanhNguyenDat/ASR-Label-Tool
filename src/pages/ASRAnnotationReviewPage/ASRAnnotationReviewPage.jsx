@@ -425,13 +425,13 @@ function ASRAnnotationReviewPage(props) {
             console.log('call api update')    
         }
         // compare 2 value
-        if (oldResultById !== currentResultById) {
-            try {
-                fetchAPI(currentResultById);
-            } catch (error) {
-                throw `Error call api with error ${error}`
-            }
-        }
+        // if (oldResultById !== currentResultById) {
+        //     try {
+        //         fetchAPI(currentResultById);
+        //     } catch (error) {
+        //         throw `Error call api with error ${error}`
+        //     }
+        // }
     }, [dataLabelId])
 
 
