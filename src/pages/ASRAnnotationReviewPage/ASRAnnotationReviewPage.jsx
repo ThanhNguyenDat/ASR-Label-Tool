@@ -218,7 +218,10 @@ function ASRAnnotationReviewPage(props) {
                 console.log("data push result: dataLabels ", annotations);
                 console.log("data push result: resultLabel ", resultLabel);
                 // window.AL.pushResultFail();
-                window.AL.pushResult({ 'postags': resultLabel, 'fetch_number': 5 });
+
+                // format before pushResult, press Next
+                const finnalResult = formatFinnalResult(entireResultLabel)
+                window.AL.pushResult({ 'postags': finnalResult, 'fetch_number': 5 });
                 // window.AL.pushResult({'postags': dataLabels['annotations'], 'fetch_number': 1});
 
             })
@@ -323,6 +326,37 @@ function ASRAnnotationReviewPage(props) {
             });
         }
     }, [annotations, resultLabel])
+    
+    const formatFinnalResult = (entireResultLabel) => {
+        const finnal = entireResultLabel.map(result => {
+            result = result[0][0]
+            console.log('result format: ', result)
+            return {
+                "class_id": result['class_id'],
+                "class_name": result['class_name'],
+                "tag": {
+                    "index": parseInt(result.content.tag.index),
+                    "length": parseInt(result.content.tag.length),
+                    // "length": parseInt(data.end_time * 1000),
+                    "text": result.content.tag.text || "",
+                },
+                "extras": {
+                    "hard_level": 1,
+                    "classify": {
+                        "audibility": result.content.extras?.classify?.audibility || 'good',
+                        "noise": result.content.extras?.classify?.noise || 'clean',
+                        "echo": result.content.extras?.classify?.echo || 'clean',
+                    },
+                    "review": result.content.extras?.review || null,
+                },
+                'data_cat_id': result['data_cat_id'],
+                'dataset_id': result['dataset_id'],
+                'seed': result['seed'],
+                'item_id': result['item_id'],
+            }
+        })
+        return finnal
+    } 
 
     function formatDataFromServer (dataServer) {
         const formatAnnotation = (annotations) => {
@@ -330,8 +364,8 @@ function ASRAnnotationReviewPage(props) {
                 ...anno,
                 'content': {
                     'tag': {
-                        'index': anno['content']['index'],
-                        'length': anno['content']['length'],
+                        'index': anno['content']['index'] * 1000,
+                        'length': anno['content']['length'] * 1000,
                         'text': anno['content']['text']
                     },
                 }
@@ -427,6 +461,11 @@ function ASRAnnotationReviewPage(props) {
     }, [])
 
     React.useEffect(() => {
+
+        console.log('entire result: ', entireResultLabel)
+        const finnalData = formatFinnalResult(entireResultLabel)
+        console.log('finnal: ', finnalData)
+
         const data = entireDataLabel.find(d => d.data[0].id == dataLabelId)
         const result = entireResultLabel.find(r => r[0][0].item_id === dataLabelId)
         console.log('result: ', result)
