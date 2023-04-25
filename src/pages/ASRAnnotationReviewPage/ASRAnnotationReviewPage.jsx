@@ -210,118 +210,141 @@ function ASRAnnotationReviewPage(props) {
     const [selectedRegionKey, setSelectedRegionKey] = useState();
 
         // Full flow when anntations change
-    // useEffect(() => {
-    //     if (window.AL) {
-    //         window.AL.onReceiveRequestResult(function (data) {
-    //             // const final_annotations = annotations
-    //             // window.AL.pushResultFail();
-    //             console.log("data push result: dataLabels ", annotations);
-    //             console.log("data push result: resultLabel ", resultLabel);
-    //             // window.AL.pushResultFail();
-    //             window.AL.pushResult({ 'postags': resultLabel, 'fetch_number': 5 });
-    //             // window.AL.pushResult({'postags': dataLabels['annotations'], 'fetch_number': 1});
+    useEffect(() => {
+        if (window.AL) {
+            window.AL.onReceiveRequestResult(function (data) {
+                // const final_annotations = annotations
+                // window.AL.pushResultFail();
+                console.log("data push result: dataLabels ", annotations);
+                console.log("data push result: resultLabel ", resultLabel);
+                // window.AL.pushResultFail();
+                window.AL.pushResult({ 'postags': resultLabel, 'fetch_number': 5 });
+                // window.AL.pushResult({'postags': dataLabels['annotations'], 'fetch_number': 1});
 
-    //         })
-    //         window.AL.onReceiveData(function (data) {
-    //             console.log('onReceiveData', data)
-    //             if (data.length > 0) {
+            })
+            window.AL.onReceiveData(function (data) {
+                console.log('onReceiveData', data)
+                if (data.length > 0) {
+                    data = formatDataFromServer(data);
 
-    //                 const ids = data.map(d => {
-    //                     return  d.data[0].id
-    //                 })
+                    const ids = data.map(d => {
+                        return  d.data[0].id
+                    })
                     
-    //                 setDataLabelIds(ids);
-    //                 setEntireDataLabel(data);
+                    setDataLabelIds(ids);
+                    setEntireDataLabel(data);
         
-    //                 // console.log('data: ', data);
-    //                 const _result = data.map(d => formatResultData(d));
-    //                 setEntireResultLabel(_result); // set here
+                    // console.log('data: ', data);
+                    const _result = data.map(d => formatResultData(d));
+                    setEntireResultLabel(_result); // set here
         
-    //                 setDataLabelId(ids[0])
+                    setDataLabelId(ids[0])
 
 
 
-    //                 // update data - annotations
-    //                 // setDataLabel(data[0]['data'])
-    //                 // const anns = data[0]['annotation']
-    //                 // if (anns.length > 0) {
-    //                 //     const formatted_anns = anns.map(ele => {
-    //                 //         return {
-    //                 //             ...ele,
-    //                 //             content: {
-    //                 //                 ...ele['content'],
-    //                 //                 index: ele['content']['index']/1000,
-    //                 //                 length: ele['content']['length']/1000
-    //                 //             }
-    //                 //         }
-    //                 //     })
-    //                 //     setAnnotations(formatted_anns)
-    //                 // } 
+                    // update data - annotations
+                    // setDataLabel(data[0]['data'])
+                    // const anns = data[0]['annotation']
+                    // if (anns.length > 0) {
+                    //     const formatted_anns = anns.map(ele => {
+                    //         return {
+                    //             ...ele,
+                    //             content: {
+                    //                 ...ele['content'],
+                    //                 index: ele['content']['index']/1000,
+                    //                 length: ele['content']['length']/1000
+                    //             }
+                    //         }
+                    //     })
+                    //     setAnnotations(formatted_anns)
+                    // } 
 
-    //             }
+                }
 
-    //         })
+            })
 
-    //         window.AL.onPushResultFail(function (data) {
-    //             alert('fail to push' + data['message']);
-    //         });
+            window.AL.onPushResultFail(function (data) {
+                alert('fail to push' + data['message']);
+            });
 
-    //         window.AL.onReceiveCommonInfo(function (data) {
-    //             console.log('onReceiveCommonInfo in', data)
-    //             var classes = data['classes'];
-    //             setCommonInfo(classes)
-    //             window.AL.pushSettings({'settings': [
-    //                 {
-    //                     'type': 'text', 
-    //                     'id': 1,
-    //                     'name': 'From Idx', 
-    //                     'options': []
-    //                 },
-    //                 {
-    //                     'type': 'text', 
-    //                     'id': 2,
-    //                     'name': 'Num Items', 
-    //                     'options': []
-    //                 },
-    //             ]});
+            window.AL.onReceiveCommonInfo(function (data) {
+                console.log('onReceiveCommonInfo in', data)
+                var classes = data['classes'];
+                setCommonInfo(classes)
+                window.AL.pushSettings({'settings': [
+                    {
+                        'type': 'text', 
+                        'id': 1,
+                        'name': 'From Idx', 
+                        'options': []
+                    },
+                    {
+                        'type': 'text', 
+                        'id': 2,
+                        'name': 'Num Items', 
+                        'options': []
+                    },
+                ]});
 
-    //             // window.AL.pushSettings({
-    //             //     'settings': [
-    //             //         {
-    //             //             'type': 'text',
-    //             //             'id': 1,
-    //             //             'name': 'FromID',
-    //             //             'options': []
-    //             //         },
-    //             //         {
-    //             //             'type': 'text',
-    //             //             'id': 2,
-    //             //             'name': 'Num Items',
-    //             //             'options': []
-    //             //         },
-    //             //         {
-    //             //             'type': 'switch',
-    //             //             'id': 3,
-    //             //             'name': 'ToReview',
-    //             //             'options': []
-    //             //         },
-    //             //     ]
-    //             // });
-    //         });
+                // window.AL.pushSettings({
+                //     'settings': [
+                //         {
+                //             'type': 'text',
+                //             'id': 1,
+                //             'name': 'FromID',
+                //             'options': []
+                //         },
+                //         {
+                //             'type': 'text',
+                //             'id': 2,
+                //             'name': 'Num Items',
+                //             'options': []
+                //         },
+                //         {
+                //             'type': 'switch',
+                //             'id': 3,
+                //             'name': 'ToReview',
+                //             'options': []
+                //         },
+                //     ]
+                // });
+            });
 
-    //         window.AL.onUpdateSelectClass(function (data) {
-    //             console.log('onUpdateSelectClass data', data)
-    //         });
+            window.AL.onUpdateSelectClass(function (data) {
+                console.log('onUpdateSelectClass data', data)
+            });
 
-    //         window.AL.onReceiveRequestSettings(function (data) {
-    //             console.log("onReceiveRequestSettings ", data)
-    //         })
+            window.AL.onReceiveRequestSettings(function (data) {
+                console.log("onReceiveRequestSettings ", data)
+            })
 
-    //         window.AL.onReceiveRequestResetCurrent(function (data) {
-    //             console.log('onReceiveRequestResetCurrent ', data)
-    //         });
-    //     }
-    // }, [annotations, resultLabel])
+            window.AL.onReceiveRequestResetCurrent(function (data) {
+                console.log('onReceiveRequestResetCurrent ', data)
+            });
+        }
+    }, [annotations, resultLabel])
+
+    function formatDataFromServer (dataServer) {
+        const formatAnnotation = (annotations) => {
+            return annotations.map(anno => ({
+                ...anno,
+                'content': {
+                    'tag': {
+                        'index': anno['content']['index'],
+                        'length': anno['content']['length'],
+                        'text': anno['content']['text']
+                    },
+                }
+            }))
+        }
+
+        const formatedData = dataServer.map(d => ({
+            "data": d['data'],
+            "annotation": formatAnnotation(data['annotation'])
+        }))
+        return formatedData
+    }
+
 
     function formatResultData (data) {
         const childResult = []
@@ -352,6 +375,7 @@ function ASRAnnotationReviewPage(props) {
             await axios.get(`http://0.0.0.0:8211/get-full-data`)
             .then(response => {
                 const data = response.data.data;
+                
                 const ids = data.map(d => {
                     return  d.data[0].id
                 })
