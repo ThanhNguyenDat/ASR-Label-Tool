@@ -208,8 +208,10 @@ function ASRAnnotationReviewPage(props) {
 
     const { clicked, setClicked, points, setPoints } = useContextMenu();
     const [selectedRegionKey, setSelectedRegionKey] = useState();
-
-        // Full flow when anntations change
+    
+    const [idActive, setIdActive] = React.useState('');
+    
+    // Full flow when anntations change
     useEffect(() => {
         if (window.AL) {
             window.AL.onReceiveRequestResult(function (data) {
@@ -328,82 +330,6 @@ function ASRAnnotationReviewPage(props) {
         }
     }, [annotations, resultLabel])
     
-    const formatFinnalResult = (entireResultLabel) => {
-        const finnal = entireResultLabel.map(result => {
-            result = result[0][0]
-            console.log('result format: ', result)
-            return {
-                "class_id": commonInfo[0]?.id,
-                "class_name": result['class_name'],
-                "tag": {
-                    "index": parseInt(result.content.tag.index),
-                    "length": parseInt(result.content.tag.length),
-                    // "length": parseInt(data.end_time * 1000),
-                    "text": result.content.tag.text || "",
-                },
-                "extras": {
-                    "hard_level": 1,
-                    "classify": {
-                        "audibility": result.content.extras?.classify?.audibility || 'good',
-                        "noise": result.content.extras?.classify?.noise || 'clean',
-                        "echo": result.content.extras?.classify?.echo || 'clean',
-                    },
-                    "review": result.content.extras?.review || null,
-                },
-                'data_cat_id': result['data_cat_id'],
-                'dataset_id': result['dataset_id'],
-                'seed': result['seed'],
-                'item_id': result['item_id'],
-            }
-        })
-        return finnal
-    } 
-
-    function formatDataFromServer (dataServer) {
-        const formatAnnotation = (annotations) => {
-            return annotations.map(anno => ({
-                ...anno,
-                'content': {
-                    'tag': {
-                        'index': anno['content']['index'] * 1000,
-                        'length': anno['content']['length'] * 1000,
-                        'text': anno['content']['text']
-                    },
-                }
-            }))
-        }
-
-        const formatedData = dataServer.map(d => ({
-            "data": d['data'],
-            "annotation": formatAnnotation(d['annotation'])
-        }))
-        return formatedData
-    }
-
-
-    function formatResultData (data) {
-        const childResult = []
-
-        const anns = data['annotation']
-        if (anns.length > 0) {
-            childResult.push(anns.map(anno => ({
-                'class_id': anno['class_id'],
-                'class_name': anno['class_name'],
-                'content': {
-                    'tag': {...anno.content.tag},
-                    'extras': { 
-                        ...anno.content.extras,
-                        'review': anno.content.extras?.review || null,
-                    },
-                },
-                'data_cat_id': data['data'][0]['data_cat_id'],
-                'dataset_id': data['data'][0]['dataset_id'],
-                'seed': data['data'][0]['seed'],
-                'item_id': data['data'][0]['id'],    
-            })))
-        }
-        return childResult
-    }
 
     // React.useEffect(() => {
     //     const fetchAPI = async () => {
@@ -537,51 +463,84 @@ function ASRAnnotationReviewPage(props) {
             // setOriginResultLabel(entireResultLabel);
         }
 
-
-        // console.log('run 1')
     }, [dataLabelId])
 
-    // here is update result 
-    // React.useEffect(() => {
-    //     console.log('run 2')
-    //     const fetchAPI = async (data) => {
-    //         await axios.post('http://10.40.34.15:7111/asr_zalo/update_lb', {'data-raw': data})
-    //         .then(response => {
-    //             console.log('update success: ', response)
-    //         })
-    //         .catch(error => {
-    //             console.log('update fail: ', error)
-    //         })
-            
-    //     }
+    const formatFinnalResult = (entireResultLabel) => {
+        const finnal = entireResultLabel.map(result => {
+            result = result[0][0]
+            return {
+                "class_id": commonInfo[0]?.id,
+                "class_name": result['class_name'],
+                "tag": {
+                    "index": parseInt(result.content.tag.index),
+                    "length": parseInt(result.content.tag.length),
+                    // "length": parseInt(data.end_time * 1000),
+                    "text": result.content.tag.text || "",
+                },
+                "extras": {
+                    "hard_level": 1,
+                    "classify": {
+                        "audibility": result.content.extras?.classify?.audibility || 'good',
+                        "noise": result.content.extras?.classify?.noise || 'clean',
+                        "echo": result.content.extras?.classify?.echo || 'clean',
+                    },
+                    "review": result.content.extras?.review || null,
+                },
+                'data_cat_id': result['data_cat_id'],
+                'dataset_id': result['dataset_id'],
+                'seed': result['seed'],
+                'item_id': result['item_id'],
+            }
+        })
+        return finnal
+    } 
 
-    //     // // get old result with id
-    //     // const oldId = historyIds[historyIds.length - 2]
-    //     // const currentResult = entireResultLabel.find(data => data[0][0].item_id === oldId)
-        
-    //     // // console.log('oldResult: ', oldResult)
-    //     // // console.log('currentResult: ', currentResult)
+    function formatDataFromServer (dataServer) {
+        const formatAnnotation = (annotations) => {
+            return annotations.map(anno => ({
+                ...anno,
+                'content': {
+                    'tag': {
+                        'index': anno['content']['index'] * 1000,
+                        'length': anno['content']['length'] * 1000,
+                        'text': anno['content']['text']
+                    },
+                }
+            }))
+        }
 
-    //     // /*
-    //     // * CODE HERE
-    //     // */
-        
+        const formatedData = dataServer.map(d => ({
+            "data": d['data'],
+            "annotation": formatAnnotation(d['annotation'])
+        }))
+        return formatedData
+    }
 
-    //     // let isSame = true
-    //     // if (oldResult && currentResult){
-    //     //     // twoArrayDiff = _.isEqual(oldResult[0], currentResult[0]);
-    //     //     isSame = compareTwoArray(oldResult[0], currentResult[0]);
-    //     // } 
-    //     // console.log('isSame: ', isSame)
-        
-    //     // if (isSame === false) {
-    //     //     // call api here
-    //     //     console.log('call api update');
-    //     // }
 
-    //     // setOriginResultLabel(entireResultLabel);
-        
-    // }, [dataLabelId])
+    function formatResultData (data) {
+        const childResult = []
+
+        const anns = data['annotation']
+        if (anns.length > 0) {
+            childResult.push(anns.map(anno => ({
+                'class_id': anno['class_id'],
+                'class_name': anno['class_name'],
+                'content': {
+                    'tag': {...anno.content.tag},
+                    'extras': { 
+                        ...anno.content.extras,
+                        'review': anno.content.extras?.review || null,
+                    },
+                },
+                'data_cat_id': data['data'][0]['data_cat_id'],
+                'dataset_id': data['data'][0]['dataset_id'],
+                'seed': data['data'][0]['seed'],
+                'item_id': data['data'][0]['id'],    
+            })))
+        }
+        return childResult
+    }
+
 
     const compareTwoArray = (oldResult, currentResult) => {
         console.log('oldResult: ', oldResult);
@@ -645,6 +604,17 @@ function ASRAnnotationReviewPage(props) {
     }
 
 
+    const addActiveClass = (e) => {
+        const clicked = e.target.id
+        console.log('e.target: ', e)
+        console.log('idClick: ', clicked)
+        if (idActive === clicked) {
+            // setActive('');
+        } else {
+            setIdActive(clicked)
+        } 
+    }
+
     // update props
     const waveform_props = {
         commonInfo: commonInfo,
@@ -661,7 +631,6 @@ function ASRAnnotationReviewPage(props) {
         setSelectedRegionKey,
         ...props
     }
-
 
     return (
         <div className={cx("ASRAnnotaionPage")}>
@@ -689,12 +658,19 @@ function ASRAnnotationReviewPage(props) {
 
                         <div className="row row-cols-auto">
                             {dataLabelIds.map(id => {
-                                console.log('entireDataLabel: ', entireDataLabel)
                                 const current_data = entireDataLabel.find(d => d.data[0].id === id)
                                 const seed = current_data.data[0].seed
-                                console.log('seed: ', seed)
+                                
                                 return (
-                                    <div className="col" style={{paddingBottom: 10}}>
+                                    <div
+                                        id={id}
+                                        key={id}
+                                        className={`col ${idActive.toString()===id.toString() ? 'active' : ''}`} 
+                                        style={{paddingBottom: 10}} 
+                                        // onClick={e=>{
+                                        //     addActiveClass(e)
+                                        // }}
+                                    >
                                         <ItemFlexbox
                                             key={id}
                                             seed={seed}
@@ -708,7 +684,8 @@ function ASRAnnotationReviewPage(props) {
                                             onClick={(e)=>{
                                                 setSelectedRegionKey(null)
                                                 setDataLabelId(id)
-                                                
+
+                                                addActiveClass(e)
                                             }}
 
                                             onContextMenu={(e) => {
@@ -721,7 +698,9 @@ function ASRAnnotationReviewPage(props) {
                                                 });
                                                 
                                                 setClicked(true);
-                                                setDataLabelId(id)
+                                                setDataLabelId(id);
+
+                                                addActiveClass(e)
                                             }}
 
                                             clicked={clicked}
