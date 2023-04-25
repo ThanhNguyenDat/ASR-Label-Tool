@@ -332,7 +332,7 @@ function ASRAnnotationReviewPage(props) {
             result = result[0][0]
             console.log('result format: ', result)
             return {
-                "class_id": result['class_id'],
+                "class_id": commonInfo[0]?.id,
                 "class_name": result['class_name'],
                 "tag": {
                     "index": parseInt(result.content.tag.index),
