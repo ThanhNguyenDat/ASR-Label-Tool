@@ -226,7 +226,7 @@ function ASRAnnotationReviewPage(props) {
 
             })
             window.AL.onReceiveData(function (data) {
-                console.log('onReceiveData', data)
+                console.log('onReceiveData ', data)
                 if (data.length > 0) {
                     data = formatDataFromServer(data);
 
@@ -267,7 +267,8 @@ function ASRAnnotationReviewPage(props) {
             })
 
             window.AL.onPushResultFail(function (data) {
-                alert('fail to push' + data['message']);
+                // alert('fail to push' + data['message']);
+                console.log("onPushResultFail ", data)
             });
 
             window.AL.onReceiveCommonInfo(function (data) {
@@ -374,7 +375,7 @@ function ASRAnnotationReviewPage(props) {
 
         const formatedData = dataServer.map(d => ({
             "data": d['data'],
-            "annotation": formatAnnotation(data['annotation'])
+            "annotation": formatAnnotation(d['annotation'])
         }))
         return formatedData
     }
@@ -404,61 +405,61 @@ function ASRAnnotationReviewPage(props) {
         return childResult
     }
 
-    React.useEffect(() => {
-        const fetchAPI = async () => {
-            await axios.get(`http://0.0.0.0:8211/get-full-data`)
-            .then(response => {
-                const data = response.data.data;
+    // React.useEffect(() => {
+    //     const fetchAPI = async () => {
+    //         await axios.get(`http://0.0.0.0:8211/get-full-data`)
+    //         .then(response => {
+    //             const data = response.data.data;
                 
-                const ids = data.map(d => {
-                    return  d.data[0].id
-                })
-                console.log('data: ', data)
-                setDataLabelIds(ids);
-                setEntireDataLabel(data);
+    //             const ids = data.map(d => {
+    //                 return  d.data[0].id
+    //             })
+    //             console.log('data: ', data)
+    //             setDataLabelIds(ids);
+    //             setEntireDataLabel(data);
 
-                // console.log('data: ', data);
-                const _result = data.map(d => formatResultData(d));
-                console.log('response: ', _result)
-                setEntireResultLabel(_result); // set here
+    //             // console.log('data: ', data);
+    //             const _result = data.map(d => formatResultData(d));
+    //             console.log('response: ', _result)
+    //             setEntireResultLabel(_result); // set here
                 
-                // set origin data when call api first time
-                if (_result.toString() !== entireDataLabel.toString()) {
-                    console.log('reset origin data when call api first time')
-                    setOriginResultLabel(_result);
-                }
+    //             // set origin data when call api first time
+    //             if (_result.toString() !== entireDataLabel.toString()) {
+    //                 console.log('reset origin data when call api first time')
+    //                 setOriginResultLabel(_result);
+    //             }
 
-                setDataLabelId(ids[0]);
-            })
-            .catch(error => {
-                const data = default_data;
-                const ids = data.map(d => {
-                    return  d.data[0].id
-                })
+    //             setDataLabelId(ids[0]);
+    //         })
+    //         .catch(error => {
+    //             const data = default_data;
+    //             const ids = data.map(d => {
+    //                 return  d.data[0].id
+    //             })
                 
-                setDataLabelIds(ids);
-                setEntireDataLabel(data);
+    //             setDataLabelIds(ids);
+    //             setEntireDataLabel(data);
                 
 
-                // console.log('data: ', data);
-                const _result = data.map(d => formatResultData(d));
-                setEntireResultLabel(_result); // set here
+    //             // console.log('data: ', data);
+    //             const _result = data.map(d => formatResultData(d));
+    //             setEntireResultLabel(_result); // set here
                 
-                setDataLabelId(ids[0])
+    //             setDataLabelId(ids[0])
                 
-                // for compare 2 array
-                const _oldResult = originResultLabel.find(data => data[0][0].item_id === dataLabelId)
-                setOldResult(_oldResult)
-            })
-        }
+    //             // for compare 2 array
+    //             const _oldResult = originResultLabel.find(data => data[0][0].item_id === dataLabelId)
+    //             setOldResult(_oldResult)
+    //         })
+    //     }
 
-        try {
+    //     try {
             
-            fetchAPI();
-        } catch (error) {
-            console.log('error: ', error)
-        } 
-    }, [])
+    //         fetchAPI();
+    //     } catch (error) {
+    //         console.log('error: ', error)
+    //     } 
+    // }, [])
 
     React.useEffect(() => {
 
@@ -621,12 +622,13 @@ function ASRAnnotationReviewPage(props) {
         
         // call api
         const fetchAPI = async () => {
-            // await axios.post('http://10.40.34.15:7111/asr_zalo/update_lb', {'data-raw': dataToUpdate}, {
+            // await axios.post(`http://0.0.0.0:8211/update_data`, {'raw-data': dataToUpdate}, {
             //     headers: {
             //         'Content-Type': 'Application/json',
             //     }
             // })
-            await axios.post(`http://0.0.0.0:8211/update_data`, {'raw-data': dataToUpdate}, {
+
+            await axios.post('https://api.zalo.ai/label_supplier/asr_zalo/update_lb', dataToUpdate, {
                 headers: {
                     'Content-Type': 'Application/json',
                 }
