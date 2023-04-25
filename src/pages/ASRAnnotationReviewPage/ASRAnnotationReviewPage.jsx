@@ -331,61 +331,61 @@ function ASRAnnotationReviewPage(props) {
     }, [annotations, resultLabel])
     
 
-    // React.useEffect(() => {
-    //     const fetchAPI = async () => {
-    //         await axios.get(`http://0.0.0.0:8211/get-full-data`)
-    //         .then(response => {
-    //             const data = response.data.data;
+    React.useEffect(() => {
+        const fetchAPI = async () => {
+            await axios.get(`http://0.0.0.0:8211/get-full-data`)
+            .then(response => {
+                const data = response.data.data;
                 
-    //             const ids = data.map(d => {
-    //                 return  d.data[0].id
-    //             })
-    //             console.log('data: ', data)
-    //             setDataLabelIds(ids);
-    //             setEntireDataLabel(data);
+                const ids = data.map(d => {
+                    return  d.data[0].id
+                })
+                console.log('data: ', data)
+                setDataLabelIds(ids);
+                setEntireDataLabel(data);
 
-    //             // console.log('data: ', data);
-    //             const _result = data.map(d => formatResultData(d));
-    //             console.log('response: ', _result)
-    //             setEntireResultLabel(_result); // set here
+                // console.log('data: ', data);
+                const _result = data.map(d => formatResultData(d));
+                console.log('response: ', _result)
+                setEntireResultLabel(_result); // set here
                 
-    //             // set origin data when call api first time
-    //             if (_result.toString() !== entireDataLabel.toString()) {
-    //                 console.log('reset origin data when call api first time')
-    //                 setOriginResultLabel(_result);
-    //             }
+                // set origin data when call api first time
+                if (_result.toString() !== entireDataLabel.toString()) {
+                    console.log('reset origin data when call api first time')
+                    setOriginResultLabel(_result);
+                }
 
-    //             setDataLabelId(ids[0]);
-    //         })
-    //         .catch(error => {
-    //             const data = default_data;
-    //             const ids = data.map(d => {
-    //                 return  d.data[0].id
-    //             })
+                setDataLabelId(ids[0]);
+            })
+            .catch(error => {
+                const data = default_data;
+                const ids = data.map(d => {
+                    return  d.data[0].id
+                })
                 
-    //             setDataLabelIds(ids);
-    //             setEntireDataLabel(data);
+                setDataLabelIds(ids);
+                setEntireDataLabel(data);
                 
 
-    //             // console.log('data: ', data);
-    //             const _result = data.map(d => formatResultData(d));
-    //             setEntireResultLabel(_result); // set here
+                // console.log('data: ', data);
+                const _result = data.map(d => formatResultData(d));
+                setEntireResultLabel(_result); // set here
                 
-    //             setDataLabelId(ids[0])
+                setDataLabelId(ids[0])
                 
-    //             // for compare 2 array
-    //             const _oldResult = originResultLabel.find(data => data[0][0].item_id === dataLabelId)
-    //             setOldResult(_oldResult)
-    //         })
-    //     }
+                // for compare 2 array
+                const _oldResult = originResultLabel.find(data => data[0][0].item_id === dataLabelId)
+                setOldResult(_oldResult)
+            })
+        }
 
-    //     try {
+        try {
             
-    //         fetchAPI();
-    //     } catch (error) {
-    //         console.log('error: ', error)
-    //     } 
-    // }, [])
+            fetchAPI();
+        } catch (error) {
+            console.log('error: ', error)
+        } 
+    }, [])
 
     React.useEffect(() => {
 
@@ -587,7 +587,7 @@ function ASRAnnotationReviewPage(props) {
             //     }
             // })
 
-            await axios.post('https://api.zalo.ai/label_supplier/asr_zalo/update_lb', dataToUpdate, {
+            await axios.post(process.env.REACT_APP_API_UPDATE, dataToUpdate, {
                 headers: {
                     'Content-Type': 'Application/json',
                 }

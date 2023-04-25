@@ -113,9 +113,10 @@ function ItemFlexbox(props) {
                     backgroundColor: colors['Remake']
                   },
                   icon: <TfiAlert />,
-                  onClick: () => {
+                  onClick: (e) => {
                     const _entireResultLabel = updateStatusReview('Remake')
                     setEntireResultLabel(_entireResultLabel)
+
                   }
                 },
                 {
@@ -135,6 +136,7 @@ function ItemFlexbox(props) {
             >
               <Button 
                   key={id}
+                  id={id}
                   className={`${styles['btnDataLabel']}`}
                   style={{
                       background: color,
@@ -144,6 +146,8 @@ function ItemFlexbox(props) {
                   
                   onClick={(e) => {
                       props.onClick(e);
+                      
+                      
                       console.log("click id: ", id)
                   }}
 
