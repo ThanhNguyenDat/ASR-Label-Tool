@@ -221,8 +221,10 @@ function ASRAnnotationReviewPage(props) {
                 console.log("data push result: resultLabel ", resultLabel);
                 // window.AL.pushResultFail();
 
+                console.log("AL.pushResult entireResultLabel ", entireResultLabel)
                 // format before pushResult, press Next
                 const finnalResult = formatFinnalResult(entireResultLabel)
+                console.log("AL.pushResult finnalResult ", finnalResult)
                 window.AL.pushResult({ 'postags': finnalResult, 'fetch_number': 5 });
                 // window.AL.pushResult({'postags': dataLabels['annotations'], 'fetch_number': 1});
 
@@ -330,62 +332,142 @@ function ASRAnnotationReviewPage(props) {
         }
     }, [annotations, resultLabel])
     
-
-    React.useEffect(() => {
-        const fetchAPI = async () => {
-            await axios.get(`http://0.0.0.0:8211/get-full-data`)
-            .then(response => {
-                const data = response.data.data;
-                
-                const ids = data.map(d => {
-                    return  d.data[0].id
-                })
-                console.log('data: ', data)
-                setDataLabelIds(ids);
-                setEntireDataLabel(data);
-
-                // console.log('data: ', data);
-                const _result = data.map(d => formatResultData(d));
-                console.log('response: ', _result)
-                setEntireResultLabel(_result); // set here
-                
-                // set origin data when call api first time
-                if (_result.toString() !== entireDataLabel.toString()) {
-                    console.log('reset origin data when call api first time')
-                    setOriginResultLabel(_result);
+    const formatFinnalResult = (entireResultLabel) => {
+        const finalResult = []
+        const finnal = entireResultLabel.map(result => {
+            const list_anno_each_result = result[0]
+            list_anno_each_result.forEach(anno_ele => {
+                const anno = {
+                    "class_id": commonInfo[0]?.id,
+                    "class_name": anno_ele['class_name'],
+                    "tag": {
+                        "index": parseInt(anno_ele.content.tag.index),
+                        "length": parseInt(anno_ele.content.tag.length),
+                        // "length": parseInt(data.end_time * 1000),
+                        "text": anno_ele.content.tag.text || "",
+                    },
+                    "extras": {
+                        "hard_level": 1,
+                        "classify": {
+                            "audibility": anno_ele.content.extras?.classify?.audibility || 'good',
+                            "noise": anno_ele.content.extras?.classify?.noise || 'clean',
+                            "echo": anno_ele.content.extras?.classify?.echo || 'clean',
+                        },
+                        "review": anno_ele.content.extras?.review || "",
+                    },
+                    'data_cat_id': anno_ele['data_cat_id'],
+                    'dataset_id': anno_ele['dataset_id'],
+                    'seed': anno_ele['seed'],
+                    'item_id': anno_ele['item_id'],
                 }
-
-                setDataLabelId(ids[0]);
+                finalResult.push(anno)
             })
-            .catch(error => {
-                const data = default_data;
-                const ids = data.map(d => {
-                    return  d.data[0].id
-                })
-                
-                setDataLabelIds(ids);
-                setEntireDataLabel(data);
-                
 
-                // console.log('data: ', data);
-                const _result = data.map(d => formatResultData(d));
-                setEntireResultLabel(_result); // set here
-                
-                setDataLabelId(ids[0])
-                
-                // for compare 2 array
-                const _oldResult = originResultLabel.find(data => data[0][0].item_id === dataLabelId)
-                setOldResult(_oldResult)
-            })
+        })
+        return finalResult
+    } 
+
+    function formatDataFromServer (dataServer) {
+        const formatAnnotation = (annotations) => {
+            return annotations.map(anno => ({
+                ...anno,
+                'content': {
+                    'tag': {
+                        'index': anno['content']['index'] * 1000,
+                        'length': anno['content']['length'] * 1000,
+                        'text': anno['content']['text']
+                    },
+                }
+            }))
         }
 
-        try {
+        const formatedData = dataServer.map(d => ({
+            "data": d['data'],
+            "annotation": formatAnnotation(d['annotation'])
+        }))
+        return formatedData
+    }
+
+
+    function formatResultData (data) {
+        const childResult = []
+
+        const anns = data['annotation']
+        if (anns.length > 0) {
+            childResult.push(anns.map(anno => ({
+                'class_id': anno['class_id'],
+                'class_name': anno['class_name'],
+                'content': {
+                    'tag': {...anno.content.tag},
+                    'extras': { 
+                        ...anno.content.extras,
+                        'review': anno.content.extras?.review || "",
+                    },
+                },
+                'data_cat_id': data['data'][0]['data_cat_id'],
+                'dataset_id': data['data'][0]['dataset_id'],
+                'seed': data['data'][0]['seed'],
+                'item_id': data['data'][0]['id'],    
+            })))
+        }
+        return childResult
+    }
+
+    // React.useEffect(() => {
+    //     const fetchAPI = async () => {
+    //         await axios.get(`http://0.0.0.0:8211/get-full-data`)
+    //         .then(response => {
+    //             const data = response.data.data;
+                
+    //             const ids = data.map(d => {
+    //                 return  d.data[0].id
+    //             })
+    //             console.log('data: ', data)
+    //             setDataLabelIds(ids);
+    //             setEntireDataLabel(data);
+
+    //             // console.log('data: ', data);
+    //             const _result = data.map(d => formatResultData(d));
+    //             console.log('response: ', _result)
+    //             setEntireResultLabel(_result); // set here
+                
+    //             // set origin data when call api first time
+    //             if (_result.toString() !== entireDataLabel.toString()) {
+    //                 console.log('reset origin data when call api first time')
+    //                 setOriginResultLabel(_result);
+    //             }
+
+    //             setDataLabelId(ids[0]);
+    //         })
+    //         .catch(error => {
+    //             const data = default_data;
+    //             const ids = data.map(d => {
+    //                 return  d.data[0].id
+    //             })
+                
+    //             setDataLabelIds(ids);
+    //             setEntireDataLabel(data);
+                
+
+    //             // console.log('data: ', data);
+    //             const _result = data.map(d => formatResultData(d));
+    //             setEntireResultLabel(_result); // set here
+                
+    //             setDataLabelId(ids[0])
+                
+    //             // for compare 2 array
+    //             const _oldResult = originResultLabel.find(data => data[0][0].item_id === dataLabelId)
+    //             setOldResult(_oldResult)
+    //         })
+    //     }
+
+    //     try {
             
-            fetchAPI();
-        } catch (error) {
-            console.log('error: ', error)
-        } 
-    }, [])
+    //         fetchAPI();
+    //     } catch (error) {
+    //         console.log('error: ', error)
+    //     } 
+    // }, [])
 
     React.useEffect(() => {
 
@@ -465,36 +547,6 @@ function ASRAnnotationReviewPage(props) {
 
     }, [dataLabelId])
 
-    const formatFinnalResult = (entireResultLabel) => {
-        const finnal = entireResultLabel.map(result => {
-            result = result[0][0]
-            return {
-                "class_id": commonInfo[0]?.id,
-                "class_name": result['class_name'],
-                "tag": {
-                    "index": parseInt(result.content.tag.index),
-                    "length": parseInt(result.content.tag.length),
-                    // "length": parseInt(data.end_time * 1000),
-                    "text": result.content.tag.text || "",
-                },
-                "extras": {
-                    "hard_level": 1,
-                    "classify": {
-                        "audibility": result.content.extras?.classify?.audibility || 'good',
-                        "noise": result.content.extras?.classify?.noise || 'clean',
-                        "echo": result.content.extras?.classify?.echo || 'clean',
-                    },
-                    "review": result.content.extras?.review || null,
-                },
-                'data_cat_id': result['data_cat_id'],
-                'dataset_id': result['dataset_id'],
-                'seed': result['seed'],
-                'item_id': result['item_id'],
-            }
-        })
-        return finnal
-    } 
-
     function formatDataFromServer (dataServer) {
         const formatAnnotation = (annotations) => {
             return annotations.map(anno => ({
@@ -529,7 +581,7 @@ function ASRAnnotationReviewPage(props) {
                     'tag': {...anno.content.tag},
                     'extras': { 
                         ...anno.content.extras,
-                        'review': anno.content.extras?.review || null,
+                        'review': anno.content.extras?.review || "",
                     },
                 },
                 'data_cat_id': data['data'][0]['data_cat_id'],

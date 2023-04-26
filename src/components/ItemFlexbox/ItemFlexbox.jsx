@@ -21,7 +21,7 @@ function ItemFlexbox(props) {
     } = props;
 
     const colors = {
-        null: '#f5f5f5',
+        "": '#f5f5f5',
         'Other': '#808080',
         'Good': '#0080ff',
         'Bad': '#ff0000',
@@ -38,7 +38,7 @@ function ItemFlexbox(props) {
 
     // console.log('_resultLabel: ', _resultLabel)
     // get review
-    let review = null
+    let review = ""
     if (current_result_data_label) {
       review = current_result_data_label[0][0].content.extras.review
 
@@ -123,11 +123,11 @@ function ItemFlexbox(props) {
                   label: 'Undo',
                   key: 4,
                   style: {
-                    backgroundColor: colors[null]
+                    backgroundColor: colors[""]
                   },
                   icon: <TfiBackLeft />,
                   onClick: () => {
-                    const _entireResultLabel = updateStatusReview(null)
+                    const _entireResultLabel = updateStatusReview("")
                     setEntireResultLabel(_entireResultLabel)
                   }  
                 },
