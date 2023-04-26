@@ -352,7 +352,7 @@ function WaveformReview(props) {
         const currentResult = entireResultLabel[indexResultLabel]
         
         // get review
-        const review = currentResult[0][0].content.extras.review || null;
+        const review = currentResult[0][0].content.extras.review || "";
         
         const list_formatted_anns = formatResultLabel(dataTable)
         

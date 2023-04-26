@@ -332,87 +332,9 @@ function ASRAnnotationReviewPage(props) {
         }
     }, [annotations, resultLabel])
     
-    const formatFinnalResult = (entireResultLabel) => {
-        const finalResult = []
-        const finnal = entireResultLabel.map(result => {
-            const list_anno_each_result = result[0]
-            list_anno_each_result.forEach(anno_ele => {
-                const anno = {
-                    "class_id": commonInfo[0]?.id,
-                    "class_name": anno_ele['class_name'],
-                    "tag": {
-                        "index": parseInt(anno_ele.content.tag.index),
-                        "length": parseInt(anno_ele.content.tag.length),
-                        // "length": parseInt(data.end_time * 1000),
-                        "text": anno_ele.content.tag.text || "",
-                    },
-                    "extras": {
-                        "hard_level": 1,
-                        "classify": {
-                            "audibility": anno_ele.content.extras?.classify?.audibility || 'good',
-                            "noise": anno_ele.content.extras?.classify?.noise || 'clean',
-                            "echo": anno_ele.content.extras?.classify?.echo || 'clean',
-                        },
-                        "review": anno_ele.content.extras?.review || "",
-                    },
-                    'data_cat_id': anno_ele['data_cat_id'],
-                    'dataset_id': anno_ele['dataset_id'],
-                    'seed': anno_ele['seed'],
-                    'item_id': anno_ele['item_id'],
-                }
-                finalResult.push(anno)
-            })
-
-        })
-        return finalResult
-    } 
-
-    function formatDataFromServer (dataServer) {
-        const formatAnnotation = (annotations) => {
-            return annotations.map(anno => ({
-                ...anno,
-                'content': {
-                    'tag': {
-                        'index': anno['content']['index'] * 1000,
-                        'length': anno['content']['length'] * 1000,
-                        'text': anno['content']['text']
-                    },
-                }
-            }))
-        }
-
-        const formatedData = dataServer.map(d => ({
-            "data": d['data'],
-            "annotation": formatAnnotation(d['annotation'])
-        }))
-        return formatedData
-    }
-
-
-    function formatResultData (data) {
-        const childResult = []
-
-        const anns = data['annotation']
-        if (anns.length > 0) {
-            childResult.push(anns.map(anno => ({
-                'class_id': anno['class_id'],
-                'class_name': anno['class_name'],
-                'content': {
-                    'tag': {...anno.content.tag},
-                    'extras': { 
-                        ...anno.content.extras,
-                        'review': anno.content.extras?.review || "",
-                    },
-                },
-                'data_cat_id': data['data'][0]['data_cat_id'],
-                'dataset_id': data['data'][0]['dataset_id'],
-                'seed': data['data'][0]['seed'],
-                'item_id': data['data'][0]['id'],    
-            })))
-        }
-        return childResult
-    }
-
+    /* 
+        Command here
+    */
     // React.useEffect(() => {
     //     const fetchAPI = async () => {
     //         await axios.get(`http://0.0.0.0:8211/get-full-data`)
@@ -547,6 +469,42 @@ function ASRAnnotationReviewPage(props) {
 
     }, [dataLabelId])
 
+
+    const formatFinnalResult = (entireResultLabel) => {
+        const finalResult = []
+        const finnal = entireResultLabel.map(result => {
+            const list_anno_each_result = result[0]
+            list_anno_each_result.forEach(anno_ele => {
+                const anno = {
+                    "class_id": commonInfo[0]?.id,
+                    "class_name": anno_ele['class_name'],
+                    "tag": {
+                        "index": parseInt(anno_ele.content.tag.index),
+                        "length": parseInt(anno_ele.content.tag.length),
+                        // "length": parseInt(data.end_time * 1000),
+                        "text": anno_ele.content.tag.text || "",
+                    },
+                    "extras": {
+                        "hard_level": 1,
+                        "classify": {
+                            "audibility": anno_ele.content.extras?.classify?.audibility || 'good',
+                            "noise": anno_ele.content.extras?.classify?.noise || 'clean',
+                            "echo": anno_ele.content.extras?.classify?.echo || 'clean',
+                        },
+                        "review": anno_ele.content.extras?.review || "",
+                    },
+                    'data_cat_id': anno_ele['data_cat_id'],
+                    'dataset_id': anno_ele['dataset_id'],
+                    'seed': anno_ele['seed'],
+                    'item_id': anno_ele['item_id'],
+                }
+                finalResult.push(anno)
+            })
+
+        })
+        return finalResult
+    } 
+
     function formatDataFromServer (dataServer) {
         const formatAnnotation = (annotations) => {
             return annotations.map(anno => ({
@@ -591,6 +549,27 @@ function ASRAnnotationReviewPage(props) {
             })))
         }
         return childResult
+    }
+
+    function formatDataFromServer (dataServer) {
+        const formatAnnotation = (annotations) => {
+            return annotations.map(anno => ({
+                ...anno,
+                'content': {
+                    'tag': {
+                        'index': anno['content']['index'] * 1000,
+                        'length': anno['content']['length'] * 1000,
+                        'text': anno['content']['text']
+                    },
+                }
+            }))
+        }
+
+        const formatedData = dataServer.map(d => ({
+            "data": d['data'],
+            "annotation": formatAnnotation(d['annotation'])
+        }))
+        return formatedData
     }
 
 
