@@ -11,8 +11,8 @@ function ItemFlexbox(props) {
         sx, 
         id, 
         seed,
-        entireResultLabel,
-        setEntireResultLabel, 
+        entireDataLabel,
+        setEntireDataLabel,
         dataLabelId,
 
         clicked,
@@ -30,40 +30,31 @@ function ItemFlexbox(props) {
     
     // get current result
     
-    const current_result_data_label = entireResultLabel.find(resultLabel => {
-      if (resultLabel && resultLabel.length > 0)
-        {
-          return resultLabel[0][0]?.item_id === id
-        }
-    })
+    const indexDataLabel = entireDataLabel.findIndex(sample => sample.data[0].id === dataLabelId)
+    const currentData = entireDataLabel[indexDataLabel]
 
-    // console.log('_resultLabel: ', _resultLabel)
-    // get review
     let review = ""
-    if (current_result_data_label) {
-      review = current_result_data_label[0][0].content.extras.review
-
+    if (currentData && currentData.annotation.length > 0) {
+      review = currentData.annotation[0].content?.extras?.review
     }
     let color = colors[review]
-
+    // console.log('color: ', color)
 
 
     function updateStatusReview(review) {
+      const updateAnnoReview = currentData.annotation.map(anno => {
+        anno.content.extras.review = review || "";
+        return anno
+      })
       
-      const indexResultLabel = entireResultLabel.findIndex(resultLabel => resultLabel[0][0]?.item_id === dataLabelId)
-      console.log('index: ', indexResultLabel)
-      const currentResult = entireResultLabel[indexResultLabel]
-      // console.log('current: ', currentResult)
+      const updateResult = {
+        "annotation": updateAnnoReview,
+        "data": currentData['data'],
+      }
+      const _entireDataLabel = JSON.parse(JSON.stringify(entireDataLabel))
+      _entireDataLabel[indexDataLabel] = updateResult
       
-      const updateResult = [currentResult[0].map(current => {
-        current.content.extras.review = review;
-        return current
-      })]
-
-      const _entireResultLabel = entireResultLabel
-      _entireResultLabel[indexResultLabel] = updateResult
-      
-      return _entireResultLabel
+      setEntireDataLabel(_entireDataLabel)
     }
     
     return (
@@ -80,8 +71,7 @@ function ItemFlexbox(props) {
                     },
                     icon: <TfiEye />,
                     onClick: () => {
-                      const _entireResultLabel = updateStatusReview('Other')
-                      setEntireResultLabel(_entireResultLabel)
+                      updateStatusReview('Other')
                     },
                   },
                 {
@@ -92,8 +82,7 @@ function ItemFlexbox(props) {
                   },
                   icon: <TfiCheck />,
                   onClick: () => {
-                    const _entireResultLabel = updateStatusReview('Good')
-                    setEntireResultLabel(_entireResultLabel)
+                    updateStatusReview('Good')
                   }
                 },
                 {
@@ -104,8 +93,7 @@ function ItemFlexbox(props) {
                   },
                   icon: <TfiClose />,
                   onClick: () => {
-                    const _entireResultLabel = updateStatusReview('Bad')
-                    setEntireResultLabel(_entireResultLabel)
+                    updateStatusReview('Bad')
                   }
                 },
                 {
@@ -116,9 +104,7 @@ function ItemFlexbox(props) {
                   },
                   icon: <TfiAlert />,
                   onClick: (e) => {
-                    const _entireResultLabel = updateStatusReview('Remake')
-                    setEntireResultLabel(_entireResultLabel)
-
+                    updateStatusReview('Remake')
                   }
                 },
                 {
@@ -129,8 +115,7 @@ function ItemFlexbox(props) {
                   },
                   icon: <TfiBackLeft />,
                   onClick: () => {
-                    const _entireResultLabel = updateStatusReview("")
-                    setEntireResultLabel(_entireResultLabel)
+                    updateStatusReview("")
                   }  
                 },
               ]}}
@@ -144,16 +129,11 @@ function ItemFlexbox(props) {
                   style={{
                       background: color,
                   }}
-
                   {...other}
-                  
                   onClick={(e) => {
                       props.onClick(e);
-                      console.log('entireResultLabel: ', entireResultLabel)
-                      
-                      console.log("click id: ", id)
+                      console.log("click entireDataLabel: ", entireDataLabel)
                   }}
-
               >{seed}</Button>
             </Dropdown>
       </>

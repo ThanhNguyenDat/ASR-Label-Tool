@@ -45,14 +45,16 @@ function WaveformReview(props) {
         dataLabel, 
         annotations, 
 
-        dataLabelId,
-        entireResultLabel,
-        setEntireResultLabel,
-        setResultLabel,
+        // dataLabelId,
+        entireDataLabel,
+        setEntireDataLabel,
+
         selectedRegionKey, 
         setSelectedRegionKey,
     } = props;
+
     const audioUrl = dataLabel[0]["file_name"]
+    const dataLabelId = dataLabel[0].id
 
     const [wavesurfer, setWavesurfer] = useState(null);
     
@@ -64,7 +66,7 @@ function WaveformReview(props) {
 
     const waveRef = useRef(null);
     const timelineRef = useRef(null);
-
+    
     /*
      * Initial wavesurfer
      */
@@ -214,27 +216,20 @@ function WaveformReview(props) {
      * Load annotations
      */
     const loadRegions = (annotations, wavesurfer) => {
-        console.log('loadRegions: ', annotations)
+        
         annotations.map((annotation, id) => {
-            // const index = annotation.content.tag.index;
-            // const length = annotation.content.tag.length;
-            // const text = annotation.content.tag.text;
-
-            // const audibility = annotation.content.extras?.classify?.audibility || "good";
-            // const noise = annotation.content.extras?.classify?.noise || "clean";
-            // const echo = annotation.content.extras?.classify?.echo || "clean";
-            
             const region = {}
             region.color = randomColor(0.2);
             region.data = {};
             
-            region.start = annotation.content.tag.index
-            region.end = annotation.content.tag.length + annotation.content.tag.index
+            region.start = annotation.content.tag.index / 1000;
+            region.end = (annotation.content.tag.length + annotation.content.tag.index) / 1000;
             region.data.note = annotation.content.tag.text;
             
             region.data.audibility = annotation.content.extras?.classify?.audibility || "good";
             region.data.noise = annotation.content.extras?.classify?.noise || "clean";
             region.data.echo = annotation.content.extras?.classify?.echo || "clean";
+            region.data.review = annotation.content.extras?.review || "";
             wavesurfer.addRegion(region);
         });
 
@@ -268,7 +263,6 @@ function WaveformReview(props) {
         setDataTable(newDataTable);
         return newDataTable
     }
-
 
     // To do: update wavesurfer
     const updateWavesurferByDataTable = (dataTable) => {
@@ -313,62 +307,60 @@ function WaveformReview(props) {
         updateResultLabel(newDataTable);
     }
 
-
     // BUTTON NEXT
     // Todo: update follow both dataTable and wavesurfer
-    const formatResultLabel = (dataTable) => {
-        const formatted = dataTable.map((data, index) => {
-            return {
-                "class_id": commonInfo[0]?.id || undefined,
-                "class_name": "Human",
-                
-                "content": {
-                    "tag": {
-                        "index": parseInt(data.start_time * 1000),
-                        "length": parseInt((data.end_time - data.start_time) * 1000),
-                        // "length": parseInt(data.end_time * 1000),
-                        "text": data.description || "",
-                    },
-                    "extras": {
-                        "hard_level": 1,
-                        "classify": {
-                            "audibility": data.audibility,
-                            "noise": data.noise,
-                            "echo": data.echo,
-                        }
-                    },
+    const formatResultLabel = dataTable => dataTable.map((data, index) => (
+        {
+            "class_id": commonInfo[0]?.id,
+            "class_name": "Human",
+            
+            "content": {
+                "tag": {
+                    "index": parseInt(data.start_time * 1000),
+                    "length": parseInt((data.end_time - data.start_time) * 1000),
+                    "text": data.description || "",
                 },
+                "extras": {
+                    "hard_level": 1,
+                    "classify": {
+                        "audibility": data.audibility,
+                        "noise": data.noise,
+                        "echo": data.echo,
+                    },
+                    "review": data.review,
+                },
+            },
 
-                'data_cat_id': dataLabel[0]['data_cat_id'],
-                'dataset_id': dataLabel[0]['dataset_id'],
-                'seed': dataLabel[0]['seed'],
-                'item_id': dataLabel[0]['id'],
-            }
-        });
-        
-        return formatted;
-    }
+            'data_cat_id': dataLabel[0]['data_cat_id'],
+            'dataset_id': dataLabel[0]['dataset_id'],
+            'seed': dataLabel[0]['seed'],
+            'item_id': dataLabel[0]['id'],
+        }
+    ));
 
     const updateResultLabel = (dataTable) => {
-        const indexResultLabel = entireResultLabel.findIndex(resultLabel => resultLabel[0][0]?.item_id === dataLabelId)
-        const currentResult = entireResultLabel[indexResultLabel]
+        const _index = entireDataLabel.findIndex(data => data.data[0].id === dataLabelId)
         
-        // get review
-        const review = currentResult[0][0].content.extras.review || "";
-        
-        const list_formatted_anns = formatResultLabel(dataTable)
-        
-        const updateResult = [list_formatted_anns.map(anno => {
-            anno.content.extras.review = review
-            return anno
-        })]
-        
-        const _entireResultLabel  = entireResultLabel
-        _entireResultLabel[indexResultLabel] = updateResult
-        setResultLabel(list_formatted_anns)
-        // setEntireResultLabel(_entireResultLabel)
+        const formatedAnnotations = formatResultLabel(dataTable)
+        const updateResult = {
+            "annotation": formatedAnnotations,
+            "data": dataLabel,
+        };
+        entireDataLabel[_index] = updateResult
     }
 
+    function handleDeleteRow(record) {
+        wavesurfer.regions.list[record.wave_id]?.remove();
+        
+        const newDataTable = [...dataTable];
+        const id = newDataTable.findIndex((item) => item.wave_id === record.wave_id);
+        newDataTable.splice(id, 1);
+        
+        setDataTable(newDataTable)
+        updateResultLabel(newDataTable)
+        setSelectedRegionKey(null);
+    }
+    
     // updateDataAnnotations(dataTable);
     const columns = [
         {
@@ -435,19 +427,7 @@ function WaveformReview(props) {
             ],
         }
     ]
-
-    function handleDeleteRow(record) {
-        wavesurfer.regions.list[record.wave_id]?.remove();
-        const newDataTable = [...dataTable];
-        const id = newDataTable.findIndex((item) => item.wave_id === record.wave_id);
-        newDataTable.splice(id, 1);
-        
-        setDataTable(newDataTable)
-        updateResultLabel(newDataTable)
-        setSelectedRegionKey(null);
-    }
-
-
+    
     function setPlaybackRate(rate) {
         wavesurfer?.setPlaybackRate(rate)
     }

@@ -179,10 +179,6 @@ function ASRAnnotationReviewPage(props) {
 
     const [dataLabelId, setDataLabelId] = React.useState(null);
 
-
-
-
-
     const [commonInfo, setCommonInfo] = useState([
         { color: '#474747', description: 'Other class', id: 3709, name: 'Other' },
         { color: '#0000FF', description: 'noise', id: 3710, name: 'noise' }
@@ -199,11 +195,7 @@ function ASRAnnotationReviewPage(props) {
     // const [annotations, setAnnotations] = useState([]);
     
     
-    const [resultLabel, setResultLabel] = useState([]);
 
-    const [entireResultLabel, setEntireResultLabel] = useState([])
-    const [originResultLabel, setOriginResultLabel] = useState(entireResultLabel)
-    
     const [historyIds, setHistoryIds] = useState([]);
     const [oldResult, setOldResult] = useState([]);
 
@@ -212,6 +204,8 @@ function ASRAnnotationReviewPage(props) {
     
     const [idActive, setIdActive] = React.useState('');
     
+    const [infoCurrentData, setInfoCurrentData] = React.useState({index: null, data: {annotation: [], data: []}});
+    
     // Full flow when anntations change
     useEffect(() => {
         if (window.AL) {
@@ -219,12 +213,10 @@ function ASRAnnotationReviewPage(props) {
                 // const final_annotations = annotations
                 // window.AL.pushResultFail();
                 console.log("data push result: dataLabels ", annotations);
-                console.log("data push result: resultLabel ", resultLabel);
                 // window.AL.pushResultFail();
 
-                console.log("AL.pushResult entireResultLabel ", entireResultLabel)
                 // format before pushResult, press Next
-                const finnalResult = formatFinnalResult(entireResultLabel)
+                // const finnalResult = formatFinnalResult(entireResultLabel)
                 console.log("AL.pushResult finnalResult ", finnalResult)
                 window.AL.pushResult({ 'postags': finnalResult, 'fetch_number': 5 });
                 // window.AL.pushResult({'postags': dataLabels['annotations'], 'fetch_number': 1});
@@ -243,8 +235,8 @@ function ASRAnnotationReviewPage(props) {
                     setEntireDataLabel(data);
         
                     // console.log('data: ', data);
-                    const _result = data.map(d => formatResultData(d));
-                    setEntireResultLabel(_result); // set here
+                    // const _result = data.map(d => formatResultData(d));
+                    
         
                     setDataLabelId(ids[0])
 
@@ -331,273 +323,91 @@ function ASRAnnotationReviewPage(props) {
                 console.log('onReceiveRequestResetCurrent ', data)
             });
         }
-    }, [annotations, resultLabel])
+    }, [annotations])
     
     /* 
         Command here
     */
-    // React.useEffect(() => {
-    //     const fetchAPI = async () => {
-    //         await axios.get(`http://0.0.0.0:8211/get-full-data`)
-    //         .then(response => {
-    //             const data = response.data.data;
+    React.useEffect(() => {
+        const fetchAPI = async () => {
+            await axios.get(`http://0.0.0.0:8211/get-full-data`)
+            .then(response => {
+                const data = response.data.data;
                 
-    //             const ids = data.map(d => {
-    //                 return  d.data[0].id
-    //             })
-    //             console.log('data: ', data)
-    //             setDataLabelIds(ids);
-    //             setEntireDataLabel(data);
+                const ids = data.map(d => {
+                    return  d.data[0].id
+                })
 
-    //             // console.log('data: ', data);
-    //             const _result = data.map(d => formatResultData(d));
-    //             console.log('response: ', _result)
-    //             setEntireResultLabel(_result); // set here
-                
-    //             // set origin data when call api first time
-    //             if (_result.toString() !== entireDataLabel.toString()) {
-    //                 console.log('reset origin data when call api first time')
-    //                 setOriginResultLabel(_result);
-    //             }
+                console.log('data: ', data)
+                setDataLabelIds(ids);
+                setEntireDataLabel(data);
+                setDataLabelId(ids[0]);
 
-    //             setDataLabelId(ids[0]);
-    //         })
-    //         .catch(error => {
-    //             const data = default_data;
-    //             const ids = data.map(d => {
-    //                 return  d.data[0].id
-    //             })
+            })
+            .catch(error => {
+                const data = default_data;
+                const ids = data.map(d => {
+                    return  d.data[0].id
+                })
                 
-    //             setDataLabelIds(ids);
-    //             setEntireDataLabel(data);
-                
+                setDataLabelIds(ids);
+                setEntireDataLabel(data);
 
-    //             // console.log('data: ', data);
-    //             const _result = data.map(d => formatResultData(d));
-    //             setEntireResultLabel(_result); // set here
-                
-    //             setDataLabelId(ids[0])
-                
-    //             // for compare 2 array
-    //             const _oldResult = originResultLabel.find(data => data[0][0].item_id === dataLabelId)
-    //             setOldResult(_oldResult)
-    //         })
-    //     }
+                setDataLabelId(ids[0])
+            })
+        }
 
-    //     try {
-            
-    //         fetchAPI();
-    //     } catch (error) {
-    //         console.log('error: ', error)
-    //     } 
-    // }, [])
+        try {
+            fetchAPI();
+        } catch (error) {
+            console.log('error: ', error)
+        } 
+    }, [])
 
     React.useEffect(() => {
+        // current data
+        console.log('origin data: ', entireDataLabel)
         const data = entireDataLabel.find(d => d.data[0].id == dataLabelId)
-        const result = entireResultLabel.find(r => r[0][0]?.item_id === dataLabelId)
-        console.log('result: ', result)
+        console.log('data: ', data)
+        
         if (data) {
-            console.log('data["data"]: ', data)
             setDataLabel(data['data']);
-        }
-
-        if (result) {
-            const anns = result[0]
-            if (anns.length > 0) {
-                const formatted_anns = anns.map(ele => ({
-                    // 'class_id': ele['class_id'],
-                    // 'class_name': ele['class_name'],
-                    // 'content': {
-                    //     'tag':{
-                    //         ...ele['content']['tag'],
-                    //         index: ele['content']['tag']['index'] / 1000,
-                    //         length: ele['content']['tag']['length'] / 1000,
-                    //     },
-                    //     'extra': ele['content']['extras']
-                    // },
-                    ...ele,
-                    content: {
-                        ...ele['content'],
-                        'tag': {
-                            'text': ele['content']['tag']['text'],
-                            'index': ele['content']['tag']['index'] / 1000,
-                            'length': ele['content']['tag']['length'] / 1000,
-                        },
-                    }
-                }))
-                console.log('formatted_anns: ', formatted_anns)
-                setAnnotations(formatted_anns)
-            } else {
-                setAnnotations([])
-            }
-        }
-        
-        const _historyIds = historyIds
-        _historyIds.push(dataLabelId)
-        setHistoryIds(_historyIds)
-        
-        // const _oldResult = originResultLabel.find(data => data[0][0].item_id === dataLabelId)
-        // setOldResult(_oldResult)
-
-
-        /*
-        * Code to fix bug id and old result
-        */
-
-        // get old result with id
-        const oldId = _historyIds[_historyIds.length - 2]
-        
-        const oldResult = originResultLabel.find(data => data[0][0]?.item_id === oldId) // bug -> getting current result -> means entireResultLabel
-        const currentResult = entireResultLabel.find(data => data[0][0]?.item_id === oldId)
-        
-        let isSame = true
-        if (oldResult && currentResult){
-            // twoArrayDiff = _.isEqual(oldResult[0], currentResult[0]);
-            isSame = compareTwoArray(oldResult[0], currentResult[0]);
-        } 
-        console.log('isSame: ', isSame)
-        
-        if (isSame === false) {
-            // call api here
-            console.log('call api update and reset origin result label');
-            // setOriginResultLabel(entireResultLabel);
+            setAnnotations(data['annotation'])
         }
 
     }, [dataLabelId])
 
-
-    const formatFinnalResult = (entireResultLabel) => {
+    const formatFinnalResult = (entireDataLabel) => {
         const finalResult = []
-        const finnal = entireResultLabel.map(result => {
-            const list_anno_each_result = result[0]
-            list_anno_each_result.forEach(anno_ele => {
-                const anno = {
-                    "class_id": commonInfo[0]?.id,
-                    "class_name": anno_ele['class_name'],
-                    "tag": {
-                        "index": parseInt(anno_ele.content.tag.index),
-                        "length": parseInt(anno_ele.content.tag.length),
-                        // "length": parseInt(data.end_time * 1000),
-                        "text": anno_ele.content.tag.text || "",
-                    },
-                    "extras": {
-                        "hard_level": 1,
-                        "classify": {
-                            "audibility": anno_ele.content.extras?.classify?.audibility || 'good',
-                            "noise": anno_ele.content.extras?.classify?.noise || 'clean',
-                            "echo": anno_ele.content.extras?.classify?.echo || 'clean',
-                        },
-                        "review": anno_ele.content.extras?.review || "",
-                    },
-                    'data_cat_id': anno_ele['data_cat_id'],
-                    'dataset_id': anno_ele['dataset_id'],
-                    'seed': anno_ele['seed'],
-                    'item_id': anno_ele['item_id'],
+        
+        entireDataLabel.forEach(subData => {
+            const data = subData['data'][0]
+            const annotation = subData['annotation']
+            annotation.forEach(anno => {
+                anno = {
+                    ...anno,
+                    ...data,
                 }
                 finalResult.push(anno)
             })
-
         })
+
         return finalResult
     } 
 
-    function formatDataFromServer (dataServer) {
-        const formatAnnotation = (annotations) => {
-            return annotations.map(anno => ({
-                ...anno,
-                'content': {
-                    'tag': {
-                        'index': anno['content']['index'] * 1000,
-                        'length': anno['content']['length'] * 1000,
-                        'text': anno['content']['text']
-                    },
-                }
-            }))
-        }
-
-        const formatedData = dataServer.map(d => ({
-            "data": d['data'],
-            "annotation": formatAnnotation(d['annotation'])
-        }))
-        return formatedData
+    const formatAnnotationOnRecieveData = data => {
+        data = data['data']
     }
-
-
-    function formatResultData (data) {
-        const childResult = []
-
-        const anns = data['annotation']
-        if (anns.length > 0) {
-            childResult.push(anns.map(anno => ({
-                'class_id': anno['class_id'],
-                'class_name': anno['class_name'],
-                'content': {
-                    'tag': {...anno.content.tag},
-                    'extras': { 
-                        ...anno.content.extras,
-                        'review': anno.content.extras?.review || "",
-                    },
-                },
-                'data_cat_id': data['data'][0]['data_cat_id'],
-                'dataset_id': data['data'][0]['dataset_id'],
-                'seed': data['data'][0]['seed'],
-                'item_id': data['data'][0]['id'],    
-            })))
-        }
-        return childResult
-    }
-
-    function formatDataFromServer (dataServer) {
-        const formatAnnotation = (annotations) => {
-            return annotations.map(anno => ({
-                ...anno,
-                'content': {
-                    'tag': {
-                        'index': anno['content']['index'] * 1000,
-                        'length': anno['content']['length'] * 1000,
-                        'text': anno['content']['text']
-                    },
-                }
-            }))
-        }
-
-        const formatedData = dataServer.map(d => ({
-            "data": d['data'],
-            "annotation": formatAnnotation(d['annotation'])
-        }))
-        return formatedData
-    }
-
-
-    const compareTwoArray = (oldResult, currentResult) => {
-        console.log('oldResult: ', oldResult);
-        console.log('currentResult: ', currentResult);
-        
-        // get text (description)
-        const oldText = oldResult.map(old => old.content.tag.text)
-        const currentText = currentResult.map(current => current.content.tag.text)
-        // console.log('oldText: ', oldText)
-        // console.log('currentText: ', currentText)
-        
-        // get extras
-        const oldExtras = oldResult.map(old => old.extras)
-        const currentExtras = currentResult.map(current => current.extras)
-        // console.log('oldExtras: ', oldExtras);
-        // console.log('currentExtras: ', currentExtras);
-        // console.log('extrasSame: ', oldExtras === currentExtras)
-
-        return (oldResult.length === currentResult.length &&
-                oldText.toString() === currentText.toString())
-        // return oldResult.toString() == currentResult.toString()
-    }
-
 
     const onSubmitSample = (dataLabelId) => {
         console.log('submit id: ', dataLabelId);
+        const submitData = formatFinnalResult(entireDataLabel);
+        console.log('submit data: ', submitData)
+        
         // get result label with 
-        const current_result_label = entireResultLabel.find(data => data[0][0].item_id === dataLabelId)
-        // console.log('current: ', current_result_label)
-        const data = current_result_label[0]
+        const current_result_label = entireDataLabel.find(data => data.data[0].id === dataLabelId)
+        console.log('current: ', current_result_label)
+        const data = current_result_label['annotation']
         
         // format data
         const dataToUpdate = {
@@ -605,15 +415,8 @@ function ASRAnnotationReviewPage(props) {
         }
 
         console.log('dataToUpdate: ', dataToUpdate)
-        
         // call api
         const fetchAPI = async () => {
-            // await axios.post(`http://0.0.0.0:8211/update_data`, {'raw-data': dataToUpdate}, {
-            //     headers: {
-            //         'Content-Type': 'Application/json',
-            //     }
-            // })
-
             await axios.post(process.env.REACT_APP_API_UPDATE, dataToUpdate, {
                 headers: {
                     'Content-Type': 'Application/json',
@@ -625,7 +428,6 @@ function ASRAnnotationReviewPage(props) {
             .catch(error => {
                 console.log('error: ', error)
             })
-            
         }
         fetchAPI();
     }
@@ -649,10 +451,9 @@ function ASRAnnotationReviewPage(props) {
         annotations,
 
         dataLabelId,
-        entireResultLabel,
-        setEntireResultLabel,
+        entireDataLabel,
+        setEntireDataLabel,
 
-        setResultLabel,
         selectedRegionKey, 
         setSelectedRegionKey,
         ...props
@@ -683,6 +484,7 @@ function ASRAnnotationReviewPage(props) {
 
                         <div className="row row-cols-auto">
                             {dataLabelIds.map(id => {
+                                
                                 const current_data = entireDataLabel.find(d => d.data[0].id === id)
                                 const seed = current_data.data[0].seed
                                 
@@ -699,8 +501,8 @@ function ASRAnnotationReviewPage(props) {
                                             seed={seed}
 
                                             id={id}
-                                            entireResultLabel={entireResultLabel}
-                                            setEntireResultLabel={setEntireResultLabel}
+                                            entireDataLabel={entireDataLabel}
+                                            setEntireDataLabel={setEntireDataLabel}
                                             
                                             dataLabelId={dataLabelId}
 
