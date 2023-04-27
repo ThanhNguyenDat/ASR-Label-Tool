@@ -38,6 +38,8 @@ const colors = {
   
 
 function WaveformReview(props) {
+    // document.body.style.overflow = 'hidden';
+
     let { 
         commonInfo, 
         dataLabel, 
@@ -348,7 +350,7 @@ function WaveformReview(props) {
     }
 
     const updateResultLabel = (dataTable) => {
-        const indexResultLabel = entireResultLabel.findIndex(resultLabel => resultLabel[0][0].item_id === dataLabelId)
+        const indexResultLabel = entireResultLabel.findIndex(resultLabel => resultLabel[0][0]?.item_id === dataLabelId)
         const currentResult = entireResultLabel[indexResultLabel]
         
         // get review
@@ -435,7 +437,7 @@ function WaveformReview(props) {
     ]
 
     function handleDeleteRow(record) {
-        wavesurfer.regions.list[record.wave_id].remove();
+        wavesurfer.regions.list[record.wave_id]?.remove();
         const newDataTable = [...dataTable];
         const id = newDataTable.findIndex((item) => item.wave_id === record.wave_id);
         newDataTable.splice(id, 1);

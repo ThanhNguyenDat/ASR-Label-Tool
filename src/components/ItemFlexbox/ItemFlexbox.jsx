@@ -19,7 +19,7 @@ function ItemFlexbox(props) {
         points,
         ...other 
     } = props;
-
+    
     const colors = {
         "": '#f5f5f5',
         'Other': '#808080',
@@ -28,11 +28,12 @@ function ItemFlexbox(props) {
         'Remake': '#bfff00'
     }
     
+    // get current result
     
     const current_result_data_label = entireResultLabel.find(resultLabel => {
       if (resultLabel && resultLabel.length > 0)
         {
-          return resultLabel[0][0].item_id === id
+          return resultLabel[0][0]?.item_id === id
         }
     })
 
@@ -48,7 +49,8 @@ function ItemFlexbox(props) {
 
 
     function updateStatusReview(review) {
-      const indexResultLabel = entireResultLabel.findIndex(resultLabel => resultLabel[0][0].item_id === dataLabelId)
+      
+      const indexResultLabel = entireResultLabel.findIndex(resultLabel => resultLabel[0][0]?.item_id === dataLabelId)
       console.log('index: ', indexResultLabel)
       const currentResult = entireResultLabel[indexResultLabel]
       // console.log('current: ', currentResult)
@@ -133,6 +135,7 @@ function ItemFlexbox(props) {
                 },
               ]}}
               trigger={['contextMenu']}
+              
             >
               <Button 
                   key={id}
@@ -146,7 +149,7 @@ function ItemFlexbox(props) {
                   
                   onClick={(e) => {
                       props.onClick(e);
-                      
+                      console.log('entireResultLabel: ', entireResultLabel)
                       
                       console.log("click id: ", id)
                   }}

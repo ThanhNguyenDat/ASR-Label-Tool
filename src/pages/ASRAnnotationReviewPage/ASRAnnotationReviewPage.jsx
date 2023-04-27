@@ -170,7 +170,8 @@ const rv1_fake = {
 
 
 function ASRAnnotationReviewPage(props) {
-    document.body.style.overflow = 'hidden';
+    
+    
 
     const [dataLabelIds, setDataLabelIds] = React.useState([]);
     
@@ -392,13 +393,8 @@ function ASRAnnotationReviewPage(props) {
     // }, [])
 
     React.useEffect(() => {
-
-        console.log('entire result: ', entireResultLabel)
-        const finnalData = formatFinnalResult(entireResultLabel)
-        console.log('finnal: ', finnalData)
-
         const data = entireDataLabel.find(d => d.data[0].id == dataLabelId)
-        const result = entireResultLabel.find(r => r[0][0].item_id === dataLabelId)
+        const result = entireResultLabel.find(r => r[0][0]?.item_id === dataLabelId)
         console.log('result: ', result)
         if (data) {
             console.log('data["data"]: ', data)
@@ -451,8 +447,8 @@ function ASRAnnotationReviewPage(props) {
         // get old result with id
         const oldId = _historyIds[_historyIds.length - 2]
         
-        const oldResult = originResultLabel.find(data => data[0][0].item_id === oldId) // bug -> getting current result -> means entireResultLabel
-        const currentResult = entireResultLabel.find(data => data[0][0].item_id === oldId)
+        const oldResult = originResultLabel.find(data => data[0][0]?.item_id === oldId) // bug -> getting current result -> means entireResultLabel
+        const currentResult = entireResultLabel.find(data => data[0][0]?.item_id === oldId)
         
         let isSame = true
         if (oldResult && currentResult){
@@ -637,8 +633,7 @@ function ASRAnnotationReviewPage(props) {
 
     const addActiveClass = (e) => {
         const clicked = e.target.id
-        console.log('e.target: ', e)
-        console.log('idClick: ', clicked)
+        
         if (idActive === clicked) {
             // setActive('');
         } else {
@@ -664,9 +659,8 @@ function ASRAnnotationReviewPage(props) {
     }
 
     return (
-        <div className={cx("ASRAnnotaionPage")}>
-            <div className="row" style={{height: "100vh"}} >
-                
+        <div className={cx("ASRAnnotaionPage")} style={{ overflowX: 'hidden', height: "100vh"}}>
+            <div className="row" >
                 <div className="col-10">
                     {dataLabelId && (
                     <>
@@ -696,11 +690,9 @@ function ASRAnnotationReviewPage(props) {
                                     <div
                                         id={id}
                                         key={id}
-                                        className={`col ${idActive.toString()===id.toString() ? 'active' : ''}`} 
+                                        className={`col ${dataLabelId.toString()===id.toString() ? 'active' : ''}`} 
                                         style={{paddingBottom: 10}} 
-                                        // onClick={e=>{
-                                        //     addActiveClass(e)
-                                        // }}
+                                        
                                     >
                                         <ItemFlexbox
                                             key={id}
