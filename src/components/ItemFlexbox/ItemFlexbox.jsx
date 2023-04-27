@@ -17,6 +17,7 @@ function ItemFlexbox(props) {
 
         clicked,
         points,
+        currentDataInfo,
         ...other 
     } = props;
     
@@ -29,13 +30,14 @@ function ItemFlexbox(props) {
     }
     
     // get current result
-    
+    // const indexDataLabel = currentDataInfo.index
+    // const currentData = currentDataInfo.data
     const indexDataLabel = entireDataLabel.findIndex(sample => sample.data[0].id === dataLabelId)
     const currentData = entireDataLabel[indexDataLabel]
-
+    console.log('index: ', indexDataLabel)
     let review = ""
     if (currentData && currentData.annotation.length > 0) {
-      review = currentData.annotation[0].content?.extras?.review
+      // review = currentData.annotation[0].content?.extras?.review
     }
     let color = colors[review]
     // console.log('color: ', color)

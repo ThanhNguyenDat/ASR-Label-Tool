@@ -204,7 +204,7 @@ function ASRAnnotationReviewPage(props) {
     
     const [idActive, setIdActive] = React.useState('');
     
-    const [infoCurrentData, setInfoCurrentData] = React.useState({index: null, data: {annotation: [], data: []}});
+    const [currentDataInfo, setCurrentDataInfo] = React.useState({index: null, data: {annotation: [], data: []}});
     
     // Full flow when anntations change
     useEffect(() => {
@@ -323,7 +323,7 @@ function ASRAnnotationReviewPage(props) {
                 console.log('onReceiveRequestResetCurrent ', data)
             });
         }
-    }, [annotations])
+    }, [])
     
     /* 
         Command here
@@ -366,13 +366,14 @@ function ASRAnnotationReviewPage(props) {
 
     React.useEffect(() => {
         // current data
-        console.log('origin data: ', entireDataLabel)
-        const data = entireDataLabel.find(d => d.data[0].id == dataLabelId)
-        console.log('data: ', data)
-        
+        const index = entireDataLabel.findIndex(d => d.data[0].id == dataLabelId)
+        const data = entireDataLabel[index]
+
         if (data) {
             setDataLabel(data['data']);
             setAnnotations(data['annotation'])
+
+            setCurrentDataInfo({index, data})
         }
 
     }, [dataLabelId])
@@ -503,7 +504,7 @@ function ASRAnnotationReviewPage(props) {
                                             id={id}
                                             entireDataLabel={entireDataLabel}
                                             setEntireDataLabel={setEntireDataLabel}
-                                            
+                                            currentDataInfo={currentDataInfo}
                                             dataLabelId={dataLabelId}
 
                                             onClick={(e)=>{
