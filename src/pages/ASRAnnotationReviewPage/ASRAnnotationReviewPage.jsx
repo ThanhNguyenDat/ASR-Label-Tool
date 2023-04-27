@@ -230,35 +230,10 @@ function ASRAnnotationReviewPage(props) {
                     const ids = data.map(d => {
                         return  d.data[0].id
                     })
-                    
+     
                     setDataLabelIds(ids);
                     setEntireDataLabel(data);
-        
-                    // console.log('data: ', data);
-                    // const _result = data.map(d => formatResultData(d));
-                    
-        
-                    setDataLabelId(ids[0])
-
-
-
-                    // update data - annotations
-                    // setDataLabel(data[0]['data'])
-                    // const anns = data[0]['annotation']
-                    // if (anns.length > 0) {
-                    //     const formatted_anns = anns.map(ele => {
-                    //         return {
-                    //             ...ele,
-                    //             content: {
-                    //                 ...ele['content'],
-                    //                 index: ele['content']['index']/1000,
-                    //                 length: ele['content']['length']/1000
-                    //             }
-                    //         }
-                    //     })
-                    //     setAnnotations(formatted_anns)
-                    // } 
-
+                    setDataLabelId(ids[0]);
                 }
 
             })
