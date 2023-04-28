@@ -216,9 +216,11 @@ function ASRAnnotationReviewPage(props) {
                 // window.AL.pushResultFail();
 
                 // format before pushResult, press Next
-                const finnalResult = formatFinnalResult(entireResultLabel)
+                const finnalResult = formatFinnalResult(entireDataLabel)
+                const submitData = formatFinnalResult(entireDataLabel);
                 console.log("AL.pushResult finnalResult ", finnalResult)
-                window.AL.pushResult({ 'postags': finnalResult, 'fetch_number': 5 });
+                console.log("AL.pushResult submitData ", submitData)
+                window.AL.pushResult({ 'postags': submitData, 'fetch_number': 5 });
                 // window.AL.pushResult({'postags': dataLabels['annotations'], 'fetch_number': 1});
 
             })
@@ -479,7 +481,7 @@ function ASRAnnotationReviewPage(props) {
                     {dataLabelId && (
                     <>
                         <WaveformReview {...waveform_props}/>
-                        <Button onClick={()=>{console.log(entireDataLabel)}}>Show Entire Data Label</Button>
+                        <Button onClick={()=>{console.log(formatFinnalResult(entireDataLabel))}}>Show Entire Data Label</Button>
                     </>
                     )}
                     <div style={{height: '100%'}} onClick={()=>{setSelectedRegionKey(null)}}></div>

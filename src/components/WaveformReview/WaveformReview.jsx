@@ -350,7 +350,9 @@ function WaveformReview(props) {
             "annotation": formatedAnnotations,
             "data": dataLabel,
         };
-        entireDataLabel[_index] = updateResult
+        const _entireDataLabel = JSON.parse(JSON.stringify(entireDataLabel))
+        _entireDataLabel[_index] = updateResult
+        setEntireDataLabel(_entireDataLabel)
     }
 
     function handleDeleteRow(record) {
