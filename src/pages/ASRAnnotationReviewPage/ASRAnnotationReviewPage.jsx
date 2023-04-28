@@ -502,10 +502,10 @@ function ASRAnnotationReviewPage(props) {
                     {dataLabelId && (
                     <>
                         <WaveformReview {...waveform_props}/>
-                        <Button onClick={()=>{console.log(formatFinnalResult(entireDataLabel))}}>Show Entire Data Label</Button>
+                        {/* <Button onClick={()=>{console.log(formatFinnalResult(entireDataLabel))}}>Show Entire Data Label</Button> */}
                     </>
                     )}
-                    <div style={{height: '100%'}} onClick={()=>{setSelectedRegionKey(null)}}></div>
+                    
                 </div>
                 {dataLabelIds.length > 0 && 
                 <div className="col-2" onClick={()=>{setSelectedRegionKey(null)}}>
