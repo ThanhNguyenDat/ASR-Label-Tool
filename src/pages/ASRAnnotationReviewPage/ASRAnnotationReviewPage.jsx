@@ -302,7 +302,7 @@ function ASRAnnotationReviewPage(props) {
                 console.log('onReceiveRequestResetCurrent ', data)
             });
         }
-    }, [])
+    }, [entireDataLabel, annotations])
     
     /* 
         Command here
@@ -364,16 +364,37 @@ function ASRAnnotationReviewPage(props) {
         
         entireDataLabel.forEach(subData => {
             const data = subData['data'][0]
+            console.log('formatFinnalResult data: ', data)
             const annotation = subData['annotation']
+            console.log("formatFinnalResult anno: ", annotation)
             annotation.forEach(anno => {
-                anno = {
-                    ...anno,
+                const _anno = {
+                    
+                    // ...anno,
                     ...data,
+                    "tag": {
+                        "index": parseInt(anno.content.tag.index),
+                        "length": parseInt(anno.content.tag.length),
+                        // "length": parseInt(data.end_time * 1000),
+                        "text": anno.content.tag.text || "",
+                    },
+                    "extras": {
+                        "hard_level": 1,
+                        "classify": {
+                            "audibility": anno.content.extras?.classify?.audibility || 'good',
+                            "noise": anno.content.extras?.classify?.noise || 'clean',
+                            "echo": anno.content.extras?.classify?.echo || 'clean',
+                        },
+                        "review": anno.content.extras?.review || "",
+                    },
+                    "item_id": data['id'],
+                    "class_id": commonInfo[0]?.id, 
+                    "class_name": anno.class_name
                 }
-                finalResult.push(anno)
+                finalResult.push(_anno)
             })
         })
-
+        console.log('format: ', finalResult)
         return finalResult
     } 
 
