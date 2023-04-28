@@ -216,7 +216,7 @@ function ASRAnnotationReviewPage(props) {
                 // window.AL.pushResultFail();
 
                 // format before pushResult, press Next
-                // const finnalResult = formatFinnalResult(entireResultLabel)
+                const finnalResult = formatFinnalResult(entireResultLabel)
                 console.log("AL.pushResult finnalResult ", finnalResult)
                 window.AL.pushResult({ 'postags': finnalResult, 'fetch_number': 5 });
                 // window.AL.pushResult({'postags': dataLabels['annotations'], 'fetch_number': 1});
@@ -318,6 +318,8 @@ function ASRAnnotationReviewPage(props) {
                 setEntireDataLabel(data);
                 setDataLabelId(ids[0]);
 
+                const formatInput = formatAnnotationOnRecieveData(data)
+                console.log('formatAnnotationOnRecieveData: ', formatInput)
             })
             .catch(error => {
                 const data = default_data;
@@ -372,7 +374,40 @@ function ASRAnnotationReviewPage(props) {
     } 
 
     const formatAnnotationOnRecieveData = data => {
-        data = data['data']
+        return data.map(d => {
+            const _data = d['data']
+            const _annotation = d['annotation']
+            
+
+            _annotation.map(anno => {
+                const content = anno.content
+                const tag = content['tag']
+                const extras = content['extras']
+    
+                return {
+                    ...anno,
+                    'content': {
+                        'tag': {
+                            ...tag,
+                        },
+                        'extras': {
+                            'hard_level': extras.hard_level || 1,
+                            'classify': {
+                                'audibility':  'good',
+                                'noise': extras.classify?.noise || 'clean',
+                                'echo': extras.classify?.echo || 'clean',
+                            },
+                            'review': extras.review || "",
+                        },
+                    }
+            }})
+    
+            return {
+                annotation: _annotation,
+                data: _data
+            }
+
+        })
     }
 
     const onSubmitSample = (dataLabelId) => {
@@ -442,6 +477,7 @@ function ASRAnnotationReviewPage(props) {
                     {dataLabelId && (
                     <>
                         <WaveformReview {...waveform_props}/>
+                        <Button onClick={()=>{console.log(entireDataLabel)}}>Show Entire Data Label</Button>
                     </>
                     )}
                     <div style={{height: '100%'}} onClick={()=>{setSelectedRegionKey(null)}}></div>
@@ -515,12 +551,12 @@ function ASRAnnotationReviewPage(props) {
                             })}
                         </div>
                     </div>
-                    <div>
+                    {dataLabelIds && (<div>
                         <Button style={{left: 0}} onClick={()=>{
                             onSubmitSample(dataLabelId)
                         }
                         }>Submit</Button>
-                    </div>
+                    </div>)}
                 </div>
                 
                          

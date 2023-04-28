@@ -257,7 +257,9 @@ function WaveformReview(props) {
 
                 audibility: region.data.audibility || "good",
                 noise: region.data.noise || "clean",
-                echo: region.data.echo || "clean"
+                echo: region.data.echo || "clean",
+
+                review: region.data.review || "",
             }
         })
         setDataTable(newDataTable);
@@ -278,6 +280,8 @@ function WaveformReview(props) {
                 region.data.audibility = row.audibility;
                 region.data.noise = row.noise;
                 region.data.echo = row.echo;
+
+                region.data.review = row.review;
             })        
         }
     }
