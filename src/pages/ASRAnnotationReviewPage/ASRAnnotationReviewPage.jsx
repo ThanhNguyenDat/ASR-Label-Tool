@@ -484,9 +484,10 @@ function ASRAnnotationReviewPage(props) {
                     )}
                     <div style={{height: '100%'}} onClick={()=>{setSelectedRegionKey(null)}}></div>
                 </div>
+                {dataLabelIds.length > 0 && 
                 <div className="col-2" onClick={()=>{setSelectedRegionKey(null)}}>
                     <div 
-                        className="container"
+                    className="container"
                         style={{
                             position: 'relative',
                             height: '30vh', 
@@ -495,7 +496,6 @@ function ASRAnnotationReviewPage(props) {
                             paddingTop: 20,
                         }}
                     >
-
                         <div className="row row-cols-auto">
                             {dataLabelIds.map(id => {
                                 
@@ -504,16 +504,16 @@ function ASRAnnotationReviewPage(props) {
                                 
                                 return (
                                     <div
-                                        id={id}
-                                        key={id}
-                                        className={`col ${dataLabelId.toString()===id.toString() ? 'active' : ''}`} 
-                                        style={{paddingBottom: 10}} 
+                                    id={id}
+                                    key={id}
+                                    className={`col ${dataLabelId.toString()===id.toString() ? 'active' : ''}`} 
+                                    style={{paddingBottom: 10}} 
                                         
                                     >
                                         <ItemFlexbox
                                             key={id}
                                             seed={seed}
-
+                                            
                                             id={id}
                                             entireDataLabel={entireDataLabel}
                                             setEntireDataLabel={setEntireDataLabel}
@@ -538,31 +538,28 @@ function ASRAnnotationReviewPage(props) {
                                                 
                                                 setClicked(true);
                                                 setDataLabelId(id);
-
+                                                
                                                 addActiveClass(e)
                                             }}
 
                                             clicked={clicked}
                                             points={points}
                                             
-
-                                        />
+                                            
+                                            />
                                         
                                     </div>
                                 )
                             })}
                         </div>
                     </div>
-                    {dataLabelIds && (<div>
+                    <div>
                         <Button style={{left: 0}} onClick={()=>{
                             onSubmitSample(dataLabelId)
                         }
-                        }>Submit</Button>
-                    </div>)}
-                </div>
-                
-                         
-                
+                    }>Submit</Button>
+                    </div>
+                </div>}
             </div>
             
         </div>
