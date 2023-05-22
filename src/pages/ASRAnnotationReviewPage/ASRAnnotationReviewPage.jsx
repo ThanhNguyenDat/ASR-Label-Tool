@@ -206,7 +206,9 @@ function ASRAnnotationReviewPage(props) {
     
     const [currentDataInfo, setCurrentDataInfo] = React.useState({index: null, data: {annotation: [], data: []}});
     
+    // command here 
     // Full flow when anntations change
+
     useEffect(() => {
         if (window.AL) {
             window.AL.onReceiveRequestResult(function (data) {

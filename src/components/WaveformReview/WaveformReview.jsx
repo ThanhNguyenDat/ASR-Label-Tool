@@ -5,21 +5,16 @@ import WaveSurfer from "wavesurfer.js";
 
 import RegionsPlugin from "wavesurfer.js/dist/plugin/wavesurfer.regions.min.js";
 import TimelinePlugin from "wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js";
-// import TimelinePlugin from "wavesurfer.js/src/plugin/timeline";
-import MinimapPlugin from "wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js";
 import { PlayCircleOutlined, SettingOutlined } from "@ant-design/icons";
 
 
-import { useHotkeys } from "react-hotkeys-hook";
-
-
-import {iterifyArr} from '@utils/common/customArray'
 import { randomColor } from "@utils/randomColor";
 
 import TableWaveform from "../../containers/TableWaveform";
 
 import styles from "./WaveformReview.scss";
 import { Button, Menu, Modal, Popover } from "antd";
+import axios from "axios";
 
 const cx = classNames.bind(styles);
 
@@ -357,14 +352,53 @@ function WaveformReview(props) {
 
     function handleDeleteRow(record) {
         wavesurfer.regions.list[record.wave_id]?.remove();
-        
         const newDataTable = [...dataTable];
         const id = newDataTable.findIndex((item) => item.wave_id === record.wave_id);
         newDataTable.splice(id, 1);
         
-        setDataTable(newDataTable)
-        updateResultLabel(newDataTable)
+        setDataTable(newDataTable);
+        updateResultLabel(newDataTable);
         setSelectedRegionKey(null);
+
+    }
+
+    function handleShowPredictRow(record) {
+        const region = wavesurfer.regions.list[record.wave_id];
+
+        const currentRowDataTableIndex = dataTable.findIndex(data => data.id === record.id);
+        
+        console.log(dataTable[currentRowDataTableIndex])
+        const request_data = {
+            'seed': dataLabel[0]['seed'],
+            'item_id': dataLabel[0]['id'],
+            'audio': "WAV_BYTE",
+        }
+
+        const fetchAPI = async () => {
+            
+            await axios.post(process.env.REACT_APP_API_SHOW_PREDICT, request_data, 
+                {
+                    headers: {
+                        'Content-Type': 'Application/json',
+                    }
+                }
+            ) 
+            .then(response => {
+                const response_data = response.data.data;
+                
+
+                const newDataTable = [...dataTable];
+                newDataTable[currentRowDataTableIndex].predict_kaldi = response_data.predict_kaldi
+
+                newDataTable[currentRowDataTableIndex].predict_wenet = response_data.predict_wenet
+
+                setDataTable(newDataTable)
+                updateResultLabel(newDataTable)
+            })
+            .catch(error => {console.log(error)})            
+        }
+        fetchAPI();
+        // call api show predict here
     }
     
     // updateDataAnnotations(dataTable);
@@ -521,6 +555,10 @@ function WaveformReview(props) {
                         focusCell={focusCell}
 
                         updateWavesurferByDataTable={updateWavesurferByDataTable}
+
+
+                        handleDeleteRow={handleDeleteRow}
+                        handleShowPredictRow={handleShowPredictRow}
                     />    
             </div>
         </div >
