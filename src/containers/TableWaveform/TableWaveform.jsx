@@ -7,8 +7,33 @@ import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 
 import { propTypes } from 'react-bootstrap/esm/Image';
 import './styles.scss';
+import DiffViewer, { DiffMethod } from 'react-diff-viewer';
 
 const cx = classNames.bind();
+
+
+const PredictDiffViewer = ({predict_kaldi, predict_wenet}) => {
+    return (
+        <DiffViewer 
+            oldValue={predict_kaldi}
+            newValue={predict_wenet}
+            leftTitle="Predict Kaldi"
+            rightTitle="Predict Wenet"
+
+            splitView={true}
+            compareMethod={DiffMethod.WORDS}
+            styles={{
+                
+                variables: {
+                    light: {
+                        codeFoldGutterBackground: "#6F767E",
+                        codeFoldBackground: "#E2E4E5"
+                        }
+                }
+            }}
+        />
+    )
+}
 
 function TableWaveform ({columns, dataTable, ...rest}) {   
     const [form] = Form.useForm();
@@ -49,7 +74,7 @@ function TableWaveform ({columns, dataTable, ...rest}) {
     const regionOptions = [
         {value: "other", color: "black"},
         {value: "bắc", color: "red"},
-        {value: "trung", color: "yello"},
+        {value: "trung", color: "yellow"},
         {value: "nam", color: "blue"}
     ]
 
@@ -59,6 +84,7 @@ function TableWaveform ({columns, dataTable, ...rest}) {
         return (typeof target === 'string') ? 
         arr.includes(target) : target.every(v=> arr.includes(v))
     };
+    
 
 
     const handleEditInput = (colDataIndex, selectedRegionKey) => ({
@@ -236,34 +262,10 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                                         flexDirection: "column"
                                     }}
                                     >
-                                        <div className='predict-1' style={{width: "100%"}}>
-                                            <div className='title'
-                                                
-                                            >
-                                                Predict Kaldi: 
-                                            </div>
-                                            <div className='result'>
-                                                {record.predict_kaldi}
-
-                                            </div>
-                                        </div>
-                                        <div            
-                                            className='predict-2'
-                                            style={{
-                                                display: 'flex'
-                                            }}
-                                        >
-                                            <div className='title'
-                                            
-                                            >
-                                            Predict Wenet: 
-
-                                            </div>
-                                            <div className='result'>
-                                                {record.predict_wenet}
-
-                                            </div>
-                                        </div>
+                                        <PredictDiffViewer 
+                                            predict_kaldi={record.predict_kaldi}
+                                            predict_wenet={record.predict_wenet}
+                                        />
                                     </div>
                                     <div 
                                         style={{
@@ -306,12 +308,10 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                                         flexDirection: "column"
                                     }}
                                     >
-                                        <div className='predict-1' style={{width: "100%"}}>
-                                        Predict Kaldi: {record.predict_kaldi}
-                                        </div>
-                                        <div className='predict-2'>
-                                            Predict Wenet: {record.predict_wenet}
-                                        </div>
+                                        <PredictDiffViewer 
+                                            predict_kaldi={record.predict_kaldi}
+                                            predict_wenet={record.predict_wenet}
+                                        />
                                     </div>
                                     <div 
                                         style={{
