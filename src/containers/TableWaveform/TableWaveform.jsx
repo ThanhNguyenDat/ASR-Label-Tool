@@ -3,7 +3,10 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames/bind';
 
 import { Form, Input, Table, Tag } from "antd";
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+
 import { propTypes } from 'react-bootstrap/esm/Image';
+import './styles.scss';
 
 const cx = classNames.bind();
 
@@ -43,6 +46,12 @@ function TableWaveform ({columns, dataTable, ...rest}) {
         {value:"light", color: "green"},
         {value:"clean", color: "blue"}
     ]
+    const regionOptions = [
+        {value: "other", color: "black"},
+        {value: "bắc", color: "red"},
+        {value: "trung", color: "yello"},
+        {value: "nam", color: "blue"}
+    ]
 
     const roundNumber = (str) => {return Math.round(parseFloat(str) * 1000) / 1000}
 
@@ -52,12 +61,7 @@ function TableWaveform ({columns, dataTable, ...rest}) {
     };
 
 
-    const callApiPredict = () => {
-
-    }
-
     const handleEditInput = (colDataIndex, selectedRegionKey) => ({
-        
         onCell: (record, rowIndex) => {
             return {
                 onClick: event => {
@@ -126,7 +130,7 @@ function TableWaveform ({columns, dataTable, ...rest}) {
             }
         },
         render: (text, record, index) => {
-            const color = options.find(option => option.value === text).color;
+            const color = options.find(option => option.value === text)?.color;
 
             if (record.key === selectedRegionKey) {
                 return (
@@ -154,178 +158,14 @@ function TableWaveform ({columns, dataTable, ...rest}) {
         }
     })
 
-    // old code
-    // const new_columns = columns.map((col) => {
-        
-    //     if (col.editInput) {
-    //         return {
-    //             ...col,
-    //             onCell: (record, rowIndex) => {
-    //                 return {
-    //                     onClick: event => {
-    //                         console.log("click rowIndex: ", rowIndex)
-    //                         console.log("click record: ", record)
-    //                         setFocusCell({ row: record.key, col: col.key });
-    //                     },
-    //                     onMouseEnter: event => {
-    //                         setFocusCell({ row: record.key, col: col.key });
-    //                     },
-    //                     onChange: event => {
-    //                         const roundNumber = (str) => {return Math.round(parseFloat(str) * 1000) / 1000}
-
-    //                         const formData1 = form.getFieldValue();
-                            
-    //                         // parse to Float
-    //                         const formData = {
-    //                             ...formData1,
-    //                             start_time: roundNumber(formData1.start_time),
-    //                             end_time: roundNumber(formData1.end_time)
-    //                         }
-    //                         console.log("Data update: ", record, rowIndex, col.key, formData[col.key]) // rowIndex = 0 
-    //                         updateDataTablePerCell(record.key, col.key, formData[col.key]);
-    //                     }
-    //                 }
-    //             },
-
-    //             render: (text, record, index) => {
-    //                 if (record.key === selectedRegionKey) {
-    //                     const shouldFocus = focusCell.row === index && focusCell.col === col.key;
-                        
-    //                     return (
-    //                         <Form.Item
-    //                             name={col.key}
-    //                             rules={[
-    //                                 {
-    //                                     required: true,
-    //                                     message: `Enter your ${col.key}`
-    //                                 }
-    //                             ]}
-    //                         >
-    //                             <Input.TextArea 
-    //                                 data-key={col.key} 
-    //                                 rows={3}
-    //                                 autoFocus={shouldFocus} 
-    //                                 onFocus={(event)=>{
-    //                                     event.target.selectionStart = event.target.value.length;
-    //                                 }} 
-    //                             />
-    //                         </Form.Item>
-    //                     )  
-                        
-    //                 } else {
-    //                     if (col.tagColor)
-    //                     {
-    //                         return <Tag color={col.tagColor}>{text}</Tag>
-    //                     }
-    //                     return <p>{text}</p>
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     if (col.editSelectOption) {
-    //         return {
-    //             ...col,
-    //             onCell: (record, rowIndex) => {
-    //                 return {
-    //                     onClick: event => {
-    //                         console.log("Select onCell onClick: ", record, rowIndex)
-    //                         setFocusCell({ row: record.key, col: col.key });
-    //                     },
-    //                     onChange: event => {
-    //                         const formData = form.getFieldValue();
-    //                         console.log("Select onCell onChange: ", record, rowIndex, formData)
-    //                         updateDataTablePerCell(record.key, col.key, formData[col.key]);
-    //                     }
-    //                 }
-    //             },
-    //             render: (text, record, index) => {
-    //                 const selectOptions = col.editSelectOption;
-    //                 const color = selectOptions.find(option => option.value === text).color;
-
-    //                 if (record.key === selectedRegionKey) {
-                        
-    //                     return (    
-    //                         <Form.Item
-    //                             name={col.key}
-    //                             rules={[
-    //                                 {
-    //                                     required: true,
-    //                                     message: `Enter your ${col.key}`
-    //                                 }
-    //                             ]}
-    //                         >
-    //                             <select 
-    //                                 className={cx('form-select')}
-    //                                 style={{color: color}}
-                                    
-    //                             >
-    //                                 {selectOptions.map(option => {
-    //                                     return (
-    //                                         <option key={option.value} value={option.value} style={{color: option.color}}>{option.value}</option>
-    //                                     )
-    //                                 })}
-    //                             </select>
-    //                         </Form.Item>
-    //                     )
-    //                 } else {
-    //                     return <Tag color={color}>{text}</Tag>
-    //                 }
-    //                 }
-    //             }
-    //     }
-        
-    //     if (col.buttonTypes) {
-    //         return {
-    //             ...col,
-    //             onCell: record => {
-    //                 return {
-    //                     onClick: event => {
-    //                         event.stopPropagation(); // this will avoid onRow being called
-    //                     }
-    //                 }
-    //             },
-    //             render: (text, record, index) => {
-                    
-                    
-    //                 const buttonTypes = col.buttonTypes.map(button => {
-    //                     return button.type
-    //                 })
-                    
-    //                 // only delete button
-    //                 if (checkEvery(buttonTypes, 'delete')) {
-    //                     return (
-    //                         <button
-    //                             className={cx("btn btn-danger")}
-    //                             onClick={() => {
-    //                                 // get handleFunction
-    //                                 const handleFunction = col.buttonTypes.find(button => button.type === 'delete').handleFunction
-    //                                 handleFunction(record);
-
-    //                             }}
-    //                         >Delete</button>
-    //                     )
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     if (col.tagColor) {
-    //         return {
-    //             ...col,
-    //             render: (text, record, index) => {
-    //                 return <Tag color={col.tagColor}>{text}</Tag>
-    //             }
-    //         }
-    //     }
-
-    //     return col
-    // })
 
     return (
-        <Form form={form} name="table-complex-form">            
+        <Form form={form} name="table-complex-form"
+        className='form-control-table'
+        >            
             <div>
             <Table 
+                className='table-label-asr'
                 rowKey="id" 
                 pagination={{ pageSize: 5 }}
 
@@ -370,20 +210,19 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                     title="Start Time" 
                     dataIndex="start_time" 
                     key="start_time" 
-                    width="5%"
+                    width="1%"
                 />
                 <Table.Column 
-                title="End Time" 
-                dataIndex="end_time" 
-                key="end_time" 
-                width="5%" 
+                    title="End Time" 
+                    dataIndex="end_time" 
+                    key="end_time" 
+                    width="1%" 
                 />
-
                 <Table.Column 
                     title="Description" 
                     key="description"
                     dataIndex="description"
-                    width="40%" 
+                    // width="40%" 
                     {...handleEditInput("description", selectedRegionKey)}
                     render={(text, record, index) => {
                         if (record.key === selectedRegionKey) {
@@ -398,10 +237,32 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                                     }}
                                     >
                                         <div className='predict-1' style={{width: "100%"}}>
-                                            Predict Kaldi: {record.predict_kaldi}
+                                            <div className='title'
+                                                
+                                            >
+                                                Predict Kaldi: 
+                                            </div>
+                                            <div className='result'>
+                                                {record.predict_kaldi}
+
+                                            </div>
                                         </div>
-                                        <div className='predict-2'>
-                                            Predict Wenet: {record.predict_wenet}
+                                        <div            
+                                            className='predict-2'
+                                            style={{
+                                                display: 'flex'
+                                            }}
+                                        >
+                                            <div className='title'
+                                            
+                                            >
+                                            Predict Wenet: 
+
+                                            </div>
+                                            <div className='result'>
+                                                {record.predict_wenet}
+
+                                            </div>
                                         </div>
                                     </div>
                                     <div 
@@ -524,18 +385,19 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                 />
 
                 <Table.Column 
-                    title="Echo" 
-                    key="echo"
-                    dataIndex="echo" 
+                    title="Region" 
+                    key="region"
+                    dataIndex="region" 
                     width="5%"
-                    {...handleEditSelect("echo", echoOptions, selectedRegionKey)}
+                    {...handleEditSelect("region", regionOptions, selectedRegionKey)}
                 />
 
                 <Table.Column
+                    className='operations-column'
                     title="Operations"
                     dataIndex="operations"
                     key="operations"
-                    width="10%"
+                    width="1%"
                     onCell={(record) => {
                         return {
                             onClick: event => {
@@ -545,26 +407,25 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                     }}
                     render={(text, record, index) => {
                         return (
-                            <div style={{
-                                display: 'flex',
-                                columnGap: '5px'
-                            }}>
-                                <button 
-                                    className='btn btn-danger'
-                                    onClick={() => {
-                                        handleDeleteRow(record);
-                                    }}
-                                >
-                                    Delete
-                                </button>
-                                <button
+                            <div 
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    rowGap: "2px",
+                                }}
+                            >
+                                <EditOutlined 
                                     className='btn btn-primary'
                                     onClick={() => {
                                         handleShowPredictRow(record);
+                                    }}    
+                                />
+                                <DeleteOutlined 
+                                    className='btn btn-danger' 
+                                    onClick={()=> {
+                                        handleDeleteRow(record);
                                     }}
-                                >
-                                    Show Predict
-                                </button>
+                                />
                             </div>
                         )
                     }}

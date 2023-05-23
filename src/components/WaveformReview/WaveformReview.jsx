@@ -14,6 +14,7 @@ import TableWaveform from "../../containers/TableWaveform";
 
 import styles from "./WaveformReview.scss";
 import { Button, Menu, Modal, Popover } from "antd";
+
 import axios from "axios";
 
 const cx = classNames.bind(styles);
@@ -77,6 +78,7 @@ function WaveformReview(props) {
             normalize: true,
             minimap: true,
             backend: 'WebAudio',
+            
             plugins: [
                 TimelinePlugin.create({
                     container: timelineRef.current,
@@ -108,7 +110,7 @@ function WaveformReview(props) {
                 
             ],
         });
-
+        
         if (audioUrl) {
             // setTableLoading(true);
 
@@ -127,6 +129,7 @@ function WaveformReview(props) {
                 setWavesurfer(wavesurferInstance);
                 // setTableLoading(false);
             });
+            
             
         }
         // setTableLoading(false);
@@ -224,6 +227,8 @@ function WaveformReview(props) {
             region.data.audibility = annotation.content.extras?.classify?.audibility || "good";
             region.data.noise = annotation.content.extras?.classify?.noise || "clean";
             region.data.echo = annotation.content.extras?.classify?.echo || "clean";
+            region.data.region = annotation.content.extras?.classify?.region || "other";
+
             region.data.review = annotation.content.extras?.review || "";
             wavesurfer.addRegion(region);
         });
@@ -241,20 +246,19 @@ function WaveformReview(props) {
             return {
                 ...region.data,
 
-                key: index,        
-                id: index,
-                wave_id: region.id,
-                
-                start_time: Math.round(region.start * 1000) / 1000,
-                end_time: Math.round(region.end * 1000) / 1000,
-                description: region.data.note,
-                color: region.color,
+                "key": index,        
+                "id": index,
+                "wave_id": region.id,
+                "start_time": Math.round(region.start * 1000) / 1000,
+                "end_time": Math.round(region.end * 1000) / 1000,
+                "description": region.data.note,
+                "color": region.color,
+                "audibility": region.data.audibility || "good",
+                "noise": region.data.noise || "clean",
+                "echo": region.data.echo || "clean",
+                "region": region.data.region || "other",
 
-                audibility: region.data.audibility || "good",
-                noise: region.data.noise || "clean",
-                echo: region.data.echo || "clean",
-
-                review: region.data.review || "",
+                "review": region.data.review || "",
             }
         })
         setDataTable(newDataTable);
@@ -275,6 +279,7 @@ function WaveformReview(props) {
                 region.data.audibility = row.audibility;
                 region.data.noise = row.noise;
                 region.data.echo = row.echo;
+                region.data.region = row.region;
 
                 region.data.review = row.review;
             })        
@@ -325,6 +330,7 @@ function WaveformReview(props) {
                         "audibility": data.audibility,
                         "noise": data.noise,
                         "echo": data.echo,
+                        "region": data.region,
                     },
                     "review": data.review,
                 },
@@ -362,20 +368,138 @@ function WaveformReview(props) {
 
     }
 
-    function handleShowPredictRow(record) {
-        const region = wavesurfer.regions.list[record.wave_id];
 
+
+    // Returns Uint8Array of WAV bytes
+    // function getWavBytes(buffer, options) {
+    //     const type = options.isFloat ? Float32Array : Uint16Array
+    //     const numFrames = buffer.byteLength / type.BYTES_PER_ELEMENT
+    
+    //     const headerBytes = getWavHeader(Object.assign({}, options, { numFrames }))
+    //     const wavBytes = new Uint8Array(headerBytes.length + buffer.byteLength);
+    
+    //     // prepend header, then add pcmBytes
+    //     wavBytes.set(headerBytes, 0)
+    //     wavBytes.set(new Uint8Array(buffer), headerBytes.length)
+    
+    //     return wavBytes
+    // }
+
+    function bufferToWave(abuffer, offset, len) {
+        var numOfChan = abuffer.numberOfChannels,
+          length = len * numOfChan * 2 + 44,
+          buffer = new ArrayBuffer(length),
+          view = new DataView(buffer),
+          channels = [], i, sample,
+          pos = 0;
+    
+        // write WAVE header
+        setUint32(0x46464952);                         // "RIFF"
+        setUint32(length - 8);                         // file length - 8
+        setUint32(0x45564157);                         // "WAVE"
+    
+        setUint32(0x20746d66);                         // "fmt " chunk
+        setUint32(16);                                 // length = 16
+        setUint16(1);                                  // PCM (uncompressed)
+        setUint16(numOfChan);
+        setUint32(abuffer.sampleRate);
+        setUint32(abuffer.sampleRate * 2 * numOfChan); // avg. bytes/sec
+        setUint16(numOfChan * 2);                      // block-align
+        setUint16(16);                                 // 16-bit (hardcoded in this demo)
+    
+        setUint32(0x61746164);                         // "data" - chunk
+        setUint32(length - pos - 4);                   // chunk length
+    
+        // write interleaved data
+        for(i = 0; i < abuffer.numberOfChannels; i++)
+          channels.push(abuffer.getChannelData(i));
+    
+        while(pos < length) {
+          for(i = 0; i < numOfChan; i++) {             // interleave channels
+            sample = Math.max(-1, Math.min(1, channels[i][offset])); // clamp
+            sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767)|0; // scale to 16-bit signed int
+            view.setInt16(pos, sample, true);          // update data chunk
+            pos += 2;
+          }
+          offset++                                     // next source sample
+        }
+    
+        // create Blob
+        return new Blob([buffer], {type: "audio/mpeg"});
+    
+        function setUint16(data) {
+          view.setUint16(pos, data, true);
+          pos += 2;
+        }
+    
+        function setUint32(data) {
+          view.setUint32(pos, data, true);
+          pos += 4;
+        }
+    }
+    function convertInstanceToBufferArray (region, wavesurferInstance)  {
+        var start = region.start, end = region.end;
+        const segmentDuration = end - start;
+        var originalBuffer = wavesurferInstance.backend.buffer;
+
+        var emptySegment = wavesurferInstance.backend.ac.createBuffer(
+            originalBuffer.numberOfChannels,
+            segmentDuration * originalBuffer.sampleRate,
+            originalBuffer.sampleRate
+        )
+
+        for (var i = 0; i < originalBuffer.numberOfChannels; i++) {
+            var chanData = originalBuffer.getChannelData(i);
+            var segmentChanData = emptySegment.getChannelData(i);
+            for (var j = 0, len = chanData.length; j < len; j++) {
+                segmentChanData[j] = chanData[j];
+            }
+        }
+        
+        return emptySegment
+    }
+
+
+    function handleShowPredictRow(record) {
         const currentRowDataTableIndex = dataTable.findIndex(data => data.id === record.id);
         
-        console.log(dataTable[currentRowDataTableIndex])
-        const request_data = {
+        const region = wavesurfer.regions.list[record.wave_id];
+        // console.log(region);
+        // console.log(wavesurfer);
+        
+        // const buffer = convertInstanceToBufferArray(region, wavesurfer);
+        // var originalBuffer = wavesurfer.backend.buffer;
+
+        // const data = wavesurfer.exportPCM(originalBuffer.length);
+        // var pcmData = wavesurfer.exportPCM(1024, 10000, false);
+
+        // console.log('orgin: ', originalBuffer);
+        // console.log('buffer', buffer);
+        // console.log("data: ", data);
+
+        let request_data = {
             'seed': dataLabel[0]['seed'],
             'item_id': dataLabel[0]['id'],
-            'audio': "WAV_BYTE",
+            'start_time': region.start,
+            'end_time': region.end,
+            'url': audioUrl,
         }
 
+        // audioBufferToBlob(audioBuffer, function (blob) {
+        //     // const formData = new FormData();
+        //     // formData.append('audio', blob, 'audio.wav');
+        //     request_data['audio'] = blob
+        // })
+
+        // const blob = audioBufferToBlob(audioBuffer);
+
+        console.log("request_data: ", request_data)
+        // const buffer = wavesurfer.backend.buffer;
+        // console.log("buffer: ", buffer);
+        
+
+
         const fetchAPI = async () => {
-            
             await axios.post(process.env.REACT_APP_API_SHOW_PREDICT, request_data, 
                 {
                     headers: {
@@ -446,9 +570,9 @@ function WaveformReview(props) {
             ]
         },
         {
-            title: "Echo",
-            dataIndex: "echo",
-            key: "echo",
+            title: "Region",
+            dataIndex: "region",
+            key: "region",
             width: "10%",
             editSelectOption: [
                 {value:"heavy", color: "red"},
