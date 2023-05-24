@@ -1,3 +1,3 @@
-./install.sh
+sh ./install.sh
 
 npm run start
