@@ -464,18 +464,30 @@ function WaveformReview(props) {
         const currentRowDataTableIndex = dataTable.findIndex(data => data.id === record.id);
         
         const region = wavesurfer.regions.list[record.wave_id];
-        // console.log(region);
-        // console.log(wavesurfer);
+        // const start = region.start;
+        // const end = region.end;
+
+        // // const start = wavesurfer.regions.list[0].start;
+        // // const end = wavesurfer.regions.list[0].end;
+
+        // // // Get the selected region's PCM audio data
+        // const audioData = wavesurfer.backend.buffer.getChannelData(0);
+        // const sampleRate = wavesurfer.backend.buffer.sampleRate;
         
-        // const buffer = convertInstanceToBufferArray(region, wavesurfer);
-        // var originalBuffer = wavesurfer.backend.buffer;
 
-        // const data = wavesurfer.exportPCM(originalBuffer.length);
-        // var pcmData = wavesurfer.exportPCM(1024, 10000, false);
+        // // // Calculate the start and end samples based on the selected region
+        // const startSample = Math.floor(start * sampleRate);
+        // const endSample = Math.floor(end * sampleRate);
 
-        // console.log('orgin: ', originalBuffer);
-        // console.log('buffer', buffer);
-        // console.log("data: ", data);
+        // // // Extract the audio data for the selected region
+        // const regionData = audioData.subarray(startSample, endSample);
+
+        // // // Convert the audio data to bytes
+        // const byteArray = new Int16Array(regionData.length);
+        // for (let i = 0; i < regionData.length; i++) {
+        //     byteArray[i] = regionData[i] * 32767;
+        // }
+        // const byteData = new Uint8Array(byteArray.buffer);
 
         let request_data = {
             'seed': dataLabel[0]['seed'],
@@ -484,32 +496,16 @@ function WaveformReview(props) {
             'end_time': region.end,
             'url': audioUrl,
         }
-
-        // audioBufferToBlob(audioBuffer, function (blob) {
-        //     // const formData = new FormData();
-        //     // formData.append('audio', blob, 'audio.wav');
-        //     request_data['audio'] = blob
-        // })
-
-        // const blob = audioBufferToBlob(audioBuffer);
-
-        console.log("request_data: ", request_data)
-        // const buffer = wavesurfer.backend.buffer;
-        // console.log("buffer: ", buffer);
-        
-
-
         const fetchAPI = async () => {
-            await axios.post(process.env.REACT_APP_API_SHOW_PREDICT, request_data, 
+            await axios.post(process.env.REACT_APP_API_PREDICT, request_data, 
                 {
                     headers: {
                         'Content-Type': 'Application/json',
-                    }
+                    },
                 }
             ) 
             .then(response => {
                 const response_data = response.data.data;
-                
 
                 const newDataTable = [...dataTable];
                 newDataTable[currentRowDataTableIndex].predict_kaldi = response_data.predict_kaldi
@@ -518,7 +514,7 @@ function WaveformReview(props) {
 
                 setDataTable(newDataTable)
                 updateResultLabel(newDataTable)
-            })
+            })  
             .catch(error => {console.log(error)})            
         }
         fetchAPI();
