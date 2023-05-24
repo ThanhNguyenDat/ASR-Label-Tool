@@ -28,8 +28,8 @@ const PredictDiffViewer = ({
         <DiffViewer 
             oldValue={oldValue}
             newValue={newValue}
-            leftTitle="Predict Kaldi"
-            rightTitle="Predict Wenet"
+            leftTitle="Predict"
+            rightTitle="Typing"
             hideLineNumbers={true}
             showDiffOnly={false}
             splitView={splitView}
