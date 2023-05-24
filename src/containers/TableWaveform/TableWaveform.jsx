@@ -6,24 +6,35 @@ import { Form, Input, Table, Tag } from "antd";
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 
 import { propTypes } from 'react-bootstrap/esm/Image';
-import './styles.scss';
 import DiffViewer, { DiffMethod } from 'react-diff-viewer';
 
-const cx = classNames.bind();
+import './styles.scss';
 
 
-const PredictDiffViewer = ({predict_kaldi, predict_wenet}) => {
+const PredictDiffViewer = ({
+    predict_kaldi, 
+    predict_wenet, 
+    method="words", 
+    splitView=true, 
+    ...props
+}) => {
+    let compareMethod = DiffMethod.WORDS;
+
+    if (method === "word") {
+        compareMethod = DiffMethod.WORDS;
+    } 
+    
     return (
         <DiffViewer 
             oldValue={predict_kaldi}
             newValue={predict_wenet}
             leftTitle="Predict Kaldi"
             rightTitle="Predict Wenet"
-
-            splitView={true}
-            compareMethod={DiffMethod.WORDS}
+            hideLineNumbers={true}
+            showDiffOnly={false}
+            splitView={splitView}
+            // compareMethod={compareMethod}
             styles={{
-                
                 variables: {
                     light: {
                         codeFoldGutterBackground: "#6F767E",
@@ -31,8 +42,9 @@ const PredictDiffViewer = ({predict_kaldi, predict_wenet}) => {
                         }
                 }
             }}
+            {...props}
         />
-    )
+    ) 
 }
 
 function TableWaveform ({columns, dataTable, ...rest}) {   
@@ -357,7 +369,7 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                                     name="audibility"
                                 >
                                     <select 
-                                    className={cx('form-select')}
+                                    className='form-select'
                                     style={{color: color}}
                                     
                                 >
