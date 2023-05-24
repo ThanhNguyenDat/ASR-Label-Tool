@@ -12,8 +12,8 @@ import './styles.scss';
 
 
 const PredictDiffViewer = ({
-    predict_kaldi, 
-    predict_wenet, 
+    oldValue, 
+    newValue, 
     method="words", 
     splitView=true, 
     ...props
@@ -26,8 +26,8 @@ const PredictDiffViewer = ({
     
     return (
         <DiffViewer 
-            oldValue={predict_kaldi}
-            newValue={predict_wenet}
+            oldValue={oldValue}
+            newValue={newValue}
             leftTitle="Predict Kaldi"
             rightTitle="Predict Wenet"
             hideLineNumbers={true}
@@ -275,8 +275,9 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                                     }}
                                     >
                                         <PredictDiffViewer 
-                                            predict_kaldi={record.predict_kaldi}
-                                            predict_wenet={record.predict_wenet}
+                                            oldValue={record.predict_kaldi}
+                                            // predict_wenet={record.predict_wenet}
+                                            newValue={record.description}
                                         />
                                     </div>
                                     <div 
@@ -321,8 +322,8 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                                     }}
                                     >
                                         <PredictDiffViewer 
-                                            predict_kaldi={record.predict_kaldi}
-                                            predict_wenet={record.predict_wenet}
+                                            oldValue={record.predict_kaldi}
+                                            newValue={record.description}
                                         />
                                     </div>
                                     <div 
