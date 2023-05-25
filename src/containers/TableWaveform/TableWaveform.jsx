@@ -93,11 +93,11 @@ const getValueModeDescription = (allMode, mode, record) => {
     }
 
     if (!oldValue) {
-        oldValue = "Haven't called api yet"
+        oldValue = "None"
     }
 
     if (!newValue) {
-        newValue = "Haven't called api yet"
+        newValue = "None"
     }
     
     return {
