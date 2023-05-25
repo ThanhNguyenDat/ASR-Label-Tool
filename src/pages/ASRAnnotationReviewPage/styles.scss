@@ -1,0 +1,39 @@
+.sider {
+    max-width: 400px;
+    width: 400px;
+    min-width: 400px;
+    text-align: center;
+    line-height: 120px;
+}
+
+.ant-layout-sider {
+    max-width: 400px;
+    width: 400px;
+    min-width: 400px;
+    
+}
+
+.active {
+    opacity: 0.3;    
+}
+
+
+
+.wrapper-asr-annotation-review-page {
+    width: 100%;
+    
+    .wavesurfer {
+        .left {
+            width: 75%;
+
+        }
+        .right {
+            width: 25%;
+        }
+        .list-flexbox {
+            display: flex;
+            column-gap: 3px;
+            flex-wrap: wrap;
+        }
+    }
+}
