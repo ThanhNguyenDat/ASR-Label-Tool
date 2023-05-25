@@ -238,7 +238,6 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                         start_time: roundNumber(formData1.start_time),
                         end_time: roundNumber(formData1.end_time)
                     }
-                    console.log("Data update: ", record, rowIndex, colDataIndex, formData[colDataIndex]) // rowIndex = 0 
                     updateDataTablePerCell(record.key, colDataIndex, formData[colDataIndex]);
                 }
             }

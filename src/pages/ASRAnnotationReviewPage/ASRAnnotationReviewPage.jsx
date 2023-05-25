@@ -205,102 +205,92 @@ function ASRAnnotationReviewPage(props) {
     // command here 
     // Full flow when anntations change
 
-    // useEffect(() => {
-    //     if (window.AL) {
-    //         window.AL.onReceiveRequestResult(function (data) {
-    //             // const final_annotations = annotations
-    //             // window.AL.pushResultFail();
-    //             console.log("data push result: dataLabels ", annotations);
-    //             // window.AL.pushResultFail();
+    useEffect(() => {
+        if (window.AL) {
+            window.AL.onReceiveRequestResult(function (data) {
+                // const final_annotations = annotations
+                // window.AL.pushResultFail();
+                // window.AL.pushResultFail();
 
-    //             // format before pushResult, press Next
-    //             const finnalResult = formatFinnalResult(entireDataLabel)
-    //             const submitData = formatFinnalResult(entireDataLabel);
-    //             console.log("AL.pushResult finnalResult ", finnalResult)
-    //             console.log("AL.pushResult submitData ", submitData)
-    //             window.AL.pushResult({ 'postags': submitData, 'fetch_number': 5 });
-    //             // window.AL.pushResult({'postags': dataLabels['annotations'], 'fetch_number': 1});
+                // format before pushResult, press Next
+                const submitData = formatFinnalResult(entireDataLabel);
+                window.AL.pushResult({ 'postags': submitData, 'fetch_number': 5 });
+                // window.AL.pushResult({'postags': dataLabels['annotations'], 'fetch_number': 1});
 
-    //         })
-    //         window.AL.onReceiveData(function (data) {
-    //             console.log('onReceiveData ', data)
-    //             if (data.length > 0) {
-    //                 const ids = data.map(d => {
-    //                     return  d.data[0].id
-    //                 })
+            })
+            window.AL.onReceiveData(function (data) {
+                if (data.length > 0) {
+                    const ids = data.map(d => {
+                        return  d.data[0].id
+                    })
     
-    //                 console.log('data: ', data)
-    //                 setDataLabelIds(ids);
-    //                 setEntireDataLabel(data);
-    //                 setDataLabelId(ids[0]);
-    
-    //                 const formatInput = formatAnnotationOnRecieveData(data)
-    //                 console.log('formatAnnotationOnRecieveData: ', formatInput)
-    //             }
+                    setDataLabelIds(ids);
+                    setEntireDataLabel(data);
+                    setDataLabelId(ids[0]);
+                }
 
-    //         })
+            })
 
-    //         window.AL.onPushResultFail(function (data) {
-    //             // alert('fail to push' + data['message']);
-    //             console.log("onPushResultFail ", data)
-    //         });
+            window.AL.onPushResultFail(function (data) {
+                // alert('fail to push' + data['message']);
+                console.log("onPushResultFail ", data)
+            });
 
-    //         window.AL.onReceiveCommonInfo(function (data) {
-    //             console.log('onReceiveCommonInfo in', data)
-    //             var classes = data['classes'];
-    //             setCommonInfo(classes)
-    //             window.AL.pushSettings({'settings': [
-    //                 {
-    //                     'type': 'text', 
-    //                     'id': 1,
-    //                     'name': 'From Idx', 
-    //                     'options': []
-    //                 },
-    //                 {
-    //                     'type': 'text', 
-    //                     'id': 2,
-    //                     'name': 'Num Items', 
-    //                     'options': []
-    //                 },
-    //             ]});
+            window.AL.onReceiveCommonInfo(function (data) {
+                var classes = data['classes'];
+                setCommonInfo(classes)
+                window.AL.pushSettings({'settings': [
+                    {
+                        'type': 'text', 
+                        'id': 1,
+                        'name': 'From Idx', 
+                        'options': []
+                    },
+                    {
+                        'type': 'text', 
+                        'id': 2,
+                        'name': 'Num Items', 
+                        'options': []
+                    },
+                ]});
 
-    //             // window.AL.pushSettings({
-    //             //     'settings': [
-    //             //         {
-    //             //             'type': 'text',
-    //             //             'id': 1,
-    //             //             'name': 'FromID',
-    //             //             'options': []
-    //             //         },
-    //             //         {
-    //             //             'type': 'text',
-    //             //             'id': 2,
-    //             //             'name': 'Num Items',
-    //             //             'options': []
-    //             //         },
-    //             //         {
-    //             //             'type': 'switch',
-    //             //             'id': 3,
-    //             //             'name': 'ToReview',
-    //             //             'options': []
-    //             //         },
-    //             //     ]
-    //             // });
-    //         });
+                // window.AL.pushSettings({
+                //     'settings': [
+                //         {
+                //             'type': 'text',
+                //             'id': 1,
+                //             'name': 'FromID',
+                //             'options': []
+                //         },
+                //         {
+                //             'type': 'text',
+                //             'id': 2,
+                //             'name': 'Num Items',
+                //             'options': []
+                //         },
+                //         {
+                //             'type': 'switch',
+                //             'id': 3,
+                //             'name': 'ToReview',
+                //             'options': []
+                //         },
+                //     ]
+                // });
+            });
 
-    //         window.AL.onUpdateSelectClass(function (data) {
-    //             console.log('onUpdateSelectClass data', data)
-    //         });
+            window.AL.onUpdateSelectClass(function (data) {
+                console.log('onUpdateSelectClass data', data)
+            });
 
-    //         window.AL.onReceiveRequestSettings(function (data) {
-    //             console.log("onReceiveRequestSettings ", data)
-    //         })
+            window.AL.onReceiveRequestSettings(function (data) {
+                console.log("onReceiveRequestSettings ", data)
+            })
 
-    //         window.AL.onReceiveRequestResetCurrent(function (data) {
-    //             console.log('onReceiveRequestResetCurrent ', data)
-    //         });
-    //     }
-    // }, [entireDataLabel, annotations])
+            window.AL.onReceiveRequestResetCurrent(function (data) {
+                console.log('onReceiveRequestResetCurrent ', data)
+            });
+        }
+    }, [entireDataLabel, annotations])
     
     /* 
         Command here

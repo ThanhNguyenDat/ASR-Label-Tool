@@ -150,19 +150,14 @@ function WaveformReview(props) {
             wavesurfer.on("region-click", function (region, event) {
                 const newDataTable = updateDataTableByWavesurfer(wavesurfer);
                 updateResultLabel(newDataTable);
-
-                console.log('new dataTable: ', newDataTable)
-
                 event.stopPropagation();
                 // play region and replay region
                 region.play()
                 if (event.shiftKey) {
-                    console.log("shift key");
                     region.update({
                         loop: true
                     })
                 } else {
-                    console.log("non shift key");
                     region.update({
                         loop: false
                     })
@@ -185,7 +180,6 @@ function WaveformReview(props) {
             // Set Annotaions and Length Wavesurfer
             wavesurfer.on("region-updated", (region) => {
                 setSelectedRegionKey(region.id);
-                console.log(wavesurfer.regions.list);
                 const newDataTable = updateDataTableByWavesurfer(wavesurfer);
                 updateResultLabel(newDataTable);
                 
@@ -494,7 +488,7 @@ function WaveformReview(props) {
         // const byteData = new Uint8Array(byteArray.buffer);
         // const data = wavesurfer.exportPCM(originalBuffer.length);
         var pcmData = wavesurfer.exportPCM(1024, 10000, true);
-        console.log(pcmData);
+        
         // console.log('orgin: ', originalBuffer);
         // console.log('buffer', buffer);
         // console.log("data: ", data);
