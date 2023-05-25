@@ -305,13 +305,11 @@ function ASRAnnotationReviewPage(props) {
                     return  d.data[0].id
                 })
 
-                console.log('data: ', data)
                 setDataLabelIds(ids);
                 setEntireDataLabel(data);
                 setDataLabelId(ids[0]);
 
-                const formatInput = formatAnnotationOnRecieveData(data)
-                console.log('formatAnnotationOnRecieveData: ', formatInput)
+                // const formatInput = formatAnnotationOnRecieveData(data)
             })
             .catch(error => {
                 const data = default_data;
