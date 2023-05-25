@@ -11,7 +11,7 @@ import ItemFlexbox from "../../components/ItemFlexbox/ItemFlexbox";
 // import _ from "lodash";
 
 import useContextMenu from '@hooks/useContextMenu';
-import WrapperASRAnnotationReviewPage from "./WrapperASRAnnotationReviewPage";
+
 
 // const _audioUrl =
 //   "https://api.twilio.com//2010-04-01/Accounts/AC25aa00521bfac6d667f13fec086072df/Recordings/RE6d44bc34911342ce03d6ad290b66580c.mp3"; // bi loi
@@ -504,7 +504,6 @@ function ASRAnnotationReviewPage(props) {
                     {dataLabelId ? (
                         <>
                             <WaveformReview {...waveform_props}/>
-                            {/* <Button onClick={()=>{console.log(formatFinnalResult(entireDataLabel))}}>Show Entire Data Label</Button> */}
                         </>
                     ) : (
                         <div className="wavesurfer-error"></div>
@@ -589,10 +588,7 @@ function ASRAnnotationReviewPage(props) {
                     </div>
                 </div>}
             </div>
-            
-            <WrapperASRAnnotationReviewPage 
-                dataLabelIds={dataLabelIds}
-            />
+
 
         </div>
     );
