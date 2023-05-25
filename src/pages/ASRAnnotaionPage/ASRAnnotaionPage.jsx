@@ -33,6 +33,7 @@ const data = {
                     "audibility": "good",
                     "noise": "clean",
                     "echo": "clean",
+                    "region": "other"
                 }
             }
         },
@@ -50,6 +51,7 @@ const data = {
                     "audibility": "audible",
                     "noise": "medium",
                     "echo": "light",
+                    "region": "other",
                 }
             }
         }

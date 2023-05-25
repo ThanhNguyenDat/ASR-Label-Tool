@@ -1,35 +1,165 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames/bind';
 
 import { Form, Input, Table, Tag } from "antd";
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, CopyOutlined } from '@ant-design/icons';
 
 import { propTypes } from 'react-bootstrap/esm/Image';
 import DiffViewer, { DiffMethod } from 'react-diff-viewer';
+import Prism from "prismjs";
 
 import './styles.scss';
+import CopyToClipboard from 'react-copy-to-clipboard';
+
+const modeDescriptionOptions = [
+    {value: "wenet kaldi", title: "Wenet | Kaldi", },
+    {value: "typing wenet", title: "Typing | Wenet"}, 
+    {value: "typing kaldi", title: "Typing | Kaldi"},
+]
+
+const audibilityOptions = [
+    {value: "good", color: "blue"}, 
+    {value: "audible", color: "green"}, 
+    {value: "bad", color: "red"}
+]
+const noiseOptions = [
+    {value:"heavy", color: "red"},
+    {value:"medium", color: "orange"},
+    {value:"light", color: "green"},
+    {value:"clean", color: "blue"}
+]
+const echoOptions = [
+    {value:"heavy", color: "red"},
+    {value:"medium", color: "orange"},
+    {value:"light", color: "green"},
+    {value:"clean", color: "blue"}
+]
+const regionOptions = [
+    {value: "other", color: "black"},
+    {value: "bắc", color: "red"},
+    {value: "trung", color: "yellow"},
+    {value: "nam", color: "blue"}
+]
+
+
+const roundNumber = (str) => {return Math.round(parseFloat(str) * 1000) / 1000}
+
+const checkEvery = (arr, target) => {
+    return (typeof target === 'string') ? 
+    arr.includes(target) : target.every(v=> arr.includes(v))
+};
+
+const getModeDescription = (allMode, value) => {
+    return allMode.find(mode => mode.value === value)
+}
+
+const getTitleModeDescription = (allMode, mode) => {
+    let oldTitle, newTitle;
+
+    const titleSplit = getModeDescription(allMode, mode)?.title?.split(" ")
+    if (titleSplit.length > 0) {
+        oldTitle = titleSplit[0]
+        newTitle = titleSplit[titleSplit.length - 1]
+    }
+
+    return {
+        oldTitle, newTitle
+    }
+}
+
+const getValueModeDescription = (allMode, mode, record) => {
+    let oldValue, newValue;
+
+    const value = getModeDescription(allMode, mode)?.value
+    const valueSplit = value.split(" ")
+    const oldValueMode = valueSplit[0] // typing
+    const newValueMode = valueSplit[1] // kaldi
+
+    if (oldValueMode.includes("wenet")) {
+        oldValue = record?.predict_wenet
+    } else if (oldValueMode.includes("kaldi")) {
+        oldValue = record?.predict_kaldi
+    } else if (oldValueMode.includes("typing")) {
+        oldValue = record?.description 
+    }
+    
+    if (newValueMode.includes("wenet")) {
+        newValue = record?.predict_wenet
+    } else if (newValueMode.includes("kaldi")) {
+        newValue = record?.predict_kaldi
+    } else if (newValueMode.includes("typing")) {
+        newValue = record?.description 
+    }
+
+    if (!oldValue) {
+        oldValue = "Haven't called api yet"
+    }
+
+    if (!newValue) {
+        newValue = "Haven't called api yet"
+    }
+    
+    return {
+        oldValue,
+        newValue,
+    }
+
+    
+
+
+}
 
 
 const PredictDiffViewer = ({
     oldValue, 
     newValue, 
+    oldTitle,
+    newTitle,
     method="words", 
     splitView=true, 
+    modeShow,
+    isHover,
     ...props
 }) => {
     let compareMethod = DiffMethod.WORDS;
-
-    if (method === "word") {
-        compareMethod = DiffMethod.WORDS;
-    } 
     
+    if (method === "words") {
+        compareMethod = DiffMethod.WORDS;
+    } else if (method === "lines") {
+        compareMethod = DiffMethod.LINES;
+        // splitView = false;
+    }
+    // compareMethod = DiffMethod.SENTENCES;
+
+    const highlightSyntax = (str) => (
+        <div 
+            className='diffent-element' 
+            style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                width: "100%",
+            }}
+        >
+            <pre
+                style={{ display: "inline" }}
+                class="foo"
+                dangerouslySetInnerHTML={{
+                // __html: Prism.highlight(str, Prism.languages.javascript)
+                // __html: Prism.highlight(str, Prism.languages.json, "json")
+                __html: `${str}`
+                }}
+            />
+            
+        </div>
+    )
     return (
         <DiffViewer 
             oldValue={oldValue}
             newValue={newValue}
-            leftTitle="Predict"
-            rightTitle="Typing"
+            leftTitle={oldTitle}
+            rightTitle={newTitle}
+
             hideLineNumbers={true}
             showDiffOnly={false}
             splitView={splitView}
@@ -40,17 +170,24 @@ const PredictDiffViewer = ({
                         codeFoldGutterBackground: "#6F767E",
                         codeFoldBackground: "#E2E4E5"
                         }
-                }
+                },
+                contentText: {
+                    display: 'flex',
+                    width: "100%",
+                },
+                diffContainer: {
+                    width: "100%"
+                },
             }}
             {...props}
+            renderContent={highlightSyntax}
         />
     ) 
 }
 
-function TableWaveform ({columns, dataTable, ...rest}) {   
-    const [form] = Form.useForm();
-    const inputRef = React.useRef();
 
+
+function TableWaveform ({columns, dataTable, ...rest}) {   
     const { 
         playWaveform,
         setSelectedRegionKey, 
@@ -64,39 +201,23 @@ function TableWaveform ({columns, dataTable, ...rest}) {
         handleDeleteRow,
         handleShowPredictRow
     } = rest
+
+    const [form] = Form.useForm();
+    const inputRef = React.useRef();
+    const [selectedModeDescription, setSelectedModeDescription] = useState("wenet kaldi");
+
+    // const oldTitleModeDescription = useMemo(() => {
+    //     return getModeDescription(modeDescriptionOptions, selectedModeDescription).title.split(" ")[0]
+    // }, [selectedModeDescription])
+
+    // const newTitleModeDescription = useMemo(() => {
+    //     const titleSplit = getModeDescription(modeDescriptionOptions, selectedModeDescription).title.split(" ")
+        
+    //     return titleSplit[titleSplit.length - 1]
+    // }, [selectedModeDescription])
+
     
 
-    const audibilityOptions = [
-        {value: "good", color: "blue"}, 
-        {value: "audible", color: "green"}, 
-        {value: "bad", color: "red"}
-    ]
-    const noiseOptions = [
-        {value:"heavy", color: "red"},
-        {value:"medium", color: "orange"},
-        {value:"light", color: "green"},
-        {value:"clean", color: "blue"}
-    ]
-    const echoOptions = [
-        {value:"heavy", color: "red"},
-        {value:"medium", color: "orange"},
-        {value:"light", color: "green"},
-        {value:"clean", color: "blue"}
-    ]
-    const regionOptions = [
-        {value: "other", color: "black"},
-        {value: "bắc", color: "red"},
-        {value: "trung", color: "yellow"},
-        {value: "nam", color: "blue"}
-    ]
-
-    const roundNumber = (str) => {return Math.round(parseFloat(str) * 1000) / 1000}
-
-    const checkEvery = (arr, target) => {
-        return (typeof target === 'string') ? 
-        arr.includes(target) : target.every(v=> arr.includes(v))
-    };
-    
 
 
     const handleEditInput = (colDataIndex, selectedRegionKey) => ({
@@ -212,7 +333,6 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                     return {
                         onClick: event => {
                             setSelectedRegionKey(record.key);
-                            console.log('row', record, rowIndex)
                             form.setFieldsValue({
                                 ...record
                             })
@@ -257,15 +377,47 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                     width="1%" 
                 />
                 <Table.Column 
-                    title="Description" 
+                    title={() => (
+                        <div
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                            }}
+                        >
+                            Description 
+                            <select 
+                                className='form-select mode-description'
+                                style={{
+                                    marginLeft: "10px",
+                                    width: "20%"
+
+                                }}
+                                value={selectedModeDescription} 
+                                onChange={(e)=>setSelectedModeDescription(e.target.value)}
+                            >
+                                {modeDescriptionOptions.map(mode => (
+                                    <option value={mode.value}>{mode.title}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+
                     key="description"
                     dataIndex="description"
                     // width="40%" 
                     {...handleEditInput("description", selectedRegionKey)}
                     render={(text, record, index) => {
+                        const { oldValue, newValue } = getValueModeDescription(modeDescriptionOptions, selectedModeDescription, record);
+                            
+                        const { oldTitle, newTitle } = getTitleModeDescription(modeDescriptionOptions, selectedModeDescription);
+
+
                         if (record.key === selectedRegionKey) {
                             const shouldFocus = focusCell.row === index && focusCell.col === "description";
-            
+                            
+                            // get values of predict
+                            
+                        
                             return (
                                 <div className='description'>
                                     <div className='predict'
@@ -275,9 +427,10 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                                     }}
                                     >
                                         <PredictDiffViewer 
-                                            oldValue={record.predict_kaldi}
-                                            // predict_wenet={record.predict_wenet}
-                                            newValue={record.description}
+                                            oldValue={oldValue}
+                                            newValue={newValue}
+                                            oldTitle={oldTitle}
+                                            newTitle={newTitle}
                                         />
                                     </div>
                                     <div 
@@ -322,8 +475,11 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                                     }}
                                     >
                                         <PredictDiffViewer 
-                                            oldValue={record.predict_kaldi}
-                                            newValue={record.description}
+                                            oldValue={oldValue}
+                                            newValue={newValue}
+                                            
+                                            oldTitle={oldTitle}
+                                            newTitle={newTitle}
                                         />
                                     </div>
                                     <div 

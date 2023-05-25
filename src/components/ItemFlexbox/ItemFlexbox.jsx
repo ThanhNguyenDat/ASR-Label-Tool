@@ -39,6 +39,7 @@ function ItemFlexbox(props) {
     if (currentData && currentData.annotation.length > 0) {
       // review = currentData.annotation[0].content?.extras?.review
     }
+    
     let color = colors[review]
     // console.log('color: ', color)
 

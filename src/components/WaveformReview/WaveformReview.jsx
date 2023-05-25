@@ -148,7 +148,6 @@ function WaveformReview(props) {
             });
             
             wavesurfer.on("region-click", function (region, event) {
-                console.log("wavesurfer: ", wavesurfer.regions.list);
                 const newDataTable = updateDataTableByWavesurfer(wavesurfer);
                 updateResultLabel(newDataTable);
 
@@ -186,7 +185,7 @@ function WaveformReview(props) {
             // Set Annotaions and Length Wavesurfer
             wavesurfer.on("region-updated", (region) => {
                 setSelectedRegionKey(region.id);
-
+                console.log(wavesurfer.regions.list);
                 const newDataTable = updateDataTableByWavesurfer(wavesurfer);
                 updateResultLabel(newDataTable);
                 
@@ -257,7 +256,10 @@ function WaveformReview(props) {
                 "noise": region.data.noise || "clean",
                 "echo": region.data.echo || "clean",
                 "region": region.data.region || "other",
+                
 
+                "predict_kaldi": region.data.predict_kaldi,
+                "predict_wenet": region.data.predict_wenet,
                 "review": region.data.review || "",
             }
         })
@@ -281,6 +283,8 @@ function WaveformReview(props) {
                 region.data.echo = row.echo;
                 region.data.region = row.region;
 
+                region.data.predict_kaldi = row.predict_kaldi;
+                region.data.predict_wenet = row.predict_wenet;
                 region.data.review = row.review;
             })        
         }
@@ -488,6 +492,12 @@ function WaveformReview(props) {
         //     byteArray[i] = regionData[i] * 32767;
         // }
         // const byteData = new Uint8Array(byteArray.buffer);
+        // const data = wavesurfer.exportPCM(originalBuffer.length);
+        var pcmData = wavesurfer.exportPCM(1024, 10000, true);
+        console.log(pcmData);
+        // console.log('orgin: ', originalBuffer);
+        // console.log('buffer', buffer);
+        // console.log("data: ", data);
 
         let request_data = {
             'seed': dataLabel[0]['seed'],
@@ -508,12 +518,16 @@ function WaveformReview(props) {
                 const response_data = response.data.data;
 
                 const newDataTable = [...dataTable];
+                // show current
                 newDataTable[currentRowDataTableIndex].predict_kaldi = response_data.predict_kaldi
-
                 newDataTable[currentRowDataTableIndex].predict_wenet = response_data.predict_wenet
+                
+                // update current data
+                updateDataTablePerCell(currentRowDataTableIndex, "predict_kaldi", response_data.predict_kaldi);
+                updateDataTablePerCell(currentRowDataTableIndex, "predict_wenet", response_data.predict_wenet);
 
-                setDataTable(newDataTable)
-                updateResultLabel(newDataTable)
+                // setDataTable(newDataTable);
+                // updateResultLabel(newDataTable);
             })  
             .catch(error => {console.log(error)})            
         }

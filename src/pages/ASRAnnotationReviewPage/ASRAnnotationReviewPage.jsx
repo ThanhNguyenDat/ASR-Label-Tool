@@ -1,4 +1,3 @@
-import classNames from "classnames/bind";
 import React, { useEffect, useState } from "react";
 
 import WaveformReview from "@components/WaveformReview";
@@ -6,17 +5,13 @@ import useScript from "@hooks/useScript";
 import { Button, Layout, Pagination, Table } from "antd";
 import axios from 'axios';
 
-import style from "./ASRAnnotationReviewPage.scss";
+import "./styles.scss";
 
-import { customArray, iterifyArr } from '../../utils/common/customArray'
-
-import Box, { BoxProps } from '@mui/material/Box';
 import ItemFlexbox from "../../components/ItemFlexbox/ItemFlexbox";
 // import _ from "lodash";
 
 import useContextMenu from '@hooks/useContextMenu';
-
-const cx = classNames.bind(style)
+import WrapperASRAnnotationReviewPage from "./WrapperASRAnnotationReviewPage";
 
 // const _audioUrl =
 //   "https://api.twilio.com//2010-04-01/Accounts/AC25aa00521bfac6d667f13fec086072df/Recordings/RE6d44bc34911342ce03d6ad290b66580c.mp3"; // bi loi
@@ -40,6 +35,7 @@ const data = {
                     "audibility": "good",
                     "noise": "clean",
                     "echo": "clean",
+                    "region": "other",
                 }
             }
         },
@@ -209,143 +205,143 @@ function ASRAnnotationReviewPage(props) {
     // command here 
     // Full flow when anntations change
 
-    useEffect(() => {
-        if (window.AL) {
-            window.AL.onReceiveRequestResult(function (data) {
-                // const final_annotations = annotations
-                // window.AL.pushResultFail();
-                console.log("data push result: dataLabels ", annotations);
-                // window.AL.pushResultFail();
+    // useEffect(() => {
+    //     if (window.AL) {
+    //         window.AL.onReceiveRequestResult(function (data) {
+    //             // const final_annotations = annotations
+    //             // window.AL.pushResultFail();
+    //             console.log("data push result: dataLabels ", annotations);
+    //             // window.AL.pushResultFail();
 
-                // format before pushResult, press Next
-                const finnalResult = formatFinnalResult(entireDataLabel)
-                const submitData = formatFinnalResult(entireDataLabel);
-                console.log("AL.pushResult finnalResult ", finnalResult)
-                console.log("AL.pushResult submitData ", submitData)
-                window.AL.pushResult({ 'postags': submitData, 'fetch_number': 5 });
-                // window.AL.pushResult({'postags': dataLabels['annotations'], 'fetch_number': 1});
+    //             // format before pushResult, press Next
+    //             const finnalResult = formatFinnalResult(entireDataLabel)
+    //             const submitData = formatFinnalResult(entireDataLabel);
+    //             console.log("AL.pushResult finnalResult ", finnalResult)
+    //             console.log("AL.pushResult submitData ", submitData)
+    //             window.AL.pushResult({ 'postags': submitData, 'fetch_number': 5 });
+    //             // window.AL.pushResult({'postags': dataLabels['annotations'], 'fetch_number': 1});
 
-            })
-            window.AL.onReceiveData(function (data) {
-                console.log('onReceiveData ', data)
-                if (data.length > 0) {
-                    const ids = data.map(d => {
-                        return  d.data[0].id
-                    })
+    //         })
+    //         window.AL.onReceiveData(function (data) {
+    //             console.log('onReceiveData ', data)
+    //             if (data.length > 0) {
+    //                 const ids = data.map(d => {
+    //                     return  d.data[0].id
+    //                 })
     
-                    console.log('data: ', data)
-                    setDataLabelIds(ids);
-                    setEntireDataLabel(data);
-                    setDataLabelId(ids[0]);
+    //                 console.log('data: ', data)
+    //                 setDataLabelIds(ids);
+    //                 setEntireDataLabel(data);
+    //                 setDataLabelId(ids[0]);
     
-                    const formatInput = formatAnnotationOnRecieveData(data)
-                    console.log('formatAnnotationOnRecieveData: ', formatInput)
-                }
+    //                 const formatInput = formatAnnotationOnRecieveData(data)
+    //                 console.log('formatAnnotationOnRecieveData: ', formatInput)
+    //             }
 
-            })
+    //         })
 
-            window.AL.onPushResultFail(function (data) {
-                // alert('fail to push' + data['message']);
-                console.log("onPushResultFail ", data)
-            });
+    //         window.AL.onPushResultFail(function (data) {
+    //             // alert('fail to push' + data['message']);
+    //             console.log("onPushResultFail ", data)
+    //         });
 
-            window.AL.onReceiveCommonInfo(function (data) {
-                console.log('onReceiveCommonInfo in', data)
-                var classes = data['classes'];
-                setCommonInfo(classes)
-                window.AL.pushSettings({'settings': [
-                    {
-                        'type': 'text', 
-                        'id': 1,
-                        'name': 'From Idx', 
-                        'options': []
-                    },
-                    {
-                        'type': 'text', 
-                        'id': 2,
-                        'name': 'Num Items', 
-                        'options': []
-                    },
-                ]});
+    //         window.AL.onReceiveCommonInfo(function (data) {
+    //             console.log('onReceiveCommonInfo in', data)
+    //             var classes = data['classes'];
+    //             setCommonInfo(classes)
+    //             window.AL.pushSettings({'settings': [
+    //                 {
+    //                     'type': 'text', 
+    //                     'id': 1,
+    //                     'name': 'From Idx', 
+    //                     'options': []
+    //                 },
+    //                 {
+    //                     'type': 'text', 
+    //                     'id': 2,
+    //                     'name': 'Num Items', 
+    //                     'options': []
+    //                 },
+    //             ]});
 
-                // window.AL.pushSettings({
-                //     'settings': [
-                //         {
-                //             'type': 'text',
-                //             'id': 1,
-                //             'name': 'FromID',
-                //             'options': []
-                //         },
-                //         {
-                //             'type': 'text',
-                //             'id': 2,
-                //             'name': 'Num Items',
-                //             'options': []
-                //         },
-                //         {
-                //             'type': 'switch',
-                //             'id': 3,
-                //             'name': 'ToReview',
-                //             'options': []
-                //         },
-                //     ]
-                // });
-            });
+    //             // window.AL.pushSettings({
+    //             //     'settings': [
+    //             //         {
+    //             //             'type': 'text',
+    //             //             'id': 1,
+    //             //             'name': 'FromID',
+    //             //             'options': []
+    //             //         },
+    //             //         {
+    //             //             'type': 'text',
+    //             //             'id': 2,
+    //             //             'name': 'Num Items',
+    //             //             'options': []
+    //             //         },
+    //             //         {
+    //             //             'type': 'switch',
+    //             //             'id': 3,
+    //             //             'name': 'ToReview',
+    //             //             'options': []
+    //             //         },
+    //             //     ]
+    //             // });
+    //         });
 
-            window.AL.onUpdateSelectClass(function (data) {
-                console.log('onUpdateSelectClass data', data)
-            });
+    //         window.AL.onUpdateSelectClass(function (data) {
+    //             console.log('onUpdateSelectClass data', data)
+    //         });
 
-            window.AL.onReceiveRequestSettings(function (data) {
-                console.log("onReceiveRequestSettings ", data)
-            })
+    //         window.AL.onReceiveRequestSettings(function (data) {
+    //             console.log("onReceiveRequestSettings ", data)
+    //         })
 
-            window.AL.onReceiveRequestResetCurrent(function (data) {
-                console.log('onReceiveRequestResetCurrent ', data)
-            });
-        }
-    }, [entireDataLabel, annotations])
+    //         window.AL.onReceiveRequestResetCurrent(function (data) {
+    //             console.log('onReceiveRequestResetCurrent ', data)
+    //         });
+    //     }
+    // }, [entireDataLabel, annotations])
     
     /* 
         Command here
     */
-    // React.useEffect(() => {
-    //     const fetchAPI = async () => {
-    //         await axios.get(`http://0.0.0.0:8211/get-full-data`)
-    //         .then(response => {
-    //             const data = response.data.data;
+    React.useEffect(() => {
+        const fetchAPI = async () => {
+            await axios.get(`http://0.0.0.0:8211/get-full-data`)
+            .then(response => {
+                const data = response.data.data;
                 
-    //             const ids = data.map(d => {
-    //                 return  d.data[0].id
-    //             })
+                const ids = data.map(d => {
+                    return  d.data[0].id
+                })
 
-    //             console.log('data: ', data)
-    //             setDataLabelIds(ids);
-    //             setEntireDataLabel(data);
-    //             setDataLabelId(ids[0]);
+                console.log('data: ', data)
+                setDataLabelIds(ids);
+                setEntireDataLabel(data);
+                setDataLabelId(ids[0]);
 
-    //             const formatInput = formatAnnotationOnRecieveData(data)
-    //             console.log('formatAnnotationOnRecieveData: ', formatInput)
-    //         })
-    //         .catch(error => {
-    //             const data = default_data;
-    //             const ids = data.map(d => {
-    //                 return  d.data[0].id
-    //             })
+                const formatInput = formatAnnotationOnRecieveData(data)
+                console.log('formatAnnotationOnRecieveData: ', formatInput)
+            })
+            .catch(error => {
+                const data = default_data;
+                const ids = data.map(d => {
+                    return  d.data[0].id
+                })
                 
-    //             setDataLabelIds(ids);
-    //             setEntireDataLabel(data);
+                setDataLabelIds(ids);
+                setEntireDataLabel(data);
 
-    //             setDataLabelId(ids[0])
-    //         })
-    //     }
+                setDataLabelId(ids[0])
+            })
+        }
 
-    //     try {
-    //         fetchAPI();
-    //     } catch (error) {
-    //         console.log('error: ', error)
-    //     } 
-    // }, [])
+        try {
+            fetchAPI();
+        } catch (error) {
+            console.log('error: ', error)
+        } 
+    }, [])
 
     React.useEffect(() => {
         // current data
@@ -360,6 +356,10 @@ function ASRAnnotationReviewPage(props) {
         }
 
     }, [dataLabelId])
+    
+    const updateEntireDataLabel = (newValue) => {
+        setEntireDataLabel(newValue);
+    };
 
     const formatFinnalResult = (entireDataLabel) => {
         const finalResult = []
@@ -498,17 +498,20 @@ function ASRAnnotationReviewPage(props) {
     }
 
     return (
-        <div className={cx("ASRAnnotaionPage")} style={{ overflowX: 'hidden', height: "100vh"}}>
+        <div className="asr-annotation-review-page">
             <div className="row" >
                 <div className="col-10">
-                    {dataLabelId && (
-                    <>
-                        <WaveformReview {...waveform_props}/>
-                        {/* <Button onClick={()=>{console.log(formatFinnalResult(entireDataLabel))}}>Show Entire Data Label</Button> */}
-                    </>
+                    {dataLabelId ? (
+                        <>
+                            <WaveformReview {...waveform_props}/>
+                            {/* <Button onClick={()=>{console.log(formatFinnalResult(entireDataLabel))}}>Show Entire Data Label</Button> */}
+                        </>
+                    ) : (
+                        <div className="wavesurfer-error"></div>
                     )}
-                    
                 </div>
+
+
                 {dataLabelIds.length > 0 && 
                 <div className="col-2" onClick={()=>{setSelectedRegionKey(null)}}>
                     <div 
@@ -529,10 +532,10 @@ function ASRAnnotationReviewPage(props) {
                                 
                                 return (
                                     <div
-                                    id={id}
-                                    key={id}
-                                    className={`col ${dataLabelId.toString()===id.toString() ? 'active' : ''}`} 
-                                    style={{paddingBottom: 10}} 
+                                        id={id}
+                                        key={id}
+                                        className={`col ${dataLabelId.toString()===id.toString() ? 'active' : ''}`} 
+                                        style={{paddingBottom: 10}} 
                                         
                                     >
                                         <ItemFlexbox
@@ -587,6 +590,10 @@ function ASRAnnotationReviewPage(props) {
                 </div>}
             </div>
             
+            <WrapperASRAnnotationReviewPage 
+                dataLabelIds={dataLabelIds}
+            />
+
         </div>
     );
 }
