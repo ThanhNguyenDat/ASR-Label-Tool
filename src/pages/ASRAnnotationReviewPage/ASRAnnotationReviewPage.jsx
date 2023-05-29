@@ -295,41 +295,41 @@ function ASRAnnotationReviewPage(props) {
     /* 
         Command here
     */
-    React.useEffect(() => {
-        const fetchAPI = async () => {
-            await axios.get(`http://0.0.0.0:8211/get-full-data`)
-            .then(response => {
-                const data = response.data.data;
+    // React.useEffect(() => {
+    //     const fetchAPI = async () => {
+    //         await axios.get(`http://0.0.0.0:8211/get-full-data`)
+    //         .then(response => {
+    //             const data = response.data.data;
                 
-                const ids = data.map(d => {
-                    return  d.data[0].id
-                })
+    //             const ids = data.map(d => {
+    //                 return  d.data[0].id
+    //             })
 
-                setDataLabelIds(ids);
-                setEntireDataLabel(data);
-                setDataLabelId(ids[0]);
+    //             setDataLabelIds(ids);
+    //             setEntireDataLabel(data);
+    //             setDataLabelId(ids[0]);
 
-                // const formatInput = formatAnnotationOnRecieveData(data)
-            })
-            .catch(error => {
-                const data = default_data;
-                const ids = data.map(d => {
-                    return  d.data[0].id
-                })
+    //             // const formatInput = formatAnnotationOnRecieveData(data)
+    //         })
+    //         .catch(error => {
+    //             const data = default_data;
+    //             const ids = data.map(d => {
+    //                 return  d.data[0].id
+    //             })
                 
-                setDataLabelIds(ids);
-                setEntireDataLabel(data);
+    //             setDataLabelIds(ids);
+    //             setEntireDataLabel(data);
 
-                setDataLabelId(ids[0])
-            })
-        }
+    //             setDataLabelId(ids[0])
+    //         })
+    //     }
 
-        try {
-            fetchAPI();
-        } catch (error) {
-            console.log('error: ', error)
-        } 
-    }, [])
+    //     try {
+    //         fetchAPI();
+    //     } catch (error) {
+    //         console.log('error: ', error)
+    //     } 
+    // }, [])
 
     React.useEffect(() => {
         // current data
