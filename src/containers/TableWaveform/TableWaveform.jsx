@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames/bind';
 
-import { Form, Input, Table, Tag } from "antd";
+import { Form, Input, Radio, Space, Table, Tag } from "antd";
 import { DeleteOutlined, EditOutlined, CopyOutlined } from '@ant-design/icons';
 
 
@@ -321,6 +321,54 @@ function TableWaveform ({columns, dataTable, ...rest}) {
     })
 
 
+    const handleEditRadio = (colDataIndex, options, selectedRegionKey) => ({
+        onCell: (record, rowIndex) => {
+            return {
+                onClick: event => {
+                    setFocusCell({ row: record.key, col: colDataIndex });
+                },
+                onChange: event => {
+                    const formData = form.getFieldValue();
+                    updateDataTablePerCell(record.key, colDataIndex, formData[colDataIndex]);
+                }
+            }
+        },
+        render: (text, record, index) => {
+            const color = options.find(option => option.value === text)?.color;
+
+            if (record.key === selectedRegionKey) {
+                return (
+                    <Form.Item
+                        name={colDataIndex}
+                    >
+                        {/* <select 
+                            className={`form-select ${colDataIndex}`}
+                            style={{color: color}}    
+                        >
+                            {options.map(option => {
+                                return (
+                                    <option key={option.value} value={option.value} style={{color: option.color}}>{option.value}</option>
+                                )
+                            })}
+                        </select> */}
+                        <Radio.Group>
+                            <Space direction='vertical'>
+                                {options.map(option => {
+                                    return <Radio key={option.value} value={option.value} style={{color: option.color}}>{option.value}</Radio>
+                                })}
+                            </Space>
+                        </Radio.Group>
+                    </Form.Item>
+                )
+            } else {
+                return <Tag color={color}>{text}</Tag>
+            }
+
+        }
+    })
+
+
+
     return (
         <Form form={form} name="table-complex-form"
         className='form-control-table'
@@ -508,44 +556,7 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                     key="audibility"
                     dataIndex="audibility" 
                     width="5%"
-                    onCell={(record, rowIndex) => {
-                        return {
-                            onClick: event => {
-                                setFocusCell({ row: record.key, col: 'audibility' });
-                            },
-                            onChange: event => {
-                                const formData = form.getFieldValue();
-                                updateDataTablePerCell(record.key, "audibility", formData["audibility"]);
-                            }
-                        }
-                    }}
-                    render={(text, record, index) => {
-                        
-                        const color = audibilityOptions.find(option => option.value === text).color;
-
-                        if (record.key === selectedRegionKey) {
-                            return (
-                                <Form.Item
-                                    name="audibility"
-                                >
-                                    <select 
-                                    className='form-select'
-                                    style={{color: color}}
-                                    
-                                >
-                                    {audibilityOptions.map(option => {
-                                        return (
-                                            <option key={option.value} value={option.value} style={{color: option.color}}>{option.value}</option>
-                                        )
-                                    })}
-                                </select>
-
-                                </Form.Item>
-                            )
-                        } else {
-                            return <Tag color={color}>{text}</Tag>
-                        }
-                    }}
+                    {...handleEditRadio("audibility", audibilityOptions, selectedRegionKey)}
                 />
 
                 <Table.Column 
@@ -553,7 +564,8 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                     key="noise"
                     dataIndex="noise" 
                     width="5%"
-                    {...handleEditSelect("noise", noiseOptions, selectedRegionKey)}
+                    // {...handleEditSelect("noise", noiseOptions, selectedRegionKey)}
+                    {...handleEditRadio("noise", noiseOptions, selectedRegionKey)}
                 />
 
                 <Table.Column 
@@ -561,7 +573,8 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                     key="region"
                     dataIndex="region" 
                     width="5%"
-                    {...handleEditSelect("region", regionOptions, selectedRegionKey)}
+                    // {...handleEditSelect("region", regionOptions, selectedRegionKey)}
+                    {...handleEditRadio("region", regionOptions, selectedRegionKey)}
                 />
 
                 <Table.Column
