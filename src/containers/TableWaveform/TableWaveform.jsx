@@ -4,7 +4,7 @@ import classNames from 'classnames/bind';
 
 import { Form, Input, Radio, Space, Table, Tag } from "antd";
 import { DeleteOutlined, EditOutlined, CopyOutlined } from '@ant-design/icons';
-
+import {FiEdit3} from "react-icons/fi";
 
 import './styles.scss';
 import CopyToClipboard from 'react-copy-to-clipboard';
@@ -119,6 +119,9 @@ const PredictDiffViewer = ({
     splitView=true, 
     modeShow,
     isHover,
+
+    handleAcceptTextBtn,
+
     ...props
 }) => {
     let compareMethod = DiffMethod.WORDS;
@@ -130,8 +133,9 @@ const PredictDiffViewer = ({
         // splitView = false;
     }
     // compareMethod = DiffMethod.SENTENCES;
-
-    const highlightSyntax = (str) => (
+    
+    const renderContent = (str) => {
+        return (
         <div 
             className='diffent-element' 
             style={{
@@ -151,22 +155,46 @@ const PredictDiffViewer = ({
                 }}
             />
         </div>
-    )
+    )}
+    
 
+    const renderGutter = (row) => {
+        let text;
+        if (row.prefix === 'L') {
+            text = oldValue;
+        } else if (row.prefix === 'R') {
+            text = newValue;
+        }
+
+        return (
+            <td 
+                className='control-diff-viewer'
+            >
+                <FiEdit3 className='icon'
+                    onClick={() => {
+                        handleAcceptTextBtn(text);
+                    }}
+                />
+                <CopyToClipboard text={text}>
+                    <CopyOutlined className='icon'/>
+                </CopyToClipboard>
+            </td>
+        )
+    }
 
     return (
         <>
-        
             <DiffViewer 
                 oldValue={oldValue}
                 newValue={newValue}
+
                 leftTitle={oldTitle}
                 rightTitle={newTitle}
     
                 hideLineNumbers={true}
                 showDiffOnly={false}
                 splitView={splitView}
-                // compareMethod={compareMethod}
+                compareMethod={compareMethod}
                 styles={{
                     variables: {
                         light: {
@@ -183,7 +211,8 @@ const PredictDiffViewer = ({
                     },
                 }}
                 {...props}
-                renderContent={highlightSyntax}
+                renderContent={renderContent}
+                renderGutter={renderGutter}
             />
         </>
     ) 
@@ -367,6 +396,13 @@ function TableWaveform ({columns, dataTable, ...rest}) {
         }
     })
 
+    const handleAcceptTextBtn = (text) => {
+        console.log(focusCell, text);
+        const currentRowDataTableIndex = dataTable.findIndex(data => data.id === focusCell.row);
+
+        dataTable[currentRowDataTableIndex].description = text;
+        updateDataTablePerCell(focusCell.row, focusCell.col, text);
+    }
 
 
     return (
@@ -482,6 +518,9 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                                             newValue={newValue}
                                             oldTitle={oldTitle}
                                             newTitle={newTitle}
+
+                                            handleAcceptTextBtn={handleAcceptTextBtn}
+
                                         />
                                     </div>
                                     <div 
@@ -531,6 +570,8 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                                             
                                             oldTitle={oldTitle}
                                             newTitle={newTitle}
+
+                                            handleAcceptTextBtn={handleAcceptTextBtn}
                                         />
                                     </div>
                                     <div 
