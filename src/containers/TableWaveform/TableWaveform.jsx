@@ -147,7 +147,7 @@ const PredictDiffViewer = ({
         >
             <pre
                 style={{ display: "inline" }}
-                class="foo"
+                className="foo"
                 dangerouslySetInnerHTML={{
                 // __html: Prism.highlight(str, Prism.languages.javascript)
                 // __html: Prism.highlight(str, Prism.languages.json, "json")
@@ -280,10 +280,11 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                 const shouldFocus = focusCell.row === index && focusCell.col === {colDataIndex};
 
                 return (
-                    <div className={colDataIndex}>
+                    <div className={colDataIndex} key={`${colDataIndex} ${record.key}`}>
                         <div className='typing'>
                             <Form.Item
                                 name={colDataIndex}
+                                key={colDataIndex}
                             >
                                 <Input.TextArea 
                                     data-key={colDataIndex}
@@ -299,7 +300,7 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                 )
             } else {
                 return (
-                <div className={colDataIndex}>
+                <div className={colDataIndex} key={`${colDataIndex} ${record.key}`}>
                     <p>
                         {text}
                     </p>
@@ -327,6 +328,7 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                 return (
                     <Form.Item
                         name={colDataIndex}
+                        key={colDataIndex}
                     >
                         <select 
                         className={`form-select ${colDataIndex}`}
@@ -367,19 +369,11 @@ function TableWaveform ({columns, dataTable, ...rest}) {
 
             if (record.key === selectedRegionKey) {
                 return (
+                    <div key={`${colDataIndex} ${record.key}`}>
+                        
                     <Form.Item
                         name={colDataIndex}
                     >
-                        {/* <select 
-                            className={`form-select ${colDataIndex}`}
-                            style={{color: color}}    
-                        >
-                            {options.map(option => {
-                                return (
-                                    <option key={option.value} value={option.value} style={{color: option.color}}>{option.value}</option>
-                                )
-                            })}
-                        </select> */}
                         <Radio.Group>
                             <Space direction='vertical'>
                                 {options.map(option => {
@@ -388,9 +382,11 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                             </Space>
                         </Radio.Group>
                     </Form.Item>
+
+                    </div>
                 )
             } else {
-                return <Tag color={color}>{text}</Tag>
+                return <Tag color={color} key={`${colDataIndex} ${record.key}`}>{text}</Tag>
             }
 
         }
@@ -404,15 +400,21 @@ function TableWaveform ({columns, dataTable, ...rest}) {
         updateDataTablePerCell(focusCell.row, focusCell.col, text);
     }
 
-
     return (
         <Form form={form} name="table-complex-form"
         className='form-control-table'
+        key="form-control-table"
         >            
             <div>
             <Table 
+                key="table-label"
                 className='table-label-asr'
-                rowKey="id" 
+                
+                rowKey={(record) => {
+                    
+                    return record.key
+                }}
+
                 pagination={{ pageSize: 5 }}
 
                 // bắt sự kiện Row trong table
@@ -452,15 +454,15 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                 
             >
                 <Table.Column 
+                    key="start_time" 
                     title="Start Time" 
                     dataIndex="start_time" 
-                    key="start_time" 
                     width="1%"
                 />
                 <Table.Column 
+                    key="end_time" 
                     title="End Time" 
                     dataIndex="end_time" 
-                    key="end_time" 
                     width="1%" 
                 />
                 <Table.Column 
@@ -483,12 +485,11 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                                 onChange={(e)=>setSelectedModeDescription(e.target.value)}
                             >
                                 {modeDescriptionOptions.map(mode => (
-                                    <option value={mode.value}>{mode.title}</option>
+                                    <option value={mode.value} key={mode.value}>{mode.title}</option>
                                 ))}
                             </select>
                         </div>
                     )}
-
                     key="description"
                     dataIndex="description"
                     // width="40%" 
@@ -503,10 +504,8 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                             const shouldFocus = focusCell.row === index && focusCell.col === "description";
                             
                             // get values of predict
-                            
-                        
                             return (
-                                <div className='description'>
+                                <div className='description' key={`description-${record.key}`}>
                                     <div className='predict'
                                     style={{
                                         display: "flex",
@@ -557,7 +556,8 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                             )
                         } else {
                             return (
-                            <div className='description'>
+                            <div className='description' key={`description-${record.key}`}>
+                                
                                 <div className='predict'
                                     style={{
                                         display: "flex",
@@ -573,20 +573,20 @@ function TableWaveform ({columns, dataTable, ...rest}) {
 
                                             handleAcceptTextBtn={handleAcceptTextBtn}
                                         />
-                                    </div>
-                                    <div 
-                                        style={{
-                                            background: "black",
-                                            color: "black",
-                                            width: "100%",
-                                            marginBottom: "5px",
-                                            paddingBottom: "2px",
-                                            borderRadius: "12px",
-                                        }}
-                                    />
-                                    <p>
-                                    {text}
-                                    </p>
+                                </div>
+                                <div 
+                                    style={{
+                                        background: "black",
+                                        color: "black",
+                                        width: "100%",
+                                        marginBottom: "5px",
+                                        paddingBottom: "2px",
+                                        borderRadius: "12px",
+                                    }}
+                                />
+                                <p>
+                                {text}
+                                </p>
                             </div>
                         )}
                     }}
@@ -656,9 +656,7 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                         )
                     }}
                 />
-                    
             </Table>
-
             </div>
   
         </Form>   
