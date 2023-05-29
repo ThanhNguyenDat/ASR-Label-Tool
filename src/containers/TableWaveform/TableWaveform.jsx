@@ -8,7 +8,7 @@ import {FiEdit3} from "react-icons/fi";
 
 import './styles.scss';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import DiffViewer, { DiffMethod } from 'react-diff-viewer-continued';
+import DiffViewer, { DiffMethod } from 'react-diff-viewer';
 
 
 const modeDescriptionOptions = [
@@ -255,6 +255,7 @@ function TableWaveform ({columns, dataTable, ...rest}) {
             return {
                 onClick: event => {
                     setFocusCell({ row: record.key, col: colDataIndex });
+                    playWaveform?.regions.list[record.wave_id].play()
                 },
                 onMouseEnter: event => {
                     setFocusCell({ row: record.key, col: colDataIndex });
@@ -426,7 +427,7 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                             setFocusCell({ row: rowIndex, col: "description" });
                             
                             // play region
-                            playWaveform?.regions.list[record.wave_id].play()
+                            
                         },
                         // onBlur: event => {
                         //     setSelectedRegionKey(null)
@@ -510,6 +511,31 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                                         flexDirection: "column"
                                     }}
                                     >
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                width: "100%",
+                                            }}
+                                        >
+                                            <div className='icon'
+                                                style={{
+                                                    width: "50%",
+                                                }}
+                                                onClick={() => {
+                                                    handleAcceptTextBtn(oldValue);
+                                                }}
+                                            ><FiEdit3 /> Accept Text</div>
+
+                                            <div className='icon'
+                                                // style={{
+                                                //     width: "50%",
+                                                // }}
+                                                onClick={() => {
+                                                    handleAcceptTextBtn(newValue);
+                                                }}
+                                            ><FiEdit3 /> Accept Text</div>
+
+                                        </div>
                                         <PredictDiffViewer 
                                             oldValue={oldValue}
                                             newValue={newValue}
