@@ -175,9 +175,6 @@ const PredictDiffViewer = ({
                         handleAcceptTextBtn(text);
                     }}
                 />
-                <CopyToClipboard text={text}>
-                    <CopyOutlined className='icon'/>
-                </CopyToClipboard>
             </td>
         )
     }
@@ -237,7 +234,7 @@ function TableWaveform ({columns, dataTable, ...rest}) {
 
     const [form] = Form.useForm();
     const inputRef = React.useRef();
-    const [selectedModeDescription, setSelectedModeDescription] = useState("wenet kaldi");
+    const [selectedModeDescription, setSelectedModeDescription] = useState("typing kaldi");
 
     // const oldTitleModeDescription = useMemo(() => {
     //     return getModeDescription(modeDescriptionOptions, selectedModeDescription).title.split(" ")[0]
@@ -457,13 +454,13 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                     key="start_time" 
                     title="Start Time" 
                     dataIndex="start_time" 
-                    width="1%"
+                    width="3%"
                 />
                 <Table.Column 
                     key="end_time" 
                     title="End Time" 
                     dataIndex="end_time" 
-                    width="1%" 
+                    width="3%" 
                 />
                 <Table.Column 
                     title={() => (
@@ -478,7 +475,7 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                                 className='form-select mode-description'
                                 style={{
                                     marginLeft: "10px",
-                                    width: "20%"
+                                    width: "80%"
 
                                 }}
                                 value={selectedModeDescription} 
@@ -492,7 +489,7 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                     )}
                     key="description"
                     dataIndex="description"
-                    // width="40%" 
+                    width="70%" 
                     {...handleEditInput("description", selectedRegionKey)}
                     render={(text, record, index) => {
                         const { oldValue, newValue } = getValueModeDescription(modeDescriptionOptions, selectedModeDescription, record);
@@ -506,6 +503,7 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                             // get values of predict
                             return (
                                 <div className='description' key={`description-${record.key}`}>
+                                    
                                     <div className='predict'
                                     style={{
                                         display: "flex",
@@ -519,7 +517,6 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                                             newTitle={newTitle}
 
                                             handleAcceptTextBtn={handleAcceptTextBtn}
-
                                         />
                                     </div>
                                     <div 
