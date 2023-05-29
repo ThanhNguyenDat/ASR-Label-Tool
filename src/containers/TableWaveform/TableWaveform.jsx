@@ -5,12 +5,11 @@ import classNames from 'classnames/bind';
 import { Form, Input, Table, Tag } from "antd";
 import { DeleteOutlined, EditOutlined, CopyOutlined } from '@ant-design/icons';
 
-import { propTypes } from 'react-bootstrap/esm/Image';
-import DiffViewer, { DiffMethod } from 'react-diff-viewer';
-import Prism from "prismjs";
 
 import './styles.scss';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import DiffViewer, { DiffMethod } from 'react-diff-viewer-continued';
+
 
 const modeDescriptionOptions = [
     {value: "wenet kaldi", title: "Wenet | Kaldi", },
@@ -73,6 +72,7 @@ const getValueModeDescription = (allMode, mode, record) => {
 
     const value = getModeDescription(allMode, mode)?.value
     const valueSplit = value.split(" ")
+
     const oldValueMode = valueSplit[0] // typing
     const newValueMode = valueSplit[1] // kaldi
 
@@ -110,7 +110,6 @@ const getValueModeDescription = (allMode, mode, record) => {
 
 }
 
-
 const PredictDiffViewer = ({
     oldValue, 
     newValue, 
@@ -138,6 +137,7 @@ const PredictDiffViewer = ({
             style={{
                 display: 'flex',
                 justifyContent: 'space-between',
+                alignContent: 'center',
                 width: "100%",
             }}
         >
@@ -150,38 +150,42 @@ const PredictDiffViewer = ({
                 __html: `${str}`
                 }}
             />
-            
         </div>
     )
-    return (
-        <DiffViewer 
-            oldValue={oldValue}
-            newValue={newValue}
-            leftTitle={oldTitle}
-            rightTitle={newTitle}
 
-            hideLineNumbers={true}
-            showDiffOnly={false}
-            splitView={splitView}
-            // compareMethod={compareMethod}
-            styles={{
-                variables: {
-                    light: {
-                        codeFoldGutterBackground: "#6F767E",
-                        codeFoldBackground: "#E2E4E5"
-                        }
-                },
-                contentText: {
-                    display: 'flex',
-                    width: "100%",
-                },
-                diffContainer: {
-                    width: "100%"
-                },
-            }}
-            {...props}
-            renderContent={highlightSyntax}
-        />
+
+    return (
+        <>
+        
+            <DiffViewer 
+                oldValue={oldValue}
+                newValue={newValue}
+                leftTitle={oldTitle}
+                rightTitle={newTitle}
+    
+                hideLineNumbers={true}
+                showDiffOnly={false}
+                splitView={splitView}
+                // compareMethod={compareMethod}
+                styles={{
+                    variables: {
+                        light: {
+                            codeFoldGutterBackground: "#6F767E",
+                            codeFoldBackground: "#E2E4E5"
+                            }
+                    },
+                    contentText: {
+                        display: 'flex',
+                        width: "100%",
+                    },
+                    diffContainer: {
+                        width: "100%"
+                    },
+                }}
+                {...props}
+                renderContent={highlightSyntax}
+            />
+        </>
     ) 
 }
 
