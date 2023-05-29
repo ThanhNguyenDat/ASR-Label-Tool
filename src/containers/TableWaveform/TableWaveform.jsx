@@ -37,7 +37,7 @@ const echoOptions = [
 const regionOptions = [
     {value: "other", color: "black"},
     {value: "bắc", color: "red"},
-    {value: "trung", color: "yellow"},
+    {value: "trung", color: "orange"},
     {value: "nam", color: "blue"}
 ]
 
