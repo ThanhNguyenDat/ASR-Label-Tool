@@ -1,0 +1,10 @@
+flask
+flask_cors
+sqlalchemy
+python-dotenv
+flask_sqlalchemy
+flask_session
+psycopg2
+validators
+flask_jwt_extended
+flasgger

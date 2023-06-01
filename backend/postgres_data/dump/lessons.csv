@@ -1,9 +1,0 @@
-id,leson_name,audio_url,image_url,lesson_type,question_type,content,solution,transcript,explanation,done_count,collection_id,created_at
-1,Ielts 1,auido1.wav,image1.jpg,reading,input,"[ { ""1"": { ""content"": ""content_1"" } }, { ""2"": { ""content"": ""content_2"" } }]","[ { ""1"": { ""solution"": [""sol_1""] } }, { ""2"": { ""solution"": """" } }]","[ { ""1"": { ""transcript"": [""transcript_1""] } }, { ""2"": { ""transcript"": """" } }]",,5,,
-2,Ielts 2,auido2.wav,image2.jpg,listening,select,"[ { ""1"": { ""content"": ""content_1"" } }]","[ { ""1"": { ""solution"": [""sol_1""] } }]","[ { ""1"": { ""transcript"": [""transcript_1""] } }]",,3,,
-3,Ielts 3,auido3.wav,image3.jpg,listening,select,"[ { ""1"": { ""content"": ""content_1"" } }]","[ { ""1"": { ""solution"": [""sol_1""] } }]","[ { ""1"": { ""transcript"": [""transcript_1""] } }]",,3,,
-4,Ielts 4,auido4.wav,image4.jpg,listening,select,"[ { ""1"": { ""content"": ""content_1"" } }]","[ { ""1"": { ""solution"": [""sol_1""] } }]","[ { ""1"": { ""transcript"": [""transcript_1""] } }]",,3,,
-5,Ielts 5,auido5.wav,image5.jpg,listening,select,"[ { ""1"": { ""content"": ""content_1"" } }]","[ { ""1"": { ""solution"": [""sol_1""] } }]","[ { ""1"": { ""transcript"": [""transcript_1""] } }]",,3,,
-6,Ielts 6,auido6.wav,image6.jpg,listening,select,"[ { ""1"": { ""content"": ""content_1"" } }]","[ { ""1"": { ""solution"": [""sol_1""] } }]","[ { ""1"": { ""transcript"": [""transcript_1""] } }]",,3,,
-7,Ielts 7,auido7.wav,image7.jpg,listening,select,"[ { ""1"": { ""content"": ""content_1"" } }]","[ { ""1"": { ""solution"": [""sol_1""] } }]","[ { ""1"": { ""transcript"": [""transcript_1""] } }]",,3,,
-8,Ielts 8,auido8.wav,image8.jpg,listening,select,"[ { ""1"": { ""content"": ""content_1"" } }]","[ { ""1"": { ""solution"": [""sol_1""] } }]","[ { ""1"": { ""transcript"": [""transcript_1""] } }]",,3,,

@@ -19,6 +19,10 @@ app = FastAPI()
 origins = [
     "http://localhost",
     "http://localhost:3000",
+    
+    # port of flask api
+    "http://localhost:5000",
+    "http://localhost:8003",
 ]
 
 app.add_middleware(

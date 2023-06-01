@@ -13,12 +13,12 @@ from passlib.context import CryptContext
 from typing_extensions import Annotated
 from ailabtools.connection_pool_postgresql import ConnectionPoolPostgreSql
 
-db_config = {
-    "user": "postgres",
+# db_config = {
+#     "user": "postgres",
     
-}
+# }
 
-db = ConnectionPoolPostgreSql(2, 4, **db_config)
+# db = ConnectionPoolPostgreSql(2, 4, **db_config)
 
 router = APIRouter()
 
