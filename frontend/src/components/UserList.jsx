@@ -12,7 +12,7 @@ const userFilters = [
 
 const UserList = () => {
     return (
-        <List filters={userFilters} aside={<UserFilterSidebar />}>
+        <List filters={userFilters} >
             <Datagrid rowClick="edit">
                 <TextField source="id" />
                 <TextField source="name" />
