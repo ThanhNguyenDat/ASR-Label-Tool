@@ -9,8 +9,8 @@ import UserEdit from './components/UserEdit';
 import UserCreate from './components/UserCreate';
 
 let urlAPI;
-urlAPI = "https://jsonplaceholder.typicode.com";
-// urlAPI = "http://0.0.0.0:6002/api/v1";
+// urlAPI = "https://jsonplaceholder.typicode.com";
+urlAPI = "http://0.0.0.0:6002/api/v1";
 
 const dataProvider = jsonServerProvider(urlAPI);
 

@@ -11,10 +11,18 @@ from fastapi.encoders import jsonable_encoder
 from passlib.context import CryptContext
 
 from typing_extensions import Annotated
+from ailabtools.connection_pool_postgresql import ConnectionPoolPostgreSql
+
+db_config = {
+    "user": "postgres",
+    
+}
+
+db = ConnectionPoolPostgreSql(2, 4, **db_config)
 
 router = APIRouter()
 
-# /posts?_sort=title&_order=ASC&_start=0&_end=24
+# /users?_sort=title&_order=ASC&_start=0&_end=24
 @router.get("/")
 def getList(
     _sort: str = Query(default="title", description="Field to sort by"),
@@ -28,7 +36,6 @@ def getList(
     # search filter
     q: str = Query(default=None, description="Query in search"),
 
-    target: dict = Query(default=None, description="Id of user"),
 ):
     # read data from database and handle it here
     url = f"https://jsonplaceholder.typicode.com/users?_sort={_sort}&_order={_order}&_start={_start}&_end={_end}"
@@ -42,10 +49,7 @@ def getList(
     if id:
         url = f"https://jsonplaceholder.typicode.com/users?id={id}"
     
-    # handle for getManyReference here
-    if target:
-        pass
-
+    
 
     # call api or read database here
     response = requests.get(url)
