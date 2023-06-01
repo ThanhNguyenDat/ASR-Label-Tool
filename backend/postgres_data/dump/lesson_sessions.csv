@@ -1,0 +1,9 @@
+id,user_id,lesson_id,answer,score,created_time,end_time
+1,4,1,đúng,1,,
+2,5,1,đúng,1,,
+3,6,1,sai,0,,
+4,7,1,sai,0,,
+5,8,1,đúng,1,,
+7,4,2,sai,0,,
+8,5,2,đúng,1,,
+9,6,2,,,,

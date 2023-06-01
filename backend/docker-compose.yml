@@ -1,0 +1,18 @@
+version: "3"
+services:
+    fastapi:
+        image: nhacuadi_image_fastapi
+        container_name: backend-fastapi-nhacuadi
+        command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; python -B -m uvicorn app:app --reload --host 0.0.0.0 --port 8000'
+        build:
+            context: ./fastapi
+            dockerfile: Dockerfile
+        ports:
+            - "6002:8000"
+        volumes:
+            - ./fastapi/app:/code/app
+        environment:
+            - POSTGRES_CONNECT_STRING=postgresql://postgres:postgres@db:5432/nhacuadi
+    
+volumes:
+    fastapi:
