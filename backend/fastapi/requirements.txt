@@ -1,6 +1,6 @@
 fastapi[all]
 fastapi_sqlalchemy
-python-jose[cryptography]
+# python-jose[cryptography]
 passlib[bcrypt]
 sqlalchemy
 psycopg2
@@ -9,9 +9,10 @@ requests
 # template jinja2
 jinja2
 
-# # react
-# PyReact
-
+# react
 numpy
 pandas
 ailabtools
+
+# asr
+jiwer

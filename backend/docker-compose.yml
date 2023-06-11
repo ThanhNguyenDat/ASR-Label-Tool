@@ -3,7 +3,7 @@ services:
     fastapi:
         image: admin_image_fastapi
         container_name: backend-fastapi-admin
-        command: python -B -m uvicorn app:app --reload --host 0.0.0.0 --port 8000'
+        command: python -B -m uvicorn app:app --reload --host 0.0.0.0 --port 8000
         build:
             context: ./fastapi
             dockerfile: Dockerfile
@@ -11,13 +11,15 @@ services:
             - "8002:8000"
         volumes:
             - ./fastapi/app:/code/app
+        env_file:
+            - .env
         environment:
             - POSTGRES_CONNECT_STRING=postgresql://postgres:postgres@db:5432/admin
-    
+
     # flask:
     #     image: admin_image_flask
     #     container_name: backend-flask-admin
-    #     # command: python -B -m uvicorn app:app --reload --host 0.0.0.0 --port 5000'
+    #     # command: python -B -m uvicorn app:app --reload --host 0.0.0.0 --port 5000
     #     command: flask run -h 0.0.0.0 -p 5000
 
     #     build:

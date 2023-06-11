@@ -1,0 +1,25 @@
+version: "3"
+services:
+    fastapi:
+        image: ailab-label-admin_image-backend-fastapi
+        container_name: ailab-label-admin_container-backend-fastapi
+        command: uvicorn app:app --reload --host 0.0.0.0 --port 8000
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "6002:8000"
+        volumes:
+            - ./app:/code/app
+        env_file:
+            - ../.env
+        
+        networks:
+            - kong-net
+
+volumes:
+    fastapi:
+
+networks:
+    kong-net:
+        external: true

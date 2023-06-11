@@ -11,7 +11,8 @@ import json
 
 import psycopg2
 
-from .routes import users
+from .routes import users, asr
+
 
 app = FastAPI()
 
@@ -19,6 +20,8 @@ app = FastAPI()
 origins = [
     "http://localhost",
     "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost:3002",
     
     # port of flask api
     "http://localhost:5000",
@@ -34,12 +37,22 @@ app.add_middleware(
 )
 
 
+
 app.include_router(
     users.router,
     prefix="/api/v1/users",
     tags=["users"],
     responses={404: {"description": "Not found"}},
 )
+
+
+app.include_router(
+    asr.router,
+    prefix="/api/v1/asr",
+    tags=["labelling", "asr"],
+    responses={404: {"description": "Not found"}},
+)
+
 
 
 @app.get("/")

@@ -1,26 +1,25 @@
-import logo from './logo.svg';
 import './App.css';
-import { Admin, Resource } from "react-admin";
-// import jsonServerProvider from "ra-data-json-server";
-import jsonServerProvider from './dataProvider.ts';
+import { Admin, Resource, CustomRoutes, ListGuesser } from "react-admin";
+import simpleRestProvider from './dataProvider';
+import Dashboard from './pages/dashboard';
+import { authProvider } from './authProvider';
+import asrLabelling from './pages/projects/asr/labelling';
 
-import UserList from './components/UserList';
-import UserEdit from './components/UserEdit';
-import UserCreate from './components/UserCreate';
+import { Layout } from './layouts';
 
-let urlAPI;
-// urlAPI = "https://jsonplaceholder.typicode.com";
-urlAPI = "http://0.0.0.0:6002/api/v1";
-
-const dataProvider = jsonServerProvider(urlAPI);
-
+let urlAPI = "http://0.0.0.0:6002/api/v1";
+const dataProvider = simpleRestProvider(urlAPI)
 function App() {
   return (
-    <div className="App">
-      <Admin dataProvider={dataProvider}>
-        <Resource name="users" list={UserList} create={UserCreate} edit={UserEdit}/>
-      </Admin>
-    </div>
+    <Admin 
+      authProvider={authProvider}
+      dataProvider={dataProvider} 
+      dashboard={Dashboard}
+      layout={Layout}
+    >
+      <Resource name="users" list={ListGuesser}/>
+      <Resource name="asr" {...asrLabelling} />
+    </Admin>
   );
 }
 
