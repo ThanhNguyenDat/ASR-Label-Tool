@@ -56,8 +56,6 @@ app.include_router(
     responses={404: {"description": "Not found"}},
 )
 
-asr_big_table
-
 @app.get("/")
 async def hello():
     
