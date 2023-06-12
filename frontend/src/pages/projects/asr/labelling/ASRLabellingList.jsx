@@ -31,12 +31,13 @@ import ThumbDownOffAltOutlinedIcon from '@mui/icons-material/ThumbDownOffAltOutl
 import SubdirectoryArrowLeftOutlinedIcon from '@mui/icons-material/SubdirectoryArrowLeftOutlined';
 
 import Aside from './ASRLabellingFilterAside';
+import MoreDataButton from './MoreDataButton';
 
 
 const ListActions = () => (
     <TopToolbar>
+        <MoreDataButton />
         <SelectColumnsButton />
-        {/* <FilterButton /> */}
         <ExportButton />
     </TopToolbar>
 );
@@ -109,7 +110,6 @@ const TabbedDatagrid = () => {
 
         <TextField source='seed'/>
         
-        {/* <TextField source='label_url'/>  */}
         <CustomLinkField source='label_url'/>
         <TextField source='index'/>
         <TextField source='length'/>

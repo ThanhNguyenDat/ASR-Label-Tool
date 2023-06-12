@@ -52,8 +52,9 @@ async def getList(
             rt.wer_kaldi as wer_kaldi,
             rt.text_wenet as text_wenet,
             rt.wer_wenet as wer_wenet,
-            rt.user_id as user_id
-
+            rt.user_id as user_id,
+            rt.status as status
+            
             FROM segments AS rt
         '''
         if filter:
@@ -131,6 +132,7 @@ async def getList(
                 "text_wenet": d[11],
                 "wer_wenet": d[12],
                 "user_id": d[13],
+                "status": d[14],
             }
 
             if not bool(per_res['wer_kaldi']) and bool(per_res['text_kaldi']):

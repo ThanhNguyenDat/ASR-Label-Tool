@@ -13,7 +13,6 @@ services:
             - ./app:/code/app
         env_file:
             - ../.env
-        
         networks:
             - kong-net
 

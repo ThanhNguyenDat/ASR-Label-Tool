@@ -41,6 +41,7 @@ def getList(
         SELECT COUNT(*) AS table_length
         FROM "users"
     '''
+    
     table_length = db.execute(query)
     if table_length:
         table_length = table_length[0][0]

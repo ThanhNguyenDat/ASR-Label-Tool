@@ -9,7 +9,7 @@ services:
       dockerfile: Dockerfile.dev
     env_file: .env.development
     ports:
-      - "3001:3000"
+      - "3001:3000" # env dev 
     volumes:
       - ./:/app
       - /app/node_modules

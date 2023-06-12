@@ -11,7 +11,7 @@ import json
 
 import psycopg2
 
-from .routes import users, asr
+from .routes import asr_segments, users
 
 
 app = FastAPI()
@@ -47,7 +47,7 @@ app.include_router(
 
 
 app.include_router(
-    asr.router,
+    asr_segments.router,
     prefix="/api/v1/asr",
     tags=["labelling", "asr"],
     responses={404: {"description": "Not found"}},
