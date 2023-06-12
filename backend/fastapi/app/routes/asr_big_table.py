@@ -62,19 +62,91 @@ def exportToSegments(req: Request):
     string_filter, filter_values, string_sort, string_offset_limit = utils.parse_query_params(
     req)
 
+    # only data with exported = NULL
     sql = f"""
         SELECT {','.join(column_names)}
         FROM {TABLE_NAME}
-        {string_filter}
-        {string_sort}
-        {string_offset_limit}
+        WHERE exported is null
     """
 
-    # results = db.executeUpdate(sql, {**filter_values})
-    results = db.execute(sql, {**filter_values})
+    results = db.execute(sql)
     res_results = utils.tuple_result_2_dict_result(column_names, results)
-    for index, row in enumerate(res_results):
-        lb1 = str(row['lb1'])
 
-    return res_results
+    user_id = ''
+    content = {}
+    extras = {}
+    seed = ''
+    list_values = []
+    list_seed = []
+
+    for index, row in enumerate(res_results):
+        lb1 = row['lb1']
+        label_url = row['label_url']
+
+        if not isinstance(lb1, str) or lb1 == 'EMPTY' or len(lb1) == 0:
+            continue
+        json_lb1 = json.loads(lb1)
+        data = json_lb1['data']
+        
+        for d in data:
+            user_id = d['user_id']
+            seed = d['seed']
+            list_seed.append(seed)
+
+            index, length, text = None, None, None
+            audibility, noise, region = None, None, None
+            hard_level = None
+
+            if 'content' in d.keys():
+                content = d['content']
+                if 'tag' in content.keys():
+                    tag = content['tag']
+                    
+                    if 'index' in tag.keys():
+                        index = tag['index']
+                    if 'length' in tag.keys():
+                        length = tag['length']
+                    if 'text' in tag.keys():
+                        text = tag['text']
+
+                if 'extras' in content.keys():
+                    extras = content['extras']
+                    if 'classify' in extras:
+                        classify = extras['classify']
+                        if 'audibility' in classify.keys():
+                            audibility = classify['audibility']
+                            
+                        if 'noise' in classify.keys():
+                            noise = classify['noise']
+                            
+                        if 'region' in extras.keys():
+                            region = classify['region']
+                    if 'hard_level' in extras:
+                        hard_level = extras['hard_level']
+            tupple_child = (user_id, label_url, seed, index, length, text, audibility, noise, region, hard_level)
+            
+            list_values.append(tupple_child)
+    list_values = list_values[:10]
+    
+    list_values = [str(value).replace("None", "NULL") for value in list_values]
+    
+    # update to segments table
+    # delete with seed
+    sql = f'''
+        DELETE FROM segments WHERE seed IN {tuple(list_seed)}
+    '''
+    
+    db.execute(sql, list_seed)
+    
+    # insert new value
+    sql = f"""
+        INSERT INTO segments (user_id, label_url, seed, index, length, text, audibility, noise, region, hard_level)
+        VALUES {', '.join(list_values)}
+    """
+    print(sql)
+    db.execute(sql, list_values)
+
+
+
+    return list_values
 

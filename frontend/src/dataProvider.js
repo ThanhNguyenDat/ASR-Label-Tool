@@ -51,32 +51,11 @@ export default (
             filter: JSON.stringify(params.filter),
         };
         const url = `${apiUrl}/${resource}?${stringify(query)}`;
-        const options =
-            countHeader === 'Content-Range'
-                ? {
-                      // Chrome doesn't return `Content-Range` header if no `Range` is provided in the request.
-                      headers: new Headers({
-                          Range: `${resource}=${rangeStart}-${rangeEnd}`,
-                      }),
-                  }
-                : {};
-
-        return httpClient(url, options).then(({ headers, json }) => {
-            if (!headers.has(countHeader)) {
-                throw new Error(
-                    `The ${countHeader} header is missing in the HTTP Response. The simple REST data provider expects responses for lists of resources to contain this header with the total number of results to build the pagination. If you are using CORS, did you declare ${countHeader} in the Access-Control-Expose-Headers header?`
-                );
-            }
-            
-            return {
+      
+        return httpClient(url).then(({ headers, json }) => {
+           return {
                 data: json.data || json,
-                total:
-                    countHeader === 'Content-Range'
-                        ? parseInt(
-                              headers.get('content-range').split('/').pop(),
-                              10
-                          )
-                        : parseInt(headers.get(countHeader.toLowerCase())),
+                total: parseInt(json.total) || 10,
             };
         });
     },
@@ -110,31 +89,11 @@ export default (
             }),
         };
         const url = `${apiUrl}/${resource}?${stringify(query)}`;
-        const options =
-            countHeader === 'Content-Range'
-                ? {
-                      // Chrome doesn't return `Content-Range` header if no `Range` is provided in the request.
-                      headers: new Headers({
-                          Range: `${resource}=${rangeStart}-${rangeEnd}`,
-                      }),
-                  }
-                : {};
-
-        return httpClient(url, options).then(({ headers, json }) => {
-            if (!headers.has(countHeader)) {
-                throw new Error(
-                    `The ${countHeader} header is missing in the HTTP Response. The simple REST data provider expects responses for lists of resources to contain this header with the total number of results to build the pagination. If you are using CORS, did you declare ${countHeader} in the Access-Control-Expose-Headers header?`
-                );
-            }
+        return httpClient(url).then(({ headers, json }) => {
             return {
                 data: json.data || json,
-                total:
-                    countHeader === 'Content-Range'
-                        ? parseInt(
-                              headers.get('content-range').split('/').pop(),
-                              10
-                          )
-                        : parseInt(headers.get(countHeader.toLowerCase())),
+                total: parseInt(json.total) || 10,
+
             };
         });
     },
@@ -183,5 +142,11 @@ export default (
             )
         ).then(responses => ({
             data: responses.map(({ json }) => json.data.id || json.id),
+        })),
+    
+    // export more data in big table to segments table
+    exportMoreData: (resource, params) => 
+        httpClient(`${apiUrl}/asr_big_table/export_to_segments`).then(({ json }) => ({
+            data: json.data || json,
         })),
 });

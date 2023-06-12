@@ -163,7 +163,8 @@ async def getList(
     content = {
         "error_code": 0,
         "message": "success",
-        "data": data
+        "data": data,
+        "total": table_len
     }
     
     response = JSONResponse(content=content)
