@@ -36,8 +36,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-
 app.include_router(
     users.router,
     prefix="/api/v1/users",

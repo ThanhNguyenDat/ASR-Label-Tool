@@ -66,29 +66,32 @@ def exportToSegments(req: Request):
     sql = f"""
         SELECT {','.join(column_names)}
         FROM {TABLE_NAME}
-        WHERE exported is null
+        where exported = 'exported' and lb1 is not null
     """
 
     results = db.execute(sql)
     res_results = utils.tuple_result_2_dict_result(column_names, results)
-
+    print(len(res_results))
     user_id = ''
     content = {}
     extras = {}
     seed = ''
     list_values = []
     list_seed = []
+    label_url = "NULL"
 
     for index, row in enumerate(res_results):
+        print("index: ", 1)
         lb1 = row['lb1']
-        label_url = row['label_url']
-
+        
         if not isinstance(lb1, str) or lb1 == 'EMPTY' or len(lb1) == 0:
             continue
         json_lb1 = json.loads(lb1)
         data = json_lb1['data']
         
         for d in data:
+            label_url = ""
+            
             user_id = d['user_id']
             seed = d['seed']
             list_seed.append(seed)
@@ -96,18 +99,29 @@ def exportToSegments(req: Request):
             index, length, text = None, None, None
             audibility, noise, region = None, None, None
             hard_level = None
-
+            
             if 'content' in d.keys():
                 content = d['content']
                 if 'tag' in content.keys():
                     tag = content['tag']
-                    
                     if 'index' in tag.keys():
                         index = tag['index']
                     if 'length' in tag.keys():
                         length = tag['length']
                     if 'text' in tag.keys():
                         text = tag['text']
+                    
+                    try:
+                        input_file = row['label_url']
+                        print("INPUT FILE: ", input_file)
+                        data = utils.cut_audio(input_file, 
+                        start_time=int(index), length=int(length))
+                        
+                        # create link
+                        label_url = utils.createLinkByFile(data)
+                        print("label_url: ", label_url )
+                    except Exception as e:
+                        label_url = "NULL"
 
                 if 'extras' in content.keys():
                     extras = content['extras']
@@ -126,7 +140,7 @@ def exportToSegments(req: Request):
             tupple_child = (user_id, label_url, seed, index, length, text, audibility, noise, region, hard_level)
             
             list_values.append(tupple_child)
-    list_values = list_values[:10]
+    # list_values = list_values[:10]
     
     list_values = [str(value).replace("None", "NULL") for value in list_values]
     
@@ -135,18 +149,24 @@ def exportToSegments(req: Request):
     sql = f'''
         DELETE FROM segments WHERE seed IN {tuple(list_seed)}
     '''
-    
-    db.execute(sql, list_seed)
+    db.execute(sql)
     
     # insert new value
     sql = f"""
         INSERT INTO segments (user_id, label_url, seed, index, length, text, audibility, noise, region, hard_level)
         VALUES {', '.join(list_values)}
     """
-    print(sql)
+    print("insert sql: ", sql)
     db.execute(sql, list_values)
-
-
+    
+    # update status exported of asr_label (big table)
+    sql = f"""
+        UPDATE {TABLE_NAME}
+        SET exported = 'exported'
+        WHERE id IN {tuple(list_seed)}
+    """
+    db.execute(sql)
+    
 
     return list_values
 

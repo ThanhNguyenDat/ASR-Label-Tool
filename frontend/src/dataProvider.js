@@ -55,7 +55,7 @@ export default (
         return httpClient(url).then(({ headers, json }) => {
            return {
                 data: json.data || json,
-                total: parseInt(json.total) || 10,
+                total: parseInt(json.total) || 0,
             };
         });
     },
@@ -92,7 +92,7 @@ export default (
         return httpClient(url).then(({ headers, json }) => {
             return {
                 data: json.data || json,
-                total: parseInt(json.total) || 10,
+                total: parseInt(json.total) || 0,
 
             };
         });

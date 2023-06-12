@@ -36,13 +36,7 @@ async def getList(
 ):
     # call api or read database here
     data = []
-    content_range = f"0-10/404"
     
-    # request = await request.json()
-    # filter = request.get("filter", "")
-    # range = request.get("range", "")
-    # sort = request.get("sort", "")
-
     try:
         query = f'''
             SELECT rt.id AS id, 
@@ -114,11 +108,6 @@ async def getList(
                 range = eval(range)
             query += f" LIMIT {range[1] - range[0] + 1} OFFSET {range[0]}"
             
-            content_range = f"{range[0]}-{range[1]}/404"
-        content_range_split = content_range.split("/")        
-        content_range = f"{content_range_split[0]}/{table_len}"
-        
-        print("query: ", query)
         res = db.execute(query)
         # parse data to key values
         data = []
@@ -154,9 +143,6 @@ async def getList(
             
             data.append(per_res)
 
-    
-
-            
     except Exception as e:        
         print("ERROR: ", e)
 
@@ -168,12 +154,7 @@ async def getList(
     }
     
     response = JSONResponse(content=content)
-    # content_range = f"0-10/50"
-    print(content_range)
-    # get length in database
-    response.headers["Content-Range"] = content_range
-    response.headers["Access-Control-Expose-Headers"] = "Content-Range"
-
+    
     return response
 
 

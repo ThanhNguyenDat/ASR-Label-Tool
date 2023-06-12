@@ -16,3 +16,4 @@ ailabtools
 
 # asr
 jiwer
+scipy

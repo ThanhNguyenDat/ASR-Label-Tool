@@ -1,7 +1,15 @@
 from fastapi import Request
+import requests
 import json
+import io
+import time
+
+session_request = requests.session()
 
 MAX_LIMIT = 200
+
+def get_current_time():
+    return time.time() * 1000
 
 # def parse_query_params(d_query):
 def parse_query_params(req: Request):
@@ -68,3 +76,64 @@ def tuple_result_2_dict_result(select_colums, results):
         res_results.append(row_dict)
     
     return res_results
+
+
+def createLinkByFile(data):
+    url = "https://api.zalo.ai/v1/create_async_public/create_link_async?tail=wav"
+
+    payload = {}
+
+    files=[
+        ('img_file',('tmp.wav', data, 'audio/wav'))
+    ]
+    headers = {
+        'apikey': 'QWDITwI6sHTdt3WiGh2VLFbTDLJLHVjb'
+    }
+
+    response = session_request.request("POST", url, headers=headers, data=payload, files=files)
+
+    #{"error_message":"Successful.","error_code":0,"data":"https://api.zalo.ai/ailab_video/2023/06/12/0248a122-7e3b-4c3b-b9a8-5c97edd10a0c1686560863791789568.wav"}
+    res = response.text
+    res = json.loads(res)
+
+    return res.get("data", "")
+
+def cut_audio(input_file: str, start_time=0, length=0):
+
+    # start_time, length: mili-second
+    from scipy.io import wavfile
+    
+    if input_file.startswith("http"):
+        
+        response = session_request.get(input_file)
+        if response.status_code != 200:
+            return None
+        audio_data = response.content
+        
+        # Đọc dữ liệu âm thanh từ bộ nhớ đệm
+        sample_rate, data = wavfile.read(io.BytesIO(audio_data))
+
+    else:
+        # Đọc tệp âm thanh WAV
+        sample_rate, data = wavfile.read(input_file)
+    end_time = start_time + length
+
+    start_time = start_time / 1000
+    end_time = end_time / 1000
+
+    # Chuyển đổi thời gian từ giây sang mẫu âm thanh
+    start_sample = int(start_time * sample_rate)
+    end_sample = int(end_time * sample_rate)
+
+    # Cắt audio
+    cut_data = data[start_sample:end_sample]
+    
+    # # Ghi audio cắt vào tệp mới
+    # wavfile.write(output_file, sample_rate, cut_data)
+    # return cut_data
+    with io.BytesIO() as f:
+        wavfile.write(f, sample_rate, cut_data)
+        f.seek(0)
+        byte_data = f.read()
+
+    return byte_data

@@ -6,8 +6,9 @@ import { authProvider } from './authProvider';
 import asrLabelling from './pages/projects/asr/labelling';
 
 import { Layout } from './layouts';
+import users from './pages/users';
 
-let urlAPI = "http://0.0.0.0:6004/api/v1";
+let urlAPI = "http://0.0.0.0:6005/api/v1";
 const dataProvider = simpleRestProvider(urlAPI)
 function App() {
   return (
@@ -17,7 +18,7 @@ function App() {
       dashboard={Dashboard}
       layout={Layout}
     >
-      <Resource name="users" list={ListGuesser}/>
+      <Resource name="users" {...users}/>
       <Resource name="asr_segments" {...asrLabelling} />
     </Admin>
   );

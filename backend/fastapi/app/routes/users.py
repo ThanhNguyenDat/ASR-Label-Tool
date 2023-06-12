@@ -89,15 +89,12 @@ def getList(
     content = {
         "error_code": 0,
         "message": "add success",
-        "data": data
+        "data": data,
+        "total": table_length,
     }
     
     response = JSONResponse(content=content)
     
-    # get length in database
-    
-    response.headers["Content-Range"] = _content_range
-    response.headers["Access-Control-Expose-Headers"] = "Content-Range"
 
     return response
 
