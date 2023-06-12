@@ -32,11 +32,17 @@ async def getList(
     sort: str = Query(default=None), 
     range: str = Query(default=None), 
     filter: str = Query(default=None),
+    # request: Request
 ):
     # call api or read database here
     data = []
     content_range = f"0-10/404"
     
+    # request = await request.json()
+    # filter = request.get("filter", "")
+    # range = request.get("range", "")
+    # sort = request.get("sort", "")
+
     try:
         query = f'''
             SELECT rt.id AS id, 

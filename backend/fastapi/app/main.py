@@ -11,7 +11,7 @@ import json
 
 import psycopg2
 
-from .routes import asr_segments, users
+from .routes import asr_segments, users, asr_big_table
 
 
 app = FastAPI()
@@ -48,12 +48,17 @@ app.include_router(
 
 app.include_router(
     asr_segments.router,
-    prefix="/api/v1/asr",
-    tags=["labelling", "asr"],
+    prefix="/api/v1/asr_segments",
     responses={404: {"description": "Not found"}},
 )
 
+app.include_router(
+    asr_big_table.router,
+    prefix="/api/v1/asr_big_table",
+    responses={404: {"description": "Not found"}},
+)
 
+asr_big_table
 
 @app.get("/")
 async def hello():

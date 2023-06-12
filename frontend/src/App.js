@@ -7,7 +7,7 @@ import asrLabelling from './pages/projects/asr/labelling';
 
 import { Layout } from './layouts';
 
-let urlAPI = "http://0.0.0.0:6002/api/v1";
+let urlAPI = "http://0.0.0.0:6004/api/v1";
 const dataProvider = simpleRestProvider(urlAPI)
 function App() {
   return (
