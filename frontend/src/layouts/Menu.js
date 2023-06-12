@@ -67,7 +67,7 @@ const Menu = ({ dense = false }) => {
                 dense={dense}
             >
                 <MenuItemLink
-                    to="/asr"
+                    to="/asr_segments"
                     state={{ _scrollToTop: true }}
                     primaryText={translate(`ASR`, {
                         smart_count: 2,
