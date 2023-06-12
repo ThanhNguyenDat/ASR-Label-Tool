@@ -18,7 +18,7 @@ function App() {
       layout={Layout}
     >
       <Resource name="users" list={ListGuesser}/>
-      <Resource name="asr" {...asrLabelling} />
+      <Resource name="asr_segments" {...asrLabelling} />
     </Admin>
   );
 }
