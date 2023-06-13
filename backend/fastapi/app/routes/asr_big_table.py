@@ -36,25 +36,77 @@ db = Database(**config)
 # db = ConnectionPoolPostgreSql(1, 1, HOSTNAME, PORT, USERNAME,
 #                               PASSWORD, DATABASE, keep_connection=True, print_log=True)
 
-
-
-
 TABLE_NAME = "asr_label"
 TABLE_SEGMENTS = "segments"
 
 SELECT_COLUMNS = [
     'id',
+    'seed',
     'label_url',
-    'ds_name',
-    'user_zalo_id',
-    'status'
+    'lb1',
+    'exported',
 ]
 
 router = APIRouter()
 
-@router.post("/")
-def getList():
-    pass
+@router.get("/")
+async def getList(req: Request):
+    string_filter, filter_values, string_sort, string_offset_limit = utils.parse_query_params(req)
+
+    
+    sql = f"""
+        SELECT {','.join(SELECT_COLUMNS)}
+        FROM {TABLE_NAME}
+        {string_filter}
+        {string_sort}
+        {string_offset_limit}
+    """
+
+
+    sql_count = f"""
+        SELECT count(*) 
+        FROM {TABLE_NAME}
+        {string_filter}
+    """
+
+    results = db.execute(sql, {**filter_values})
+    
+
+    results_total = db.execute(sql_count, {**filter_values})
+    
+    res_results = utils.tuple_result_2_dict_result(SELECT_COLUMNS, results)
+    
+    content = {
+        "error_code": 0,
+        "message": "success",
+        "data": res_results,
+        "total": results_total[0][0]
+    }
+    
+    response = JSONResponse(content=content)
+    return response
+
+
+@router.get("/{id}")
+def getOne(id: int):
+    sql = f'''
+        SELECT {','.join(SELECT_COLUMNS)}
+        FROM {TABLE_NAME}
+        WHERE id={id}
+    '''
+    results = db.execute(sql)
+
+    res_results = utils.tuple_result_2_dict_result(SELECT_COLUMNS, results)
+
+    content = {
+        "error_code": 0,
+        "message": "success",
+        "data": res_results[0]
+    }
+    
+    response = JSONResponse(content=content)
+    return response
+
 
 @router.get("/export_to_segments")
 def exportToSegments(req: Request):

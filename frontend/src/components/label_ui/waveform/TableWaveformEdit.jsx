@@ -24,7 +24,7 @@ const TableWaveformEdit = props => {
     const [editingKey, setEditingKey] = useState('');
 
     const isEditing = (record) => record.key === editingKey;
-
+    
     return (
         <Table
             components={{

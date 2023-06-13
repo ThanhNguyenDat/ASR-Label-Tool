@@ -36,7 +36,6 @@ import { fetchUtils, DataProvider } from 'ra-core';
 export default (
     apiUrl,
     httpClient = fetchUtils.fetchJson,
-    countHeader = 'Content-Range'
 ) => ({
     getList: (resource, params) => {
         const { page, perPage } = params.pagination;

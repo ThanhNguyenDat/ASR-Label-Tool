@@ -24,6 +24,8 @@ import { AutocompleteInput,
     useRedirect,
     Button,
     BulkUpdateButton,
+    EditButton,
+    FunctionField,
 } from 'react-admin';
 import { useMediaQuery, Divider, Tabs, Tab, Theme } from '@mui/material';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
@@ -98,18 +100,26 @@ const LabelBulkActionButtons = () => (
 )
 
 const TabbedDatagrid = () => {
+    const seedLinkFormatter = (record) => {
+        const seed = record.seed;
+        return (
+            <Link to={`/asr_big_table/${seed}`}>
+                {seed}
+            </Link>
+        );
+    };
+    
     return (
-
     <DatagridConfigurable
         bulkActionButtons={<LabelBulkActionButtons />}
+        // rowClick='edit'
     >
         <TextField source='id'/>
         <ReferenceField source="user_id" label="User" reference="users" emptyText="No user">
             <TextField source='username' />
         </ReferenceField>
 
-        <TextField source='seed'/>
-        
+        <FunctionField label='seed' render={seedLinkFormatter} />
         <CustomLinkField source='label_url'/>
         <TextField source='index'/>
         <TextField source='length'/>
@@ -121,7 +131,7 @@ const TabbedDatagrid = () => {
         <TextField source='wer_kaldi'/>
         <TextField source='text_wenet'/>
         <TextField source='wer_wenet'/>
-       
+        {/* <EditButton/> */}
     </DatagridConfigurable>
     )
 }

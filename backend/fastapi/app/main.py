@@ -13,7 +13,6 @@ import psycopg2
 
 from .routes import asr_segments, users, asr_big_table
 
-
 app = FastAPI()
 
 # cors

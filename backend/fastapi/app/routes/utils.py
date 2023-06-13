@@ -35,19 +35,41 @@ def parse_query_params(req: Request):
                         string_sort += ','
 
             if k == 'filter':
+                # filter_conditions = []
+                # d_condition = json.loads(d_query[k])
+                # for cond_name, cond_value in d_condition.items():
+                #     if isinstance(cond_value, list) or isinstance(cond_value, tuple):
+                #         if cond_name == 'ids':
+                #             filter_conditions.append(" id in %(ids)s ")
+                #             filter_values[cond_name] = tuple(cond_value)
+                #     else:
+                #         filter_conditions.append(f" {cond_name} = %({cond_name})s ")
+                #         filter_values[cond_name] = cond_value
+                # if filter_conditions: # prevent case filter={}
+                #     string_filter = ' where '
+                #     string_filter += " AND ".join(filter_conditions)
+                
                 filter_conditions = []
                 d_condition = json.loads(d_query[k])
+                # Xây dựng câu truy vấn từ từ điển
                 for cond_name, cond_value in d_condition.items():
-                    if isinstance(cond_value, list) or isinstance(cond_value, tuple):
-                        if cond_name == 'ids':
-                            filter_conditions.append(" id in %(ids)s ")
-                            filter_values[cond_name] = tuple(cond_value)
+                    if isinstance(cond_value, list) and cond_name != 'status':
+                        # Đối với các trường có giá trị là danh sách, tạo điều kiện OR cho các giá trị trong danh sách
+                        or_conditions = [f"{cond_name}='{value}'" for value in cond_value]
+                        condition = f"({' OR '.join(or_conditions)})"
+
+                        filter_conditions.append(condition)
                     else:
-                        filter_conditions.append(f" {cond_name} = %({cond_name})s ")
-                        filter_values[cond_name] = cond_value
-                if filter_conditions: # prevent case filter={}
-                    string_filter = ' where '
-                    string_filter += " AND ".join(filter_conditions)
+                        # Đối với các trường có giá trị là một giá trị duy nhất, tạo điều kiện bình thường
+                        condition = f"{cond_name}='{cond_value}'"
+                        filter_conditions.append(condition)
+                
+                string_filter += f" WHERE {' AND '.join(filter_conditions)}"
+                
+                # hard code
+                if ("status='to_review'" in string_filter):
+                    string_filter = string_filter.replace("status='to_review'", "(status='to_review' OR status IS NULL)")
+
             
             if k == 'range':
                 # offset, limit = json.loads(d_query[k])
