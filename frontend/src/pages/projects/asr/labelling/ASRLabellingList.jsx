@@ -54,7 +54,8 @@ const ASRLabellingList = () => {
             queryOptions={{meta: {_embed: 'users'}}}
             aside={<Aside />}
         >
-            <ASRLabelDatagrid />
+            {/* <ASRLabelDatagrid /> */}
+            <TabbedDatagrid />
         </List>
     );
 };
@@ -116,7 +117,7 @@ const TabbedDatagrid = () => {
     >
         <TextField source='id'/>
         <ReferenceField source="user_id" label="User" reference="users" emptyText="No user">
-            <TextField source='username' />
+            <TextField source='uname' />
         </ReferenceField>
 
         <FunctionField label='seed' render={seedLinkFormatter} />
