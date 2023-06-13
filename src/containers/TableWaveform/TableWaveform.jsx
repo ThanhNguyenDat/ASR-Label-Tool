@@ -8,7 +8,7 @@ import {FiEdit3} from "react-icons/fi";
 
 import './styles.scss';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import DiffViewer, { DiffMethod } from 'react-diff-viewer';
+import DiffViewer, { DiffMethod } from 'react-diff-viewer-continued';
 
 
 const modeDescriptionOptions = [
@@ -511,7 +511,7 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                                         flexDirection: "column"
                                     }}
                                     >
-                                        <div
+                                        {/* <div
                                             style={{
                                                 display: 'flex',
                                                 width: "100%",
@@ -535,7 +535,7 @@ function TableWaveform ({columns, dataTable, ...rest}) {
                                                 }}
                                             ><FiEdit3 /> Accept Text</div>
 
-                                        </div>
+                                        </div> */}
                                         <PredictDiffViewer 
                                             oldValue={oldValue}
                                             newValue={newValue}

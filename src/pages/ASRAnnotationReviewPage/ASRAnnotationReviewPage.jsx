@@ -166,9 +166,6 @@ const rv1_fake = {
 
 
 function ASRAnnotationReviewPage(props) {
-    
-    
-
     const [dataLabelIds, setDataLabelIds] = React.useState([]);
     
     const [entireDataLabel, setEntireDataLabel] = React.useState([]);
@@ -374,6 +371,7 @@ function ASRAnnotationReviewPage(props) {
                             "audibility": anno.content.extras?.classify?.audibility || 'good',
                             "noise": anno.content.extras?.classify?.noise || 'clean',
                             "echo": anno.content.extras?.classify?.echo || 'clean',
+                            "region": anno.content.extras?.classify?.region || 'other',
                         },
                         "review": anno.content.extras?.review || "",
                     },
@@ -411,6 +409,7 @@ function ASRAnnotationReviewPage(props) {
                                 'audibility':  'good',
                                 'noise': extras.classify?.noise || 'clean',
                                 'echo': extras.classify?.echo || 'clean',
+                                'region': extras.classify?.region || 'region',
                             },
                             'review': extras.review || "",
                         },
