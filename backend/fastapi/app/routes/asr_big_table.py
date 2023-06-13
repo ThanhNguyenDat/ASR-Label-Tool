@@ -118,7 +118,7 @@ def exportToSegments(req: Request):
     sql = f"""
         SELECT {','.join(column_names)}
         FROM {TABLE_NAME}
-        where exported = 'exported' and lb1 is not null
+        where exported != 'exported' and lb1 is not null
     """
 
     results = db.execute(sql)
