@@ -1,30 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { AutocompleteInput, 
-    ChipField, 
     DatagridConfigurable, 
     ExportButton, 
-    FilterButton, 
     Link, 
     List, 
     Count,
-    NullableBooleanInput, 
     ReferenceField, 
-    ReferenceInput, 
-    ReferenceManyField, 
-    SearchInput, 
     SelectColumnsButton, 
-    SingleFieldList, 
     TextField, 
-    TextInput, 
     TopToolbar, 
     useListContext, 
-    useNotify, 
     useRecordContext, 
-    useRedirect,
-    Button,
     BulkUpdateButton,
-    EditButton,
     FunctionField,
 } from 'react-admin';
 import { useMediaQuery, Divider, Tabs, Tab, Theme } from '@mui/material';
@@ -39,7 +27,7 @@ import MoreDataButton from './MoreDataButton';
 const ListActions = () => (
     <TopToolbar>
         <MoreDataButton />
-        <SelectColumnsButton />
+        <SelectColumnsButton defaultValue={['id', 'index', 'text_kaldi', 'text_wenet']}/>
         <ExportButton />
     </TopToolbar>
 );
@@ -103,36 +91,38 @@ const TabbedDatagrid = () => {
     const seedLinkFormatter = (record) => {
         const seed = record.seed;
         return (
-            <Link to={`/asr_big_table/${seed}`}>
+            // <Link to={`/asr_label/${seed}`}>
+            <Link to="#">
                 {seed}
             </Link>
         );
     };
     
     return (
-    <DatagridConfigurable
-        bulkActionButtons={<LabelBulkActionButtons />}
-        // rowClick='edit'
-    >
-        <TextField source='id'/>
-        <ReferenceField source="user_id" label="User" reference="users" emptyText="No user">
-            <TextField source='username' />
-        </ReferenceField>
+        <DatagridConfigurable
+            bulkActionButtons={<LabelBulkActionButtons />}
+            // rowClick='edit'
+            omit={['id', 'index', 'text_kaldi', 'text_wenet']}
+        >
+            <TextField source='id'/>
+            <ReferenceField source="user_id" label="User" reference="users" emptyText="No user">
+                <TextField source='uname' />
+            </ReferenceField>
 
-        <FunctionField label='seed' render={seedLinkFormatter} />
-        <CustomLinkField source='label_url'/>
-        <TextField source='index'/>
-        <TextField source='length'/>
-        <TextField source='text'/>
-        <TextField source='audibility'/>
-        <TextField source='noise'/>
-        <TextField source='region'/>
-        <TextField source='text_kaldi'/>
-        <TextField source='wer_kaldi'/>
-        <TextField source='text_wenet'/>
-        <TextField source='wer_wenet'/>
-        {/* <EditButton/> */}
-    </DatagridConfigurable>
+            <FunctionField label='seed' render={seedLinkFormatter} />
+            <CustomLinkField source='label_url'/>
+            <TextField source='index'/>
+            <TextField source='length'/>
+            <TextField source='text'/>
+            <TextField source='audibility'/>
+            <TextField source='noise'/>
+            <TextField source='region'/>
+            <TextField source='text_kaldi'/>
+            <TextField source='wer_kaldi'/>
+            <TextField source='text_wenet'/>
+            <TextField source='wer_wenet'/>
+            {/* <EditButton/> */}
+        </DatagridConfigurable>
     )
 }
 
@@ -148,7 +138,7 @@ const ASRLabelDatagrid = () => {
     console.log(filterValues);
 
     const tabs = React.useMemo(() =>  [
-        { id: 'to_review', name: 'to_review' || '' },
+        { id: 'to_review', name: 'to_review' },
         { id: 'deny', name: 'deny' },
         { id: 'reviewed', name: 'reviewed' },
     ], []);
@@ -161,6 +151,7 @@ const ASRLabelDatagrid = () => {
                 value={filterValues.status}
                 indicatorColor="primary"
                 onChange={handleChange}
+                
             >
                 {tabs.map(choice => (
                     <Tab
@@ -185,7 +176,6 @@ const ASRLabelDatagrid = () => {
             <Divider />
             <>
                 <TabbedDatagrid />
-                
             </>
         </React.Fragment>
     ); 

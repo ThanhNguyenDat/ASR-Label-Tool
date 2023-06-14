@@ -1,14 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-    Button, useDataProvider
+    Button, useDataProvider, useNotify, useRefresh
 } from 'react-admin';
 import UnfoldMoreDoubleIcon from '@mui/icons-material/UnfoldMoreDouble';
 import { useMutation } from 'react-query';
 
 const MoreDataButton = () => {
     const dataProvider = useDataProvider();
-    const {mutate, isLoading} = useMutation(() => dataProvider.exportMoreData())
+    const refresh = useRefresh();
+    const notify = useNotify();
+
+    const {mutate, isLoading, error, isSuccess } = useMutation(() => dataProvider.exportMoreData(), {
+        onError: (error) => {
+        notify(`Get more data error: ${error.message}`, {type: 'error'})
+    }, onSuccess: () => {
+        refresh();
+    }})
     const handleClick = () => {
         mutate()
     }

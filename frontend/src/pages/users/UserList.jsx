@@ -7,7 +7,7 @@ const UserList = () => {
         <List>
             <Datagrid>
                 <TextField source='id' />
-                <TextField source='username' />
+                <TextField source='uname' />
             </Datagrid>
         </List>
     );

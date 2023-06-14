@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 from passlib.context import CryptContext
 
 from typing_extensions import Annotated
-from ..database import Database
+from app.database.database import Database
 import psycopg2
 import jiwer
 

@@ -43,11 +43,7 @@ app.include_router(
 )
 
 
-app.include_router(
-    asr_segments.router,
-    prefix="/api/v1/asr_segments",
-    responses={404: {"description": "Not found"}},
-)
+app.include_router(asr_segments.router)
 
 app.include_router(
     asr_big_table.router,
