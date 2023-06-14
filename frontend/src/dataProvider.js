@@ -145,7 +145,7 @@ export default (
     
     // export more data in big table to segments table
     exportMoreData: (resource, params) => 
-        httpClient(`${apiUrl}/asr_big_table/export_to_segments`).then(({ json }) => ({
+        httpClient(`${apiUrl}/asr_label/export_to_segments`).then(({ json }) => ({
             data: json.data || json,
         })),
 });
