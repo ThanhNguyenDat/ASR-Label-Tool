@@ -3,6 +3,13 @@ import json
 
 MAX_LIMIT = 200
 
+def parse_req_2_json(req: Request):
+    if isinstance(req, Request):
+        d_query = dict(req.query_params)
+        # d_query = dict(req.query_form)
+    elif isinstance(req, dict):
+        d_query = req
+    return d_query
 
 # def parse_query_params(d_query):
 def parse_query_params(req: Request):
@@ -43,37 +50,6 @@ def parse_query_params(req: Request):
                     string_filter = ' WHERE '
                     string_filter += " AND ".join(filter_conditions)
 
-                # # ThanhND13 Code
-                # filter_conditions = []
-                # # Biến trung gian
-                # previous_key = None
-                # current_operator = "AND"
-
-                # d_condition = json.loads(d_query[k])
-                # # Xây dựng câu truy vấn từ từ điển
-                # for cond_name, cond_value in d_condition.items():
-                #     if previous_key is None or previous_key == cond_name:
-                #         current_operator = "AND"
-                #     else:
-                #         current_operator = "OR"
-                    
-                    
-                #     if isinstance(cond_value, list) or isinstance(cond_value, tuple):
-                #         # Đối với các trường có giá trị là danh sách, tạo điều kiện OR cho các giá trị trong danh sách
-                #         filter_conditions.append(f" {cond_name} IN %({cond_name})s ")
-                #         filter_values[cond_name] = tuple(cond_value)
-                #     else:
-                #         # Đối với các trường có giá trị là một giá trị duy nhất, tạo điều kiện bình thường
-                #         filter_conditions.append(f" {cond_name} = %({cond_name})s ")
-                #         filter_values[cond_name] = cond_value
-
-                #     filter_conditions[-1] = f"({filter_conditions[-1]})"
-                #     filter_conditions[-1] = f"{current_operator} {filter_conditions[-1]}"
-
-                #     previous_key = cond_name
-                # if filter_conditions:
-                #     string_filter = " WHERE " + " ".join(filter_conditions)
-                
             if k == 'range':
                 # offset, limit = json.loads(d_query[k])
                 range_start, range_end = json.loads(d_query[k])
@@ -81,23 +57,6 @@ def parse_query_params(req: Request):
                 string_offset_limit = f' LIMIT {min(limit, MAX_LIMIT)} OFFSET {range_start} '
     return string_filter, filter_values, string_sort, string_offset_limit
     # return where_condition, order_cond, min(limit , MAX_LIMIT), offset
-
-def parse_body_values(body):
-    if isinstance(body, Request):
-        d_query = dict(body.query_params)
-    elif isinstance(body, dict):
-        d_query = body
-    # print('data_update: ', d_query)
-
-    multi_data_update = []
-    values_to_update = ""
-    if d_query:
-        for key, value in d_query.items():
-            key_value = f"{key}='{value}'"
-            multi_data_update.append(key_value)
-        values_to_update = " , ".join(multi_data_update)
-        values_to_update = "SET " + values_to_update
-    return values_to_update
 
 def parse_update_params(data: dict):
     return ", ".join(f"{key} = %s" for key in data.keys())
@@ -119,4 +78,26 @@ def tuple_result_2_dict_result(select_colums, results):
     
     return res_results
 
+def dict_result_2_tuple_result(select_columns, results, default_value=""):
+    res_results = []
+    for value in results:
+        ress = []
+        for column in select_columns:
+            v = value.get(column, default_value)
+            ress.append(v)
+        res_results.append(ress)
+    return res_results
 
+def parse_query_data(req: Request):
+    d_query = parse_req_2_json(req)
+
+    string_update = ""
+    update_conditions = []
+    for cond_name, cond_value in d_query.items():
+        update_conditions.append(f" {cond_name} = %({cond_name})s ")
+        
+    if update_conditions: # prevent case filter={}
+        string_update = ' SET '
+        string_update += " , ".join(update_conditions)
+
+    return string_update

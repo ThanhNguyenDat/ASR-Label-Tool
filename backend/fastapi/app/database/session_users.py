@@ -74,15 +74,13 @@ def get_one(id: int, req: Request):
     return res_results
 
 def update(id: int, body: dict):
-    set_values = utils.parse_body_values(body)
-
+    string_update = utils.parse_query_data(body)
+    
     sql = f"""
         UPDATE {TABLE_NAME}
-        {set_values}
-        WHERE id = {id}
+        {string_update}
+        WHERE id = %(id)s
     """
-
-    db.executeUpdate(sql)
-
-
+    db.executeUpdate(sql, {**body, "id": id})
+    
     return id

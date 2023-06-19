@@ -1,5 +1,9 @@
-from fastapi import Request
+import os
+
+from fastapi import Request, Form
 from app.database import utils
+from app.asr import utils as asr_utils
+
 import requests
 import json
 
@@ -28,9 +32,9 @@ SELECT_COLUMNS = [
     "audibility",
     "noise",
     "region",
-    "text_kaldi",
+    "predict_kaldi",
     "wer_kaldi",
-    "text_wenet",
+    "predict_wenet",
     "wer_wenet",
     "user_id",
     "status",
@@ -77,6 +81,70 @@ def get_all(req: Request):
     print(
         f"parse: {s2 - s1}, query items: {s3 - s2}, query total: {s4 - s3} , reformat: {s5 - s4} ")
     return res_results, results_total[0][0]
+
+
+def update_predict(**kwargs):
+    
+    d_query = utils.parse_req_2_json(kwargs)
+    # print("form: ", form)
+    # print("form dict: ", dict(form))
+    print('d_query ', d_query)
+    id = d_query.get("id", None)
+    if not id:        
+        print("Not found id")
+        return None
+
+    # call api to 
+    try:
+        res = requests.post(os.environ['API_PREDICT'], 
+            data={}, 
+            headers={     
+                'Content-Type': 'Application/json',
+        })
+        # update to database
+        res = res.json()
+        res = res.get("data")
+
+    except Exception as erro:
+        res = None
+        print("error: ", erro)
+
+    if not res:
+        return None
+    
+    predict_kaldi = res.get("predict_kaldi", "")
+    predict_wenet = res.get("predict_wenet", "")
+    
+    update_values = {
+        "predict_kaldi": predict_kaldi,
+        "predict_wenet": predict_wenet,
+    }
+    
+
+    # string_update = ""
+    # update_conditions = []
+    # for cond_name, cond_value in update_values.items():
+    #     update_conditions.append(f" {cond_name} = %({cond_name})s ")
+        
+    # if update_conditions: # prevent case filter={}
+    #     string_update = ' SET '
+    #     string_update += " , ".join(update_conditions)
+
+    string_update = utils.parse_query_data(update_values)
+
+    print("-"*60)
+    print(update_values)
+    print(string_update)
+
+
+    sql = f"""
+        UPDATE {TABLE_NAME}
+        {string_update}
+        WHERE id=%(id)s
+    """
+    db.executeUpdate(sql, {**update_values, "id": id})
+
+    return res
 
 def get_one(id: int, req: Request):
     sql = f"""
@@ -126,16 +194,14 @@ def update_many(req: Request, data: dict):
     return []
 
 def update(id: int, body: dict):
+    string_update = utils.parse_query_data(body)
     
-    set_values = utils.parse_body_values(body)
-    # print("set_values: ", set_values)
-
     sql = f"""
         UPDATE {TABLE_NAME}
-        {set_values}
-        WHERE id = {id}
+        {string_update}
+        WHERE id = %(id)s
     """
-    db.executeUpdate(sql)
+    db.executeUpdate(sql, {**body, "id": id})
     
-
     return id
+

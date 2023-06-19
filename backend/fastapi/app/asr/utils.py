@@ -4,6 +4,7 @@ import requests
 import json
 from scipy.io import wavfile
 from typing import List, Tuple
+import jiwer
 
 session_request = requests.session()
 
@@ -67,115 +68,106 @@ def cut_audio(input_file: str, start_time=0, length=0):
 
     return byte_data
 
-def tuple_result_2_dict_result(select_colums, results):
-    res_results = []
+def calculate_wer(gt: str, pred: str):
+    if not gt and not pred:
+        return None
     
-    for result in results:
-        assert len(select_colums) == len(result)
-        row_dict = {}
-        for idx, col_name in enumerate(select_colums):
-            row_dict[col_name] = result[idx]
-        res_results.append(row_dict)
-    
-    return res_results
+    return jiwer.wer(gt, pred)
 
-def parse_values(data, list_seed: List, INSER_COLUMNS: List or Tuple = []) -> Tuple[List[dict], List]:
-    # returns: [List[Dict], List[int]]
-
-    if bool(INSER_COLUMNS):
-        return []
-    
-    user_id = ''
-    seed = ''
-    label_url = ''
-
-    content = {}
-    extras = {}
-    return_values = []
-    
-    for index, row in enumerate(data):
+def parse_values(inputs, INSER_COLUMNS: List or Tuple = []) -> Tuple[List[dict], List]:
+    # returns: [List[Dict], List[int]]   
+    list_values = []
+    list_seed = []
+    for row in inputs:
         lb1 = row['lb1']
         
         if not isinstance(lb1, str) or lb1 == 'EMPTY' or len(lb1) == 0:
             continue
-
         json_lb1 = json.loads(lb1)
         data = json_lb1['data']
-        if not data:
-            continue
-
+        
         for d in data:
-            label_url = ''
+            label_url = "ERROR"
             
             user_id = d['user_id']
             seed = d['seed']
             list_seed.append(seed)
 
-            index, length, text = "", "", ""
-            audibility, noise, region = "", "", ""
+            index, length, text = 0, 0, ""
+            
+            audibility, noise, region = None, None, None
+
+            predict_kaldi, wer_kaldi = None, None
+            predict_wenet, wer_wenet = None, None
+
             hard_level = 1
             
-            if 'content' in d.keys():
+            if 'content' in d:
                 content = d['content']
-                if 'tag' in content.keys():
+
+                if 'tag' in content:
                     tag = content['tag']
-                    if 'index' in tag.keys():
-                        index = tag['index']
-                    if 'length' in tag.keys():
-                        length = tag['length']
-                    if 'text' in tag.keys():
-                        text = tag['text']
+                    index = tag.get('index', "")
+                    length = tag.get('length', "")
+                    text = tag.get('text', "")
                     
                     try:
                         input_file = row['label_url']
+                        data = cut_audio(input_file, start_time=int(index), length=int(length))
                         
-                        data = cut_audio(input_file, 
-                        start_time=int(index), length=int(length))
-                        
-                        # create link
                         label_url = create_link_by_file(data)
-                        
+
+                        if not isinstance(label_url, str):
+                            label_url = "ERROR"
+
                     except Exception as e:
+                        print("ERROR: ", e)
                         label_url = "ERROR"
 
-                if 'extras' in content.keys():
+                if 'extras' in content:
                     extras = content['extras']
-                    if 'classify' in extras:
-                        classify = extras['classify']
-                        if 'audibility' in classify.keys():
-                            audibility = classify['audibility']
-                            
-                        if 'noise' in classify.keys():
-                            noise = classify['noise']
-                            
-                        if 'region' in extras.keys():
-                            region = classify['region']
-                    if 'hard_level' in extras:
-                        hard_level = extras['hard_level']
+                    classify = extras.get('classify', {})
+                    
+                    audibility = classify.get('audibility', "")
+                    noise = classify.get('noise', "")
+                    region = classify.get('region', "")
+                    hard_level = extras.get('hard_level', hard_level)
 
-            dict_child = {
-                "user_id": user_id, 
-                "label_url": label_url, 
-                "seed": seed, 
-                "index": index, 
-                "length": length, 
-                "text": text, 
-                "audibility": audibility, 
-                "noise": noise, 
-                "region": region, 
+                    predict_kaldi = classify.get("predict_kaldi", "")
+                    if predict_kaldi:
+                        wer_kaldi = classify.get("wer_kaldi", calculate_wer(text, predict_kaldi))
+                    predict_wenet = classify.get("predict_wenet", "")
+                    if predict_wenet:
+                        wer_wenet = classify.get("wer_wenet", calculate_wer(text, predict_wenet))
+                
+            print("url: ", label_url)
+            dict_value = {
+                "user_id": user_id,
+                "label_url": label_url,
+                "seed": seed,
+                "index": index,
+                "length": length,
+                "text": text,
+                "audibility": audibility,
+                "noise": noise,
+                "region": region,
                 "hard_level": hard_level,
                 "status": "to_review",
+                "predict_kaldi": predict_kaldi,
+                "wer_kaldi": wer_kaldi,
+                "predict_wenet": predict_wenet,
+                "wer_wenet": wer_wenet,
             }
 
-            # parse columns
-            dict_values = {}
-            for column_name in INSER_COLUMNS:
-                if column_name in dict_child.keys():
-                    dict_values[column_name] = dict_child[column_name]
-                else:
-                    dict_values[column_name] = ""
 
-            return_values.append(dict_values)
+            values = []
+            for column in INSER_COLUMNS:
+                # if column in dict_value and dict_value[column] is None:
+                #     dict_value[column] = ""
+                v = dict_value.get(column, None)
+                values.append(v)
+            
+            list_values.append(tuple(values))
     
-
-    return return_values, list_seed
+    
+    return list_values, list_seed

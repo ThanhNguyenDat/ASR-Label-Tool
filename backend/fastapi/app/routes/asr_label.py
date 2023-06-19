@@ -14,7 +14,69 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-@router.get("/")
+
+@router.get("/export_to_segments")
+async def exportToSegments():
+    res = {
+        "error_code": 0,
+        "error_message": "Success",
+        "data": []
+    }
+
+    try:
+        st = time.time()
+        items = db_session.export_more_segments()
+        res["data"] = items
+        et = time.time()
+        print(f'toook : {et - st}')
+    except Exception as e:
+        print('tb: ', tb.format_exc())
+        res["error_code"] = 1,
+        res["error_message"] = str(e)
+    return res
+    
+
+@router.get("/{id}")
+async def getOne(id: int, req: Request):
+    res = {
+        "error_code": 0,
+        "error_message": "Success",
+        "data": []
+    }
+    try:
+        st = time.time()
+        items = db_session.get_one(id, req)
+        res["data"] = items
+        et = time.time()
+        print(f'toook : {et - st}')
+    except Exception as e:
+        print('tb: ', tb.format_exc())
+        res["error_code"] = 1,
+        res["error_message"] = str(e)
+    return res
+
+
+@router.put("/{id}")
+async def updateOne(id: int, body: dict, req: Request):
+    res = {
+        "error_code": 0,
+        "error_message": "Success",
+        "data": []
+    }
+    try:
+        st = time.time()
+        items = db_session.update(id, body)
+        res["data"] = items
+        et = time.time()
+        print(f'toook : {et - st}')
+    except Exception as e:
+        print('tb: ', tb.format_exc())
+        res["error_code"] = 1,
+        res["error_message"] = str(e)
+    return res
+
+
+@router.get("/", include_in_schema=False)
 async def getList(req: Request, res: Response):
     res = {
         "error_code": 0,
@@ -35,8 +97,10 @@ async def getList(req: Request, res: Response):
     return res
 
 
-# @router.get("/{id}")
-# async def getOne(id: int, req: Request):
+
+# # erorr
+# @router.put("", include_in_schema=False)
+# async def updateMany(req: Request, data: dict, response: Response):
 #     res = {
 #         "error_code": 0,
 #         "error_message": "Success",
@@ -44,75 +108,12 @@ async def getList(req: Request, res: Response):
 #     }
 #     try:
 #         st = time.time()
-#         items = db_session.get_one(id, req)
+#         items = db_session.update_many(req, data)
 #         res["data"] = items
 #         et = time.time()
-#         print(f'toook : {et - st}')
+#         print(f'update many took : {et - st}')
 #     except Exception as e:
 #         print('tb: ', tb.format_exc())
 #         res["error_code"] = 1,
 #         res["error_message"] = str(e)
 #     return res
-
-# @router.put("/{id}")
-# async def updateOne(id: int, body: dict, req: Request):
-#     res = {
-#         "error_code": 0,
-#         "error_message": "Success",
-#         "data": []
-#     }
-#     try:
-#         st = time.time()
-#         items = db_session.update(id, body)
-#         res["data"] = items
-#         et = time.time()
-#         print(f'toook : {et - st}')
-#     except Exception as e:
-#         print('tb: ', tb.format_exc())
-#         res["error_code"] = 1,
-#         res["error_message"] = str(e)
-#     return res
-
-
-
-@router.put("")
-async def updateMany(req: Request, data: dict, response: Response):
-    res = {
-        "error_code": 0,
-        "error_message": "Success",
-        "data": []
-    }
-    try:
-        st = time.time()
-        items = db_session.update_many(req, data)
-        res["data"] = items
-        et = time.time()
-        print(f'update many took : {et - st}')
-    except Exception as e:
-        print('tb: ', tb.format_exc())
-        res["error_code"] = 1,
-        res["error_message"] = str(e)
-    return res
-
-
-@router.get("/export_to_segments")
-async def exportToSegments():
-    res = {
-        "error_code": 0,
-        "error_message": "Success",
-        "data": []
-    }
-
-    print("go here")
-    try:
-        st = time.time()
-        items = db_session.exportMoreSegments()
-        res["data"] = items
-        et = time.time()
-        print(f'toook : {et - st}')
-    except Exception as e:
-        print('tb: ', tb.format_exc())
-        res["error_code"] = 1,
-        res["error_message"] = str(e)
-    return res
-    
