@@ -142,7 +142,15 @@ export default (
         ).then(responses => ({
             data: responses.map(({ json }) => json.data.id || json.id),
         })),
-    
+
+    updatePredict: (resource, params) => 
+        {
+            console.log("params: ", params);
+            console.log("resource: ", resource);
+            return httpClient(`${apiUrl}/${resource}/update-predict`, params).then(({json}) => ({
+        data: json.data || json
+    }))},
+
     // export more data in big table to segments table
     exportMoreData: (resource, params) => 
         httpClient(`${apiUrl}/asr_label/export_to_segments`).then(({ json }) => ({

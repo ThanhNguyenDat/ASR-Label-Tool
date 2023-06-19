@@ -7,12 +7,13 @@ import { Layout } from './layouts';
 
 import users from './pages/users';
 import asrSegments from './pages/projects/asr/asr_segments';
-import bigTable from './pages/projects/asr/bigTable';
+import asrLabel from './pages/projects/asr/asr_label';
+import routes from './config/routes';
 
-// let urlAPI = "http://0.0.0.0:6002/api/v1"; // native
+let urlAPI = "http://0.0.0.0:6002/api/v1"; // native
 // let urlAPI = "http://0.0.0.0:8000/react_admin/api" // Kong
 
-let urlAPI = "http://10.40.34.15:7223";
+// let urlAPI = "http://10.40.34.15:7223";
 
 const dataProvider = simpleRestProvider(urlAPI)
 function App() {
@@ -23,9 +24,10 @@ function App() {
       dashboard={Dashboard}
       layout={Layout}
     >
-      <Resource name="users" {...users}/>
-      <Resource name="asr_segments" {...asrSegments} />
-      <Resource name="asr_label" {...bigTable}/>
+      <Resource name={routes.users.name} {...users}/>
+
+      <Resource name={routes.asr_segments.name} {...asrSegments} />
+      <Resource name={routes.asr_label.name} {...asrLabel}/>
     </Admin>
   );
 }

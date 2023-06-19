@@ -13,6 +13,7 @@ import {
 } from 'react-admin';
 
 import SubMenu from './SubMenu';
+import routes from '../config/routes';
 
 const Menu = ({ dense = false }) => {
     const [state, setState] = useState({
@@ -49,7 +50,7 @@ const Menu = ({ dense = false }) => {
                 dense={dense}
             >
                 <MenuItemLink
-                    to="/users"
+                    to={routes.users.to}
                     state={{ _scrollToTop: true }}
                     primaryText={translate(`Member`, {
                         smart_count: 2,
@@ -66,16 +67,26 @@ const Menu = ({ dense = false }) => {
                 icon={<LabelIcon />}
                 dense={dense}
             >
+
                 <MenuItemLink
-                    to="/asr_segments"
+                    to={routes.asr_label.to} 
                     state={{ _scrollToTop: true }}
-                    primaryText={translate(`ASR`, {
+                    primaryText={translate(routes.asr_label.label, {
                         smart_count: 2,
                     })}
                     leftIcon={<LabelIcon />}
                     dense={dense}
                 />
 
+                <MenuItemLink
+                    to={routes.asr_segments.to} 
+                    state={{ _scrollToTop: true }}
+                    primaryText={translate(routes.asr_segments.label, {
+                        smart_count: 2,
+                    })}
+                    leftIcon={<LabelIcon />}
+                    dense={dense}
+                />
                 <MenuItemLink
                     to="/#"
                     state={{ _scrollToTop: true }}

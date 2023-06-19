@@ -11,6 +11,7 @@ import {
 import ListFilterAside from './ListFilterAside';
 
 import CategoryIcon from '@mui/icons-material/LocalOffer';
+
 import AudibilityFilter from './AudibilityFilter';
 import NoiseFilter from './NoiseFilter';
 import RegionFilter from './RegionFilter';
@@ -39,7 +40,7 @@ const Aside = () => {
             <UserFilter />
             <AudibilityFilter />
             <NoiseFilter />
-            
+            <RegionFilter />
         </CardContent>
     </Card>
 )};

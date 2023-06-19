@@ -18,7 +18,7 @@ const Waveform = () => {
     )
 }
 
-const BigTableEdit = () => {
+const AsrLabelEdit = () => {
     
     return (
         <Edit>
@@ -28,8 +28,8 @@ const BigTableEdit = () => {
     );
 };
 
-BigTableEdit.propTypes = {
+AsrLabelEdit.propTypes = {
     
 };
 
-export default BigTableEdit;
+export default AsrLabelEdit;

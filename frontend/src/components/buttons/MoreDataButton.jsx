@@ -1,7 +1,9 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {
-    Button, useDataProvider, useNotify, useRefresh
+    Button, 
+    useDataProvider, 
+    useNotify, 
+    useRefresh
 } from 'react-admin';
 import UnfoldMoreDoubleIcon from '@mui/icons-material/UnfoldMoreDouble';
 import { useMutation } from 'react-query';
@@ -17,9 +19,11 @@ const MoreDataButton = () => {
     }, onSuccess: () => {
         refresh();
     }})
+    
     const handleClick = () => {
         mutate()
     }
+    
     return (
         <Button 
             label='More Data' 
