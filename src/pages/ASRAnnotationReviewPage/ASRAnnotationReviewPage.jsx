@@ -372,6 +372,9 @@ function ASRAnnotationReviewPage(props) {
                             "noise": anno.content.extras?.classify?.noise || 'clean',
                             "echo": anno.content.extras?.classify?.echo || 'clean',
                             "region": anno.content.extras?.classify?.region || 'other',
+                            
+                            "predict_kaldi": anno.content.extras?.classify?.predict_kaldi || "",
+                            "predict_wenet": anno.content.extras?.classify?.predict_wenet || "",
                         },
                         "review": anno.content.extras?.review || "",
                     },
@@ -410,6 +413,10 @@ function ASRAnnotationReviewPage(props) {
                                 'noise': extras.classify?.noise || 'clean',
                                 'echo': extras.classify?.echo || 'clean',
                                 'region': extras.classify?.region || 'region',
+
+
+                                "predict_kaldi": extras.classify?.predict_kaldi || "",
+                                "predict_wenet": extras.classify?.predict_wenet || "",
                             },
                             'review': extras.review || "",
                         },

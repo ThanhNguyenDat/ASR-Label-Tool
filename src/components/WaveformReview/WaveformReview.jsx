@@ -222,6 +222,11 @@ function WaveformReview(props) {
             region.data.echo = annotation.content.extras?.classify?.echo || "clean";
             region.data.region = annotation.content.extras?.classify?.region || "other";
 
+
+            region.data.predict_kaldi = annotation.content.extras?.classify?.predict_kaldi || "None";
+            region.data.predict_wenet = annotation.content.extras?.classify?.predict_wenet || "None";
+
+
             region.data.review = annotation.content.extras?.review || "";
             wavesurfer.addRegion(region);
         });
@@ -252,8 +257,8 @@ function WaveformReview(props) {
                 "region": region.data.region || "other",
                 
 
-                "predict_kaldi": region.data.predict_kaldi,
-                "predict_wenet": region.data.predict_wenet,
+                "predict_kaldi": region.data.predict_kaldi || "",
+                "predict_wenet": region.data.predict_wenet || "",
                 "review": region.data.review || "",
             }
         })
@@ -329,6 +334,8 @@ function WaveformReview(props) {
                         "noise": data.noise,
                         "echo": data.echo,
                         "region": data.region,
+                        "predict_kaldi": data.predict_kaldi,
+                        "predict_wenet": data.predict_wenet,
                     },
                     "review": data.review,
                 },
