@@ -1,7 +1,4 @@
-# Backend
-
-
-## DATABASE
+# DATABASE
 1. Reupdate segments's table:
 ```
     CREATE TABLE asr_segments (
@@ -24,5 +21,6 @@
     );
 ```
 
+# Backend
 ## FASTAPI 
 
