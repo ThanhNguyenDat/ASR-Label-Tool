@@ -21,6 +21,28 @@ PASSWORD = "postgres"
 db = ConnectionPoolPostgreSql(1, 1, HOSTNAME, PORT, USERNAME,
                               PASSWORD, DATABASE, keep_connection=True, print_log=True)
 
+'''
+create table asr_segments (
+	"id" SERIAL PRIMARY KEY,
+	"user_id" INTEGER,
+	"label_url" VARCHAR,
+    "seed" INTEGER,
+    "index" INTEGER,
+    "length" INTEGER,
+    "text" VARCHAR,
+    "audibility" VARCHAR,
+    "noise" VARCHAR,
+    "region" VARCHAR,
+    "hard_level" INTEGER,
+    "predict_kaldi" VARCHAR,
+    "wer_kaldi" FLOAT,
+   	"predict_wenet" VARCHAR,
+    "wer_wenet" FLOAT,
+    "status" VARCHAR
+);
+'''
+
+
 TABLE_NAME = 'asr_segments'
 SELECT_COLUMNS = [
     "id",
