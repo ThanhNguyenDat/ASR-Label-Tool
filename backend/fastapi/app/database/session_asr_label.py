@@ -26,9 +26,9 @@ TABLE_SEGMENTS = "asr_segments"
 
 SELECT_COLUMNS = [
     'id',
-    'seed',
     'label_url',
     'lb1',
+    'user_zalo_id',
     'exported',
 ]
 
@@ -193,62 +193,4 @@ def export_more_segments():
     """
     db.executeUpdate(sql, (tuple(list_seed),))
     
-    return list_values
-
-    list_seed = []
-    
-    sql = f"""
-        SELECT {','.join(SELECT_COLUMNS)}
-        FROM {TABLE_NAME}
-        
-        WHERE (lb1 IS NOT NULL AND lb1 <> '')
-        AND (exported <> %(exported)s OR %(exported)s IS DISTINCT FROM 'exported')
-        AND lb1 LIKE %(lb1_pattern)s -- check type json
-
-        ORDER BY id ASC
-        LIMIT 5
-    """
-    params = {'exported': 'exported', 'lb1_pattern': '%{"%"}%'}
-    results = db.executeUpdate(sql, {**params})
-    print(results)
-
-    if not results:
-        return []
-
-    res_results = utils.tuple_result_2_dict_result(SELECT_COLUMNS, results)
-    res_results = res_results[:5]
-
-    # Optimize here
-    list_values, list_seed = asr_utils.parse_values(res_results, list_seed)
-    
-    # update to segments table
-    # delete with seed
-    sql = f'''
-        DELETE FROM {TABLE_SEGMENTS} WHERE seed IN %(seed)s
-    '''
-    db.executeUpdate(sql, {'seed': tuple(list_seed)})
-    print("delete success")
-    # hardcode -> khong make sure duoc la column name and value matching
-    # insert new value
-    values_insert = tuple([f"%({k})s" for k in COLUMNS_INSERT_SEGMENTS])
-    
-    sql = f"""
-        INSERT INTO {TABLE_SEGMENTS} 
-        ({' , '.join(COLUMNS_INSERT_SEGMENTS)})
-
-        VALUES %s
-    """
-    values = " , ".join(list_values)
-    # print(values)
-    # db.executeUpdate(sql, {"values": values})
-    db.executeUpdate(sql, values)
-    print('insert success')
-    # update status exported of asr_label (big table)
-    sql = f"""
-        UPDATE {TABLE_NAME}
-        SET exported = 'exported'
-        WHERE id IN %(seed)s
-    """
-    db.executeUpdate(sql, tuple(list_seed))
-
     return list_values
