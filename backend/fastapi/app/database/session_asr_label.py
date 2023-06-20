@@ -144,37 +144,71 @@ def update_many(req: Request, data: dict):
 
 def export_more_segments():
     list_seed = []
-    
+    s1 = get_cur_time()
+
     sql = f"""
         SELECT {','.join(SELECT_COLUMNS)}
         FROM {TABLE_NAME}
-        WHERE (lb1 IS NOT NULL AND lb1 <> '')
-            AND (exported <> %(exported)s OR %(exported)s IS DISTINCT FROM 'exported')
-            AND lb1 LIKE %(lb1_pattern)s -- check type json
+        
+        -- WHERE (lb1 IS NOT NULL AND lb1 <> '')
+        --     AND (exported <> %(exported)s OR %(exported)s IS DISTINCT FROM 'exported')
+        --     AND lb1 LIKE %(lb1_pattern)s -- check type json
+        
+        WHERE (lb1 != '' AND lb1 IS NOT null AND lb1 LIKE %(lb1_pattern)s) 
+        AND (exported != %(exported)s or exported is null)
+        
         ORDER BY id ASC
         -- OFFSET 100
-        LIMIT 100
+        LIMIT 10
     """
     params = {'exported': 'exported', 'lb1_pattern': '%{"%"}%'}
     results = db.executeUpdate(sql, {**params})
-    
+    e1 =  get_cur_time()
+
+
     if not results:
         return []
     
+    s2 = get_cur_time()
     res_results = utils.tuple_result_2_dict_result(SELECT_COLUMNS, results)
-
+    e2 = get_cur_time()
     
+    s3 = get_cur_time()
     list_values, list_seed = asr_utils.parse_values(res_results, COLUMNS_SEGMENTS)
+    e3 = get_cur_time()
+    s4 = get_cur_time()
     
+    print("LEN")
+    print(len(list_values))
+    print(len(list_seed))
+    print(e3-s3)
+    # for value, seed in zip(list_values, list_seed):
+    #     sql = f'''
+    #         DELETE FROM {TABLE_SEGMENTS} WHERE seed=%s
+    #     '''
+    #     db.executeUpdate(sql, (seed, ))
+
+    #     sql = f'''
+    #         INSERT INTO {TABLE_SEGMENTS}
+    #         ( {', '.join(COLUMNS_SEGMENTS)} )
+    #         VALUES %s
+    #     '''
+    #     db.executeUpdate(sql, (value, ))
+    
+    #     sql = f"""
+    #         UPDATE {TABLE_NAME}
+    #         SET exported = 'exported'
+    #         WHERE id = %s
+    #     """
+    #     db.executeUpdate(sql, (seed, ))
+    
+
     # update to segments table
     # delete with seed
     sql = f'''
         DELETE FROM {TABLE_SEGMENTS} WHERE seed IN %s
     '''
-    db.executeUpdate(sql, (tuple(list_seed),))
-
-    for v in list_values:
-        print(v)
+    db.executeUpdate(sql, (tuple(list_seed), ))
 
     # insert new value
     sql = f"""
@@ -183,8 +217,8 @@ def export_more_segments():
 
         VALUES  {', '.join(['%s'] * len(list_values))}
     """
-    res_insert = db.executeUpdate(sql, list_values)
-    print("RES: ", res_insert)
+    db.executeUpdate(sql, list_values)
+    
     # update status exported of asr_label (big table)
     sql = f"""
         UPDATE {TABLE_NAME}
@@ -192,5 +226,10 @@ def export_more_segments():
         WHERE id IN %s
     """
     db.executeUpdate(sql, (tuple(list_seed),))
-    
+    e4 = get_cur_time()
+
+
+    print(f"TIME {e4-s1}: get_data: {e1-s1} \n tuple_result_2_dict_result: {e2-s2} \n parse_values: {e3-s3} \n db: {e4-s4}")
+
     return list_values
+

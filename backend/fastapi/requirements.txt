@@ -10,7 +10,10 @@ jinja2
 numpy
 pandas
 ailabtools
+tqdm
 
 # asr
 jiwer
 scipy
+
+cachetools

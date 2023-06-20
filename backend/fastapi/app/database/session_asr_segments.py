@@ -82,11 +82,11 @@ def get_all(req: Request):
         {string_filter}
     """
 
-    print("sql: ", sql)
-    print(filter_values)
+    # print("sql: ", sql)
+    # print(filter_values)
 
     results = db.executeUpdate(sql, {**filter_values})
-    print("results: ", results)
+    # print("results: ", results)
     s3 = get_cur_time()
 
     results_total = db.executeUpdate(sql_count, {**filter_values})
@@ -142,21 +142,11 @@ def update_predict(**kwargs):
         "predict_wenet": predict_wenet,
     }
     
-
-    # string_update = ""
-    # update_conditions = []
-    # for cond_name, cond_value in update_values.items():
-    #     update_conditions.append(f" {cond_name} = %({cond_name})s ")
-        
-    # if update_conditions: # prevent case filter={}
-    #     string_update = ' SET '
-    #     string_update += " , ".join(update_conditions)
-
     string_update = utils.parse_query_data(update_values)
 
-    print("-"*60)
-    print(update_values)
-    print(string_update)
+    # print("-"*60)
+    # print(update_values)
+    # print(string_update)
 
 
     sql = f"""
