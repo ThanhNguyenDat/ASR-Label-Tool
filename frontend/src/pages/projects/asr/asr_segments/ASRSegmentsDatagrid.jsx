@@ -6,6 +6,8 @@ import {
     useRecordContext, 
     BulkUpdateButton,
     EditButton,
+    BulkDeleteButton,
+    BulkExportButton,
 } from 'react-admin';
 
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
@@ -37,12 +39,17 @@ const LabelBulkActionButtons = () => (
                 color: "red"
             }}
         />
+        <BulkDeleteButton />
+        <BulkExportButton />
     </>
 )
 
 const CustomLinkField = () => {
     const record = useRecordContext();
     const {label_url} = record;
+    if (label_url === 'ERROR') {
+        return "ERROR"
+    }
     
     return (
         <a 

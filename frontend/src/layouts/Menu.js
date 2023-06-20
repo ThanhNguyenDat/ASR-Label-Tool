@@ -17,7 +17,7 @@ import routes from '../config/routes';
 
 const Menu = ({ dense = false }) => {
     const [state, setState] = useState({
-        menuProject: true,
+        menuASR: true,
         menuUser: true,
     });
 
@@ -49,6 +49,7 @@ const Menu = ({ dense = false }) => {
                 icon={<LabelIcon />}
                 dense={dense}
             >
+
                 <MenuItemLink
                     to={routes.users.to}
                     state={{ _scrollToTop: true }}
@@ -61,13 +62,12 @@ const Menu = ({ dense = false }) => {
 
             </SubMenu>
             <SubMenu
-                handleToggle={() => handleToggle('menuProject')}
-                isOpen={state.menuProject}
-                name="Project"
+                handleToggle={() => handleToggle('menuASR')}
+                isOpen={state.menuASR}
+                name="ASR"
                 icon={<LabelIcon />}
                 dense={dense}
             >
-
                 <MenuItemLink
                     to={routes.asr_label.to} 
                     state={{ _scrollToTop: true }}
@@ -77,7 +77,6 @@ const Menu = ({ dense = false }) => {
                     leftIcon={<LabelIcon />}
                     dense={dense}
                 />
-
                 <MenuItemLink
                     to={routes.asr_segments.to} 
                     state={{ _scrollToTop: true }}
@@ -87,17 +86,16 @@ const Menu = ({ dense = false }) => {
                     leftIcon={<LabelIcon />}
                     dense={dense}
                 />
-                <MenuItemLink
-                    to="/#"
-                    state={{ _scrollToTop: true }}
-                    primaryText={translate(`FaceId`, {
-                        smart_count: 2,
-                    })}
-                    leftIcon={<LabelIcon />}
-                    dense={dense}
-                />
-
             </SubMenu>
+            <MenuItemLink
+                to="/#"
+                state={{ _scrollToTop: true }}
+                primaryText={translate(`FaceId`, {
+                    smart_count: 2,
+                })}
+                leftIcon={<LabelIcon />}
+                dense={dense}
+            />
         </Box>
     );
 };
