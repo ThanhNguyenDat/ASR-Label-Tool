@@ -10,10 +10,10 @@ import asrSegments from './pages/projects/asr/asr_segments';
 import asrLabel from './pages/projects/asr/asr_label';
 import routes from './config/routes';
 
-// let urlAPI = "http://0.0.0.0:6002/api/v1"; // native
+let urlAPI = "http://0.0.0.0:6002/api/v1"; // native
 // let urlAPI = "http://0.0.0.0:8000/react_admin/api" // Kong
 
-let urlAPI = "http://10.40.34.15:7223";
+// let urlAPI = "http://10.40.34.15:7223";
 
 const dataProvider = simpleRestProvider(urlAPI)
 function App() {

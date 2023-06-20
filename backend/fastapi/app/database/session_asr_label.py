@@ -159,7 +159,7 @@ def export_more_segments():
         
         ORDER BY id ASC
         -- OFFSET 100
-        LIMIT 10
+        LIMIT 100
     """
     params = {'exported': 'exported', 'lb1_pattern': '%{"%"}%'}
     results = db.executeUpdate(sql, {**params})
@@ -231,5 +231,5 @@ def export_more_segments():
 
     print(f"TIME {e4-s1}: get_data: {e1-s1} \n tuple_result_2_dict_result: {e2-s2} \n parse_values: {e3-s3} \n db: {e4-s4}")
 
-    return list_values
+    return len(list_values)
 
