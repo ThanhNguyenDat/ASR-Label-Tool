@@ -6,7 +6,7 @@ requests
 # template jinja2
 jinja2
 
-# react
+# text conflict too
 numpy
 pandas
 ailabtools
