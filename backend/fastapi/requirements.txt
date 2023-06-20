@@ -16,4 +16,4 @@ tqdm
 jiwer
 scipy
 
-cachetools
+aiohttp
