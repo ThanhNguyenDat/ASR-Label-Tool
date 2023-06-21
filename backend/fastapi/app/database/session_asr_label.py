@@ -177,31 +177,7 @@ def export_more_segments():
     list_values, list_seed = asr_utils.parse_values(res_results, COLUMNS_SEGMENTS)
     e3 = get_cur_time()
     s4 = get_cur_time()
-    
-    print("LEN")
-    print(len(list_values))
-    print(len(list_seed))
     print(e3-s3)
-    # for value, seed in zip(list_values, list_seed):
-    #     sql = f'''
-    #         DELETE FROM {TABLE_SEGMENTS} WHERE seed=%s
-    #     '''
-    #     db.executeUpdate(sql, (seed, ))
-
-    #     sql = f'''
-    #         INSERT INTO {TABLE_SEGMENTS}
-    #         ( {', '.join(COLUMNS_SEGMENTS)} )
-    #         VALUES %s
-    #     '''
-    #     db.executeUpdate(sql, (value, ))
-    
-    #     sql = f"""
-    #         UPDATE {TABLE_NAME}
-    #         SET exported = 'exported'
-    #         WHERE id = %s
-    #     """
-    #     db.executeUpdate(sql, (seed, ))
-    
 
     # update to segments table
     # delete with seed

@@ -75,15 +75,11 @@ def get_all(req: Request):
         {string_sort}
         {string_offset_limit}
     """
-    
     sql_count = f"""
         SELECT count(*) 
         FROM {TABLE_NAME}
         {string_filter}
     """
-
-    # print("sql: ", sql)
-    # print(filter_values)
 
     results = db.executeUpdate(sql, {**filter_values})
     # print("results: ", results)
