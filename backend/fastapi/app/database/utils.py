@@ -54,7 +54,10 @@ def parse_query_params(req: Request):
                 # offset, limit = json.loads(d_query[k])
                 range_start, range_end = json.loads(d_query[k])
                 limit = range_end - range_start + 1
-                string_offset_limit = f' LIMIT {min(limit, MAX_LIMIT)} OFFSET {range_start} '
+
+                # string_offset_limit = f' LIMIT {min(limit, MAX_LIMIT)} OFFSET {range_start} '
+                string_offset_limit = f' LIMIT {limit} OFFSET {range_start} '
+                
     return string_filter, filter_values, string_sort, string_offset_limit
     # return where_condition, order_cond, min(limit , MAX_LIMIT), offset
 
