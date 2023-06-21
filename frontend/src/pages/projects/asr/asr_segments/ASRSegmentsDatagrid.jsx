@@ -8,6 +8,8 @@ import {
     EditButton,
     BulkDeleteButton,
     BulkExportButton,
+    useResourceContext,
+    downloadCSV,
 } from 'react-admin';
 
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
@@ -16,8 +18,11 @@ import SubdirectoryArrowLeftOutlinedIcon from '@mui/icons-material/SubdirectoryA
 
 import ASRSegmentsPanel from './ASRSegmentsPanel';
 import PlayPauseButton from '../../../../components/buttons/PlayPauseButton';
-
-const LabelBulkActionButtons = () => (
+import jsonExport from 'jsonexport/dist'
+const LabelBulkActionButtons = () => {
+    const resouce = useResourceContext()
+    
+    return (
     <>
         <BulkUpdateButton 
             label="To Review" 
@@ -42,7 +47,7 @@ const LabelBulkActionButtons = () => (
         <BulkDeleteButton />
         <BulkExportButton />
     </>
-)
+)}
 
 const CustomLinkField = () => {
     const record = useRecordContext();
@@ -67,7 +72,7 @@ const ASRSegmentsDatagrid = props => {
         <DatagridConfigurable
             bulkActionButtons={<LabelBulkActionButtons />}
             // rowClick='edit'
-            omit={['id', 'index', 'predict_kaldi', 'predict_wenet']}
+            
             expand={<ASRSegmentsPanel />}
             // expandSingle
             isRowExpandable={row => row.id}    

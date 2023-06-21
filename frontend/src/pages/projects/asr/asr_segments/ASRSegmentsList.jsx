@@ -1,36 +1,23 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { AutocompleteInput, 
-    DatagridConfigurable, 
+import {
     ExportButton, 
-    Link, 
     List, 
     Count,
-    ReferenceField, 
     SelectColumnsButton, 
-    TextField, 
     TopToolbar, 
-    useListContext, 
-    useRecordContext, 
-    BulkUpdateButton,
-    FunctionField,
+    useListContext,    
 } from 'react-admin';
-import { useMediaQuery, Divider, Tabs, Tab, Theme } from '@mui/material';
-import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
-import ThumbDownOffAltOutlinedIcon from '@mui/icons-material/ThumbDownOffAltOutlined';
-import SubdirectoryArrowLeftOutlinedIcon from '@mui/icons-material/SubdirectoryArrowLeftOutlined';
+import { Divider, Tabs, Tab } from '@mui/material';
 
 import Aside from './filtes/ASRLabellingFilterAside';
 import MoreDataButton from '../../../../components/buttons/MoreDataButton';
-
-import ASRSegmentsPanel from './ASRSegmentsPanel';
 import ASRSegmentsDatagrid from './ASRSegmentsDatagrid';
 
 const ListActions = () => (
     <TopToolbar>
         <MoreDataButton />
         <SelectColumnsButton defaultValue={['id', 'index', 'predict_kaldi', 'predict_wenet']}/>
-        <ExportButton maxResults={2000}/>
+        <ExportButton maxResults={1e9}/>
     </TopToolbar>
 );
 

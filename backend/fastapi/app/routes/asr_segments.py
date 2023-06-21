@@ -76,7 +76,7 @@ async def updatePredict(formData: dict):
     return res
 
 
-@router.get("/", include_in_schema=False)
+@router.get("", include_in_schema=False)
 async def getList(req: Request, res: Response):
     res = {
         "error_code": 0,

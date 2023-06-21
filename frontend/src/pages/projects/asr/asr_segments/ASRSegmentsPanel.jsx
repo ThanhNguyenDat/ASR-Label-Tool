@@ -178,49 +178,39 @@ const ASRSegmentsPanel = props => {
     const record = useRecordContext();
 
     const [modeDiff, setModeDiff] = useState("typing kaldi");
-    
-    
-    const { oldValue, newValue } = getValueModeDescription(modeDiffOpions, modeDiff, record);
-                            
     const { oldTitle, newTitle } = getTitleModeDescription(modeDiffOpions, modeDiff);
-
+    const { oldValue, newValue } = getValueModeDescription(modeDiffOpions, modeDiff, record);
 
     const handleChangeDiffMode = (event) => {
         setModeDiff(event.target.value);
     };
 
-
     return (
         <>
-            <div>
-                <Box display="flex" sx={{ minWidth: 120 }}>
-                    <FormControl fullWidth>
-                        <InputLabel id="mode-simple-select-label">Mode</InputLabel>
-                        <Select
+            <Box display="flex">
+                <FormControl sx={{width: "20%", paddingRight: "10px"}}>
+                    <InputLabel id="mode-simple-select-label">Mode</InputLabel>
+                    <Select
                         labelId="mode-simple-select-label"
                         id="mode-simple-select"
                         value={modeDiff}
                         label="Mode"
                         onChange={handleChangeDiffMode}
-                        >
-                            {modeDiffOpions.map(mode => (
-                                <MenuItem key={mode.value} value={mode.value}>{mode.title}</MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                    <UpdatePredictButton />
-                </Box>
+                    >
+                        {modeDiffOpions.map(mode => (
+                            <MenuItem key={mode.value} value={mode.value}>{mode.title}</MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+                <DiffViewer
+                    oldTitle={oldTitle}
+                    newTitle={newTitle}
 
-            </div>
-            
-            <DiffViewer
-                oldTitle={oldTitle}
-                newTitle={newTitle}
-
-                oldValue={oldValue}
-                newValue={newValue}
-            />
-        
+                    oldValue={oldValue}
+                    newValue={newValue}
+                />
+                <UpdatePredictButton />  
+            </Box>
         </>
     );
     
