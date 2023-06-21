@@ -145,8 +145,8 @@ export default (
 
     updatePredict: (resource, params) => 
         {
-            console.log("params: ", params);
-            console.log("resource: ", resource);
+            // console.log("params: ", params);
+            // console.log("resource: ", resource);
             return httpClient(`${apiUrl}/${resource}/update-predict`, params).then(({json}) => ({
         data: json.data || json
     }))},
