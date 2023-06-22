@@ -12,10 +12,10 @@ import { green } from '@mui/material/colors';
 
 const PlayPauseButton = props => {
     const [isPlaying, setIsPlaying] = useState(false);
-
     const record = useRecordContext();
-    const {label_url} = record;
     
+    const label_url = record.label_url || props.url;
+
     const audio = useRef(new Audio(label_url)).current;
 
     useEffect(() => {
@@ -48,7 +48,11 @@ const PlayPauseButton = props => {
     if (!isPlaying) {
         transportPlayButton = (
             <Tooltip title="Play"  placement="top">
-                <IconButton onClick={togglePlaying} style={{ color: green[500] }}>
+                <IconButton 
+                    onClick={togglePlaying} 
+                    style={{ color: label_url ? green[500] : green[100] }} 
+                    disabled={!label_url}
+                >
                     <PlayArrowIcon/>
                 </IconButton>
             </Tooltip>
@@ -56,8 +60,12 @@ const PlayPauseButton = props => {
     } else {
         transportPlayButton = (
             <Tooltip title="Pause" placement="top">
-                <IconButton onClick={togglePlaying}>
-                    <PauseIcon style={{ color: green[500] }}/>
+                <IconButton 
+                    onClick={togglePlaying}
+                    style={{ color: label_url ? green[500] : green[100] }} 
+                    disabled={!label_url}
+                >
+                    <PauseIcon />
                 </IconButton>
             </Tooltip>
         );
