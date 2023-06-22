@@ -39,6 +39,9 @@ def parse_query_params(req: Request):
                 filter_conditions = []
                 d_condition = json.loads(d_query[k])
                 for cond_name, cond_value in d_condition.items():
+                    if cond_name == 'q':
+                        continue
+                    
                     if isinstance(cond_value, list) or isinstance(cond_value, tuple):
                         # if cond_name == 'ids':
                         filter_conditions.append(f" {cond_name} in %({cond_name})s ")
