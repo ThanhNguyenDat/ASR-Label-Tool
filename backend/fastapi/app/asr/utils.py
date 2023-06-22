@@ -92,10 +92,10 @@ def cut_audio(sample_rate, data, start_time=0, length=0):
     return byte_data
 
 def calculate_wer(gt: str, pred: str):
-    if not gt and not pred:
-        return None
-    
-    return jiwer.wer(gt, pred)
+    if gt:
+        return jiwer.wer(gt, pred)
+    else:
+        return -1
 
 def get_label_url(input):
     return input.get("label_url", "")
