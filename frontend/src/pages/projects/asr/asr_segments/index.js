@@ -1,10 +1,10 @@
 import OrderIcon from '@mui/icons-material/AttachMoney';
 
-import ASRLabellingList from './ASRSegmentsList';
-import ASRLabellingEdit from './ASRSegmentsEdit';
+import ASRSegmentsList from './ASRSegmentsList';
+import ASRSegmentsEdit from './ASRSegmentsEdit';
 
 export default {
-    list: ASRLabellingList,
-    edit: ASRLabellingEdit,
+    list: ASRSegmentsList,
+    edit: ASRSegmentsEdit,
     icon: OrderIcon,
 };
