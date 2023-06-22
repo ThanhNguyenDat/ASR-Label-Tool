@@ -86,6 +86,15 @@ const Menu = ({ dense = false }) => {
                     leftIcon={<LabelIcon />}
                     dense={dense}
                 />
+                <MenuItemLink
+                    to={routes.asr_benchmark_google.to} 
+                    state={{ _scrollToTop: true }}
+                    primaryText={translate(routes.asr_benchmark_google.label, {
+                        smart_count: 2,
+                    })}
+                    leftIcon={<LabelIcon />}
+                    dense={dense}
+                />
             </SubMenu>
             <MenuItemLink
                 to="/#"

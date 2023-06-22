@@ -38,6 +38,16 @@ const routes = {
 
         ]
     },
+    asr_benchmark_google: {
+        to: "/asr_benchmark_google",
+        name: "asr_benchmark_google",
+        label: "ASR Google",
+        children: [
+
+        ]
+    },
+
+
 };
 
 export default routes;
