@@ -5,7 +5,9 @@ import asyncio
 import aiohttp
 import threading
 import concurrent.futures
-
+import os
+from dotenv import load_dotenv
+load_dotenv()
 from queue import Queue
 
 import multiprocessing
@@ -30,15 +32,15 @@ def get_cur_time():
 
 
 def create_link_by_data(data):
-    url = "https://api.zalo.ai/v1/create_async_public/create_link_async?tail=wav"
-
+    url = os.getenv('URL_CREATE_LINK')
+    print("URL_CREATE_LINK", url)
     payload = {}
 
     files=[
         ('img_file',('tmp.wav', data, 'audio/wav'))
     ]
     headers = {
-        'apikey': 'QWDITwI6sHTdt3WiGh2VLFbTDLJLHVjb'
+        'apikey': os.getenv('API_KEY_CREATE_LINK')
     }
 
     response = session_request.request("POST", url, headers=headers, data=payload, files=files)

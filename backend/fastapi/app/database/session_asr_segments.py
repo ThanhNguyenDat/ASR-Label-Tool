@@ -102,7 +102,6 @@ def get_all(req: Request):
 
 
 def update_predict(**kwargs):
-    
     d_query = utils.parse_req_2_json(kwargs)
     # print("form: ", form)
     # print("form dict: ", dict(form))
