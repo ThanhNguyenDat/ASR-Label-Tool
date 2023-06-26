@@ -33,6 +33,7 @@ SELECT_COLUMNS = [
 
     "full_text" ,
     "predict_google" ,
+    "google_text_type",
     "wer_google" ,
     "predict_kaldi" ,
     "wer_kaldi" ,
