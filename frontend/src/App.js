@@ -8,7 +8,7 @@ import { Layout } from './layouts';
 import users from './pages/users';
 import asrSegments from './pages/projects/asr/asr_segments';
 import asrLabel from './pages/projects/asr/asr_label';
-import asrBenchmarkGoogle from './pages/projects/asr/asr_benchmark_google';
+import asrBenchmark from './pages/projects/asr/asr_benchmark';
 
 import routes from './config/routes';
 
@@ -30,7 +30,7 @@ function App() {
 
       <Resource name={routes.asr_segments.name} {...asrSegments} />
       <Resource name={routes.asr_label.name} {...asrLabel}/>
-      <Resource name={routes.asr_benchmark_google.name} {...asrBenchmarkGoogle} />
+      <Resource name={routes.asr_benchmark.name} {...asrBenchmark} />
       
     </Admin>
   );

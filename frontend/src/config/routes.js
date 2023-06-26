@@ -38,10 +38,10 @@ const routes = {
 
         ]
     },
-    asr_benchmark_google: {
-        to: "/asr_benchmark_google",
-        name: "asr_benchmark_google",
-        label: "ASR Google",
+    asr_benchmark: {
+        to: "/asr_benchmark",
+        name: "asr_benchmark",
+        label: "ASR Benchmark",
         children: [
 
         ]

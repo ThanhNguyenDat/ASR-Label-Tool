@@ -12,7 +12,7 @@ import json
 
 import psycopg2
 
-from .routes import users, asr_label, asr_segments, asr_benchmark_google
+from .routes import asr_benchmark, users, asr_label, asr_segments
 
 app = FastAPI()
 
@@ -39,7 +39,7 @@ app.add_middleware(
 app.include_router(users.router)
 app.include_router(asr_segments.router)
 app.include_router(asr_label.router)
-app.include_router(asr_benchmark_google.router)
+app.include_router(asr_benchmark.router)
 
 @app.get("/")
 async def hello():

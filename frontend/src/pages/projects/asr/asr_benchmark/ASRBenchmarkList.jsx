@@ -14,7 +14,7 @@ import {
     TextInput
 } from 'react-admin';
 import PlayPauseButton from '../../../../components/buttons/PlayPauseButton';
-import ASRBenchmarkGoogleDatagridExpand from './ASRBenchmarkGoogleDatagridExpand';
+import ASRBenchmarkDatagridExpand from './ASRBenchmarkDatagridExpand';
 
 
 const fieldfilters = [
@@ -44,15 +44,12 @@ const ASRBenchmarkGoogleList = props => {
         >
             <DatagridConfigurable
                 // omit={['seed', 'full_text', 'wer_google', 'wer_kaldi', 'wer_wenet']}
-                omit={['id', 'file_name', 'lc_path_asr_zalo', 'lc_path_asr_google', 'label_url', 'predict_google', 'predict_kaldi', 'predict_wenet']}
-                expand={<ASRBenchmarkGoogleDatagridExpand />}
+                omit={['id', 'label_url', 'predict_google', 'predict_kaldi', 'predict_wenet']}
+                expand={<ASRBenchmarkDatagridExpand />}
                 
             >
                 <TextField source="id"/>
                 <TextField source="seed" />
-                <TextField source="file_name" />
-                <TextField source="lc_path_asr_zalo" />
-                <TextField source="lc_path_asr_google" />
                 <TextField source="label_url" />
                 <TextField source="full_text" />
                 <TextField source="predict_google" />

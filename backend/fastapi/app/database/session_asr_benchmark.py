@@ -21,46 +21,25 @@ PASSWORD = "postgres"
 db = ConnectionPoolPostgreSql(1, 1, HOSTNAME, PORT, USERNAME,
                               PASSWORD, DATABASE, keep_connection=True, print_log=True)
 
-'''
-create table asr_segments (
-	"id" SERIAL PRIMARY KEY,
-	"user_id" INTEGER,
-	"label_url" VARCHAR,
-    "seed" INTEGER,
-    "index" INTEGER,
-    "length" INTEGER,
-    "text" VARCHAR,
-    "audibility" VARCHAR,
-    "noise" VARCHAR,
-    "region" VARCHAR,
-    "hard_level" INTEGER,
-    "predict_kaldi" VARCHAR,
-    "wer_kaldi" FLOAT,
-   	"predict_wenet" VARCHAR,
-    "wer_wenet" FLOAT,
-    "status" VARCHAR
-);
-'''
 
 
-TABLE_NAME = 'asr_benchmark_google'
+TABLE_NAME = 'asr_benchmark'
 
 
 SELECT_COLUMNS = [
     "id",
-    "seed",
-    "file_name",
-    "lc_path_asr_zalo",
-    "lc_path_asr_google",
-    "label_url",
-    "full_text",
-    "predict_google",
-    "wer_google",
-    "predict_kaldi",
-    "wer_kaldi",
-    "predict_wenet",
+    "seed" ,
+    "label_url" , 
+
+    "full_text" ,
+    "predict_google" ,
+    "wer_google" ,
+    "predict_kaldi" ,
+    "wer_kaldi" ,
+    "predict_wenet" ,
     "wer_wenet",
 ]
+
 
 
 def get_all(req: Request):

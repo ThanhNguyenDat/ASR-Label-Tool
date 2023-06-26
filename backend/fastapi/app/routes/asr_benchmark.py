@@ -6,11 +6,11 @@ import traceback as tb
 from fastapi import APIRouter, Request, Response, Form
 
 import time
-from app.database import session_asr_benchmark_google as db_session
+from app.database import session_asr_benchmark as db_session
 
 router = APIRouter(
-    prefix="/api/v1/asr_benchmark_google",
-    tags=["asr_benchmark_google"],
+    prefix="/api/v1/asr_benchmark",
+    tags=["asr_benchmark"],
 )
 
 @router.get("/{id}")
