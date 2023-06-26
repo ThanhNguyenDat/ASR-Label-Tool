@@ -12,7 +12,7 @@ def parse_req_2_json(req: Request):
     return d_query
 
 # def parse_query_params(d_query):
-def parse_query_params(req: Request):
+def parse_query_params(req: Request, columns = []):
     if isinstance(req, Request):
         d_query = dict(req.query_params)
     elif isinstance(req, dict):
