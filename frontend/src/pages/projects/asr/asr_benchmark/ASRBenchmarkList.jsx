@@ -11,16 +11,20 @@ import {
     TextField,  
     DatagridConfigurable,
     FilterButton,
-    TextInput
+    TextInput,
+    SelectInput
 } from 'react-admin';
 import PlayPauseButton from '../../../../components/buttons/PlayPauseButton';
 import ASRBenchmarkDatagridExpand from './ASRBenchmarkDatagridExpand';
 import './styles.scss';
 
 const fieldfilters = [
-    <TextInput label="Search" source="q" alwaysOn />,
-    <TextInput label="Seed" source="seed"/>,
-    <TextInput label="Full Text" source="full_text"/>,
+    // <TextInput label="Search" source="q" alwaysOn />,
+    <SelectInput source='google_text_type' choices={[
+        {id: 'normed', name: 'Normed'},
+        {id: 'normal', name: 'Normal'}
+    ]} alwaysOn
+    />
 ];
 
 
@@ -54,6 +58,8 @@ const ASRBenchmarkGoogleList = props => {
                 <TextField source="label_url" cellClassName='label_url'/>
                 <TextField source="full_text" cellClassName='full_text' />
                 <TextField source="predict_google" cellClassName='predict_google' />
+                <TextField source="google_text_type"
+                cellClassName='google_text_type' />
                 <TextField source="wer_google" cellClassName='wer_google' />
                 <TextField source="predict_kaldi" cellClassName='predict_kaldi' />
                 <TextField source="wer_kaldi" cellClassName='wer_kaldi' />
