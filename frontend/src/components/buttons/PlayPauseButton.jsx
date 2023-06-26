@@ -12,12 +12,14 @@ import { green } from '@mui/material/colors';
 
 const PlayPauseButton = props => {
     const [isPlaying, setIsPlaying] = useState(false);
+    const [isLoaded, setIsLoaded] = useState(false);
+
     const record = useRecordContext();
 
     const label_url = record.label_url || props.url;
 
     const audio = useRef(new Audio(label_url)).current;
-
+    
     useEffect(() => {
         const handlePlay = () => {
             setIsPlaying(true);
@@ -27,12 +29,26 @@ const PlayPauseButton = props => {
             setIsPlaying(false);
         };
 
+        const handleCanPlayThrough = () => {
+            setIsLoaded(true);
+        };
+
+        const handleError = () => {
+            setIsLoaded(false);
+        };
+
         audio.addEventListener('play', handlePlay);
         audio.addEventListener('pause', handlePause);
+
+        audio.addEventListener('canplaythrough', handleCanPlayThrough);
+        audio.addEventListener('error', handleError);
 
         return () => {
             audio.removeEventListener('play', handlePlay);
             audio.removeEventListener('pause', handlePause);
+            audio.removeEventListener('canplaythrough', handleCanPlayThrough);
+            audio.removeEventListener('error', handleError);
+
         };
     }, [audio]);
 
@@ -52,8 +68,8 @@ const PlayPauseButton = props => {
                 <div>
                 <IconButton 
                     onClick={togglePlaying} 
-                    style={{ color: label_url ? green[500] : green[100] }} 
-                    disabled={!label_url}
+                    style={{ color: isLoaded ? green[500] : green[100] }} 
+                    disabled={!isLoaded}
                 >
                     <PlayArrowIcon/>
                 </IconButton>
@@ -66,8 +82,8 @@ const PlayPauseButton = props => {
                 <div>
                 <IconButton 
                     onClick={togglePlaying}
-                    style={{ color: label_url ? green[500] : green[100] }} 
-                    disabled={!label_url}
+                    style={{ color: isLoaded ? green[500] : green[100] }} 
+                    disabled={!isLoaded}
                 >
                     <PauseIcon />
                 </IconButton>
