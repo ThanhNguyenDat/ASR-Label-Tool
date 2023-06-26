@@ -1,17 +1,20 @@
 import React, { useMemo, useState } from 'react';
 import { useRecordContext } from 'ra-core';
 import ReactDiffViewer, { DiffMethod } from '@custom/react-diff-viewer';
+
+import CustomDiffViewer from './DiffViewer.tsx';
+
 import { 
     Box, 
     FormControl, 
     InputLabel, 
     MenuItem, 
     Select, 
-    Tooltip 
 } from '@mui/material';
 import UpdatePredictButton from '../buttons/UpdatePredictButton';
+import './styles.scss';
 
-const DiffViewer = ({
+const WrapperDiffViewer = ({
     oldValue, 
     newValue, 
     oldTitle,
@@ -28,13 +31,15 @@ const DiffViewer = ({
     let compareMethod = DiffMethod.WORDS;
     
     if (method === "words") {
+        // compareMethod = DiffMethod.WORDS;
         compareMethod = DiffMethod.WORDS;
     } else if (method === "lines") {
         compareMethod = DiffMethod.LINES;
-        // splitView = false;
+    } else if (method === 'chars') {
+        compareMethod = DiffMethod.CHARS;
+        
     }
-    // compareMethod = DiffMethod.SENTENCES;
-    
+
     const renderContent = (str) => {
         return (
         <div 
@@ -44,10 +49,16 @@ const DiffViewer = ({
                 justifyContent: 'space-between',
                 alignContent: 'center',
                 width: "100%",
+                
             }}
         >
             <pre
-                style={{ display: "inline" }}
+                style={{ 
+                    display: "inline",
+                    wordSpacing: '0.1rem',
+                    letterSpacing: '0.01071em',
+                    fontFamily: '"Roboto","Helvetica","Arial",sans-serif'
+                }}
                 className="foo"
                 dangerouslySetInnerHTML={{
                 __html: `${str}`
@@ -57,35 +68,31 @@ const DiffViewer = ({
     )}
     
 
-    // const renderGutter = (row) => {
-    //     let text;
-    //     if (row.prefix === 'L') {
-    //         text = oldValue;
-    //     } else if (row.prefix === 'R') {
-    //         text = newValue;
-    //     }
+    const renderGutter = (row) => {
+        let text;
+        if (row.prefix === 'L') {
+            text = oldTitle;
+        } else if (row.prefix === 'R') {
+            text = newTitle;
+        }
 
-    //     return (
-    //         <td 
-    //             className='control-diff-viewer'
-    //         >
-    //             <FiEdit3 className='icon'
-    //                 onClick={() => {
-    //                     handleAcceptTextBtn(text);
-    //                 }}
-    //             />
-    //         </td>
-    //     )
-    // }
+        return (
+            <td 
+                className='control-diff-viewer'
+            >
+                {text}
+            </td>
+        )
+    }
 
     return (
         <>
-            <ReactDiffViewer 
+            <CustomDiffViewer
                 oldValue={oldValue}
                 newValue={newValue}
 
-                leftTitle={oldTitle}
-                rightTitle={newTitle}
+                leftTitle={splitView ? oldTitle : undefined}
+                rightTitle={splitView ? newTitle : undefined}
     
                 hideLineNumbers={true}
                 showDiffOnly={false}
@@ -108,7 +115,7 @@ const DiffViewer = ({
                 }}
                 {...props}
                 renderContent={renderContent}
-                // renderGutter={renderGutter}
+                renderGutter={renderGutter}
             />
         </>
     ) 
@@ -147,11 +154,11 @@ const getValueModeDescription = (allMode, mode, record) => {
     console.log(oldValue);
 
     if (!oldValue) {
-        oldValue = "None"
+        oldValue = "none"
     }
 
     if (!newValue) {
-        newValue = "None"
+        newValue = "none"
     }
     
     return {
@@ -159,6 +166,8 @@ const getValueModeDescription = (allMode, mode, record) => {
         newValue,
     }
 }
+
+// samples
 // const modeDiffOpions = [
 //     {
 //         title: "Wenet | Kaldi", 
@@ -202,14 +211,15 @@ const DiffViewerASRText = ({ modeOptions }) => {
                         ))}
                     </Select>
                 </FormControl>
-                <DiffViewer
+                <WrapperDiffViewer
                     oldTitle={oldTitle}
                     newTitle={newTitle}
 
                     oldValue={oldValue}
                     newValue={newValue}
+                    splitView={false}
                 />
-                <UpdatePredictButton />  
+                <UpdatePredictButton sx={{ marginLeft: 'auto' }}/>  
             </Box>
         </>
     );
