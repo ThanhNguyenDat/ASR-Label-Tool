@@ -1,0 +1,57 @@
+.asr-benchmark-list {
+    .asr-benchmark-datagrid {
+        // table thead th{
+        //     background-color: #C4E5F3;
+        // }
+        .RaDatagrid-headerCell {
+            background-color: #78a4ce;
+        }
+
+        .datagrid-body .RaDatagrid-row {
+            height: 100px; /* Đặt chiều cao mong muốn */
+            &.RaDatagrid-rowEven {
+                // background-color: #C4E5F3;
+            }
+            &.RaDatagrid-rowOdd {
+                background-color: #C4E5F3;
+            }
+        }
+
+        // expand datagrid
+        .datagrid-body .RaDatagrid-expandedPanel {
+            max-width: 100%;
+        }
+
+        .id {
+            width: 4%;
+        }
+        .seed {
+            width: 4%;
+        }
+        .label_url {
+            width: 5%;
+        }
+        .full_text {
+            width: 40%;
+        }
+        .predict_google {
+            width: 40%;
+        }
+        .wer_google {
+            width: 10%;
+        }
+        .predict_kaldi {
+            width: 40%;
+        }
+        .wer_kaldi {
+            width: 10%;
+        }
+        .predict_wenet {
+            width: 40%;
+        }
+        .wer_wenet {
+            width: 10%;
+        }
+    }
+    
+}
