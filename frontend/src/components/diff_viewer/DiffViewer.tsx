@@ -80,7 +80,10 @@ class DiffViewer extends Component<DiffViewerProps, DiffViewerState> {
         } = this.props;
 
         return (
-            <div className='diff-viewer'>
+            <div 
+                className='diff-viewer' 
+                style={{width: '100%', height: '100%'}}
+            >
                 <ReactDiff
                     highlightLines={this.state.highlightLine}
                     onLineNumberClick={this.onLineNumberClick}

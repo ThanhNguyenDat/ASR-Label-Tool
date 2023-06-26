@@ -196,8 +196,8 @@ const DiffViewerASRText = ({ modeOptions }) => {
 
     return (
         <>
-            <Box display="flex">
-                <FormControl sx={{width: "20%", paddingRight: "10px"}}>
+            <Box display="flex" width="100%">
+                <FormControl fullWidth sx={{ flex: '0 0 18%', paddingRight: '10px' }}>
                     <InputLabel id="mode-simple-select-label">Mode</InputLabel>
                     <Select
                         labelId="mode-simple-select-label"
@@ -211,15 +211,17 @@ const DiffViewerASRText = ({ modeOptions }) => {
                         ))}
                     </Select>
                 </FormControl>
-                <WrapperDiffViewer
-                    oldTitle={oldTitle}
-                    newTitle={newTitle}
+                <Box sx={{ flex: '1 1 auto' }}>
+                    <WrapperDiffViewer
+                        oldTitle={oldTitle}
+                        newTitle={newTitle}
 
-                    oldValue={oldValue}
-                    newValue={newValue}
-                    splitView={false}
-                />
-                <UpdatePredictButton sx={{ marginLeft: 'auto' }}/>  
+                        oldValue={oldValue}
+                        newValue={newValue}
+                        splitView={false}
+                    />
+                </Box>
+                <UpdatePredictButton sx={{ flex: '0 0 auto' }} />  
             </Box>
         </>
     );

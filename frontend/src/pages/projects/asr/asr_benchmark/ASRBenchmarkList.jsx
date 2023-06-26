@@ -40,7 +40,7 @@ const ASRBenchmarkGoogleList = props => {
             filters={fieldfilters}
             actions={<ListActions />}
             sort={{ field: 'id', order: 'ASC' }}
-            perPage={10}
+            perPage={5}
             className='asr-benchmark-list'
         >
             <DatagridConfigurable
