@@ -1,18 +1,18 @@
-import { useEffect, useRef, useState } from 'react';
-import WaveSurfer from 'wavesurfer.js';
+import { useEffect, useRef, useState } from "react";
+import WaveSurfer from "wavesurfer.js";
 import * as WaveSurferRegionsPlugin from "wavesurfer.js/dist/plugin/wavesurfer.regions.min.js";
 import * as WaveSurferTimelinePlugin from "wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js";
 
 const useWavesurfer = (audioUrl, annotations) => {
-  const wavesurferRef = useRef(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isPlaying, setIsPlaying] = useState(false);
+    const wavesurferRef = useRef(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isPlaying, setIsPlaying] = useState(false);
 
-  useEffect(() => {
-    // Khởi tạo Wavesurfer khi component được tạo
-    wavesurferRef.current = WaveSurfer.create({
-        container: wavesurferRef.current,
-        waveColor: "#D9DCFF",
+    useEffect(() => {
+        // Khởi tạo Wavesurfer khi component được tạo
+        wavesurferRef.current = WaveSurfer.create({
+            container: wavesurferRef.current,
+            waveColor: "#D9DCFF",
             progressColor: "#4353FF",
             cursorColor: "#4353FF",
 
@@ -21,8 +21,8 @@ const useWavesurfer = (audioUrl, annotations) => {
             cursorWidth: 1,
             height: 100,
             barGap: 3,
-            backend: 'WebAudio',
-            
+            backend: "WebAudio",
+
             plugins: [
                 // WaveSurferTimelinePlugin.create({
                 //     container: "#waveform-timeline",
@@ -57,7 +57,7 @@ const useWavesurfer = (audioUrl, annotations) => {
         wavesurferRef.current.load(audioUrl);
 
         // Xử lý khi âm thanh đã được tải
-        wavesurferRef.current.on('ready', () => {
+        wavesurferRef.current.on("ready", () => {
             wavesurferRef.current.enableDragSelection({
                 slop: 5,
                 // color: randomColor(0.2),
@@ -74,30 +74,29 @@ const useWavesurfer = (audioUrl, annotations) => {
         wavesurferRef.current.on("play", () => setIsPlaying(true));
         wavesurferRef.current.on("pause", () => setIsPlaying(false));
 
-
         wavesurferRef.current.on("region-created", (region) => {
             region.color = "rgba(188, 188, 188, 0.2)";
-        })
+        });
 
         wavesurferRef.current.on("region-click", (region, event) => {
             event.stopPropagation();
             // play region and replay region
-            region.play()
+            region.play();
             if (event.shiftKey) {
                 region.update({
-                    loop: true
-                })
+                    loop: true,
+                });
             } else {
                 region.update({
-                    loop: false
-                })
+                    loop: false,
+                });
             }
         });
 
         // Hủy bỏ đối tượng Wavesurfer khi component bị huỷ
         return () => wavesurferRef.current?.destroy();
     }, [audioUrl]);
-    
+
     /**
      * Load annotations
      * FORMAT segment:
@@ -113,7 +112,7 @@ const useWavesurfer = (audioUrl, annotations) => {
     const loadRegions = (annotations, wavesurfer) => {
         annotations.forEach((segment, id) => {
             wavesurfer.addRegion({
-                ...segment
+                ...segment,
             });
         });
     };
@@ -143,7 +142,7 @@ const useWavesurfer = (audioUrl, annotations) => {
 
     const deleteSegment = (id) => {
         wavesurferRef.current.regions.list[id].remove();
-    }
+    };
 
     return { wavesurferRef, isLoading, isPlaying, togglePlaying, stopPlayback, clearSegments };
 };

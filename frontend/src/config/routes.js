@@ -5,7 +5,7 @@ const routes = {
 
     dashboard: {
         to: "/dashboard",
-        name: "dashboard"
+        name: "dashboard",
     },
 
     // user
@@ -13,11 +13,8 @@ const routes = {
         to: "/users",
         name: "users",
         label: "Users",
-        children: [
-            
-        ]
+        children: [],
     },
-
 
     // asr
     asr_label: {
@@ -27,27 +24,21 @@ const routes = {
         children: [
             {
                 to: "/asr_label/:id",
-            }
-        ]
+            },
+        ],
     },
     asr_segments: {
         to: "/asr_segments",
         name: "asr_segments",
         label: "ASR Segments",
-        children: [
-
-        ]
+        children: [],
     },
     asr_benchmark: {
         to: "/asr_benchmark",
         name: "asr_benchmark",
         label: "ASR Benchmark",
-        children: [
-
-        ]
+        children: [],
     },
-
-
 };
 
 export default routes;

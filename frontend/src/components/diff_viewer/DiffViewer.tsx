@@ -1,12 +1,12 @@
-import React, { Component, MouseEvent } from 'react';
-import ReactDiff, { DiffMethod } from '@custom/react-diff-viewer';
-import {render} from 'react-dom';
+import React, { Component, MouseEvent } from "react";
+import ReactDiff, { DiffMethod } from "@custom/react-diff-viewer";
+import { render } from "react-dom";
 
 interface DiffViewerState {
     splitView?: boolean;
     highlightLine?: string[];
     language?: string;
-    theme: 'dark' | 'light';
+    theme: "dark" | "light";
     enableSyntaxHighlighting?: boolean;
     compareMethod?: DiffMethod;
     customGutter?: boolean;
@@ -15,8 +15,8 @@ interface DiffViewerState {
 interface DiffViewerProps {
     oldValue: string | object;
     newValue: string | object;
-    leftTitle: string,
-    rightTitle: string,
+    leftTitle: string;
+    rightTitle: string;
     splitView: boolean;
     renderGutter: (data: {}) => JSX.Element;
     renderContent: () => JSX.Element;
@@ -31,27 +31,24 @@ class DiffViewer extends Component<DiffViewerProps, DiffViewerState> {
         super(props);
         this.state = {
             highlightLine: [],
-            theme: 'light',
+            theme: "light",
             splitView: true,
             customGutter: true,
             enableSyntaxHighlighting: true,
         };
-    };
+    }
 
-    private onLineNumberClick = (
-        id: string,
-        e: MouseEvent<HTMLTableCellElement>,
-    ): void => {
+    private onLineNumberClick = (id: string, e: MouseEvent<HTMLTableCellElement>): void => {
         let highlightLine = [id];
         if (e.shiftKey && this.state.highlightLine?.length === 1) {
-            const [dir, oldId] = this.state.highlightLine[0].split('-');
-            const [newDir, newId] = id.split('-');
+            const [dir, oldId] = this.state.highlightLine[0].split("-");
+            const [newDir, newId] = id.split("-");
             if (dir === newDir) {
                 highlightLine = [];
                 const lowEnd = Math.min(Number(oldId), Number(newId));
                 const highEnd = Math.max(Number(oldId), Number(newId));
                 for (let i = lowEnd; i <= highEnd; i++) {
-                highlightLine.push(`${dir}-${i}`);
+                    highlightLine.push(`${dir}-${i}`);
                 }
             }
         }
@@ -63,12 +60,12 @@ class DiffViewer extends Component<DiffViewerProps, DiffViewerState> {
     private syntaxHighlight = (str: string): any => {
         if (!str) return;
         const language = P.highlight(str, P.languages.javascript);
-        return <span dangerouslySetInnerHTML={{ __html: language}} />
+        return <span dangerouslySetInnerHTML={{ __html: language }} />;
     };
 
     public render(): JSX.Element {
         const {
-            oldValue, 
+            oldValue,
             newValue,
             leftTitle,
             rightTitle,
@@ -80,10 +77,7 @@ class DiffViewer extends Component<DiffViewerProps, DiffViewerState> {
         } = this.props;
 
         return (
-            <div 
-                className='diff-viewer' 
-                style={{width: '100%', height: '100%'}}
-            >
+            <div className="diff-viewer" style={{ width: "100%", height: "100%" }}>
                 <ReactDiff
                     highlightLines={this.state.highlightLine}
                     onLineNumberClick={this.onLineNumberClick}
@@ -94,15 +88,14 @@ class DiffViewer extends Component<DiffViewerProps, DiffViewerState> {
                     renderGutter={renderGutter}
                     // renderContent={this.syntaxHighlight}
                     renderContent={renderContent}
-                    useDarkTheme={this.state.theme === 'dark'}
+                    useDarkTheme={this.state.theme === "dark"}
                     leftTitle={leftTitle}
                     rightTitle={rightTitle}
                     hideLineNumbers={hideLineNumbers}
                 />
             </div>
-        )   
+        );
     }
 }
-
 
 export default DiffViewer;

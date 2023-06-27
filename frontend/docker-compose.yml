@@ -1,16 +1,16 @@
-version: '3'
+version: "3"
 services:
-  asr_frontend:
-    stdin_open: true
-    tty: true
-    container_name: asr-label-react-dev
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    env_file: .env.development
-    ports:
-      - "3001:3000" # env dev 
-    volumes:
-      - ./:/app
-      - /app/node_modules
-    command: npm run start
+    asr_frontend:
+        stdin_open: true
+        tty: true
+        container_name: asr-label-react-dev
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+        env_file: .env.development
+        ports:
+            - "3001:3000" # env dev
+        volumes:
+            - ./:/app
+            - /app/node_modules
+        command: npm run start

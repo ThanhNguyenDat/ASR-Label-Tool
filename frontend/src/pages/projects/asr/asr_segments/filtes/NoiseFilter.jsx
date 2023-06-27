@@ -1,5 +1,5 @@
-import { FilterList, FilterListItem } from 'react-admin';
-import CategoryIcon from '@mui/icons-material/LocalOffer';
+import { FilterList, FilterListItem } from "react-admin";
+import CategoryIcon from "@mui/icons-material/LocalOffer";
 
 export default () => {
     const isSelected = (value, filters) => {
@@ -12,10 +12,10 @@ export default () => {
         return {
             ...filters,
             noise: noise.includes(value.noise)
-                // Remove the noise if it was already present
-                ? noise.filter(v => v !== value.noise)
-                // Add the noise if it wasn't already present
-                : [...noise, value.noise],
+                ? // Remove the noise if it was already present
+                  noise.filter((v) => v !== value.noise)
+                : // Add the noise if it wasn't already present
+                  [...noise, value.noise],
         };
     };
 
@@ -23,28 +23,28 @@ export default () => {
         <FilterList label="Noise" icon={<CategoryIcon />}>
             <FilterListItem
                 label="Heavy"
-                value={{ noise: 'heavy' }}
+                value={{ noise: "heavy" }}
                 isSelected={isSelected}
                 toggleFilter={toggleFilter}
             />
             <FilterListItem
                 label="Medium"
-                value={{ noise: 'medium' }}
+                value={{ noise: "medium" }}
                 isSelected={isSelected}
                 toggleFilter={toggleFilter}
             />
             <FilterListItem
                 label="Light"
-                value={{ noise: 'light' }}
+                value={{ noise: "light" }}
                 isSelected={isSelected}
                 toggleFilter={toggleFilter}
             />
             <FilterListItem
                 label="Clean"
-                value={{ noise: 'clean' }}
+                value={{ noise: "clean" }}
                 isSelected={isSelected}
                 toggleFilter={toggleFilter}
             />
         </FilterList>
-    )
-}
+    );
+};

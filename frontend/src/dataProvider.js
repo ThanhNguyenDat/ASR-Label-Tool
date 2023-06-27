@@ -1,5 +1,5 @@
-import { stringify } from 'query-string';
-import { fetchUtils, DataProvider } from 'ra-core';
+import { stringify } from "query-string";
+import { fetchUtils, DataProvider } from "ra-core";
 
 /**
  * Maps react-admin queries to a simple REST API
@@ -33,10 +33,7 @@ import { fetchUtils, DataProvider } from 'ra-core';
  *
  * export default App;
  */
-export default (
-    apiUrl,
-    httpClient = fetchUtils.fetchJson,
-) => ({
+export default (apiUrl, httpClient = fetchUtils.fetchJson) => ({
     getList: (resource, params) => {
         const { page, perPage } = params.pagination;
         const { field, order } = params.sort;
@@ -49,10 +46,29 @@ export default (
             range: JSON.stringify([rangeStart, rangeEnd]),
             filter: JSON.stringify(params.filter),
         };
+
+        // todos: filter with operator
+        // const operators = { '_gte': '>=', '_lte': '<=', '_neq': '!=' };
+        // // filters is like [
+        // //    { field: "commentable", operator: "=", value: true},
+        // //    { field: "released", operator: ">=", value: '2018-01-01'}
+        // // ]
+        // const filters = Object.keys(filter).map(key => {
+        //     const operator = operators[key.slice(-4)];
+        //     return operator
+        //         ? { field: key.slice(0, -4), operator, value: filter[key] }
+        //         : { field: key, operator: '=', value: filter[key] };
+        // });
+        // const query = {
+        //     pagination: params.pagination,
+        //     sort: params.sort,
+        //     filter: filters,
+        // };
+
         const url = `${apiUrl}/${resource}?${stringify(query)}`;
-      
+
         return httpClient(url).then(({ headers, json }) => {
-           return {
+            return {
                 data: json.data || json,
                 total: parseInt(json.total) || 0,
             };
@@ -92,67 +108,66 @@ export default (
             return {
                 data: json.data || json,
                 total: parseInt(json.total) || 0,
-
             };
         });
     },
 
     update: (resource, params) =>
         httpClient(`${apiUrl}/${resource}/${params.id}`, {
-            method: 'PUT',
+            method: "PUT",
             body: JSON.stringify(params.data),
         }).then(({ json }) => ({ data: json.data || json })),
 
     // simple-rest doesn't handle provide an updateMany route, so we fallback to calling update n times instead
     updateMany: (resource, params) =>
         Promise.all(
-            params.ids.map(id =>
+            params.ids.map((id) =>
                 httpClient(`${apiUrl}/${resource}/${id}`, {
-                    method: 'PUT',
+                    method: "PUT",
                     body: JSON.stringify(params.data),
                 })
             )
-        ).then(responses => ({ data: responses.map(({ json }) => json.data.id || json.id) })),
+        ).then((responses) => ({ data: responses.map(({ json }) => json.data.id || json.id) })),
 
     create: (resource, params) =>
         httpClient(`${apiUrl}/${resource}`, {
-            method: 'POST',
+            method: "POST",
             body: JSON.stringify(params.data),
         }).then(({ json }) => ({ data: json.data || json })),
 
     delete: (resource, params) =>
         httpClient(`${apiUrl}/${resource}/${params.id}`, {
-            method: 'DELETE',
+            method: "DELETE",
             headers: new Headers({
-                'Content-Type': 'text/plain',
+                "Content-Type": "text/plain",
             }),
         }).then(({ json }) => ({ data: json.data || json })),
 
     // simple-rest doesn't handle filters on DELETE route, so we fallback to calling DELETE n times instead
     deleteMany: (resource, params) =>
         Promise.all(
-            params.ids.map(id =>
+            params.ids.map((id) =>
                 httpClient(`${apiUrl}/${resource}/${id}`, {
-                    method: 'DELETE',
+                    method: "DELETE",
                     headers: new Headers({
-                        'Content-Type': 'text/plain',
+                        "Content-Type": "text/plain",
                     }),
                 })
             )
-        ).then(responses => ({
+        ).then((responses) => ({
             data: responses.map(({ json }) => json.data.id || json.id),
         })),
 
-    updatePredict: (resource, params) => 
-        {
-            // console.log("params: ", params);
-            // console.log("resource: ", resource);
-            return httpClient(`${apiUrl}/${resource}/update-predict`, params).then(({json}) => ({
-        data: json.data || json
-    }))},
+    updatePredict: (resource, params) => {
+        // console.log("params: ", params);
+        // console.log("resource: ", resource);
+        return httpClient(`${apiUrl}/${resource}/update-predict`, params).then(({ json }) => ({
+            data: json.data || json,
+        }));
+    },
 
     // export more data in big table to segments table
-    exportMoreData: (resource, params) => 
+    exportMoreData: (resource, params) =>
         httpClient(`${apiUrl}/asr_label/export_to_segments`).then(({ json }) => ({
             data: json.data || json,
         })),

@@ -1,7 +1,7 @@
-import * as React from 'react';
-import { useCallback } from 'react';
-import PropTypes from 'prop-types';
-import DownloadIcon from '@mui/icons-material/GetApp';
+import * as React from "react";
+import { useCallback } from "react";
+import PropTypes from "prop-types";
+import DownloadIcon from "@mui/icons-material/GetApp";
 import {
     fetchRelatedRecords,
     useDataProvider,
@@ -11,14 +11,14 @@ import {
     Exporter,
     FilterPayload,
     useResourceContext,
-} from 'ra-core';
-import { Button, ButtonProps } from 'react-admin';
+} from "ra-core";
+import { Button, ButtonProps } from "react-admin";
 
 export const ExportButton = (props: ExportButtonProps) => {
     const {
         maxResults = 1000,
         onClick,
-        label = 'ra.action.export',
+        label = "ra.action.export",
         icon = defaultIcon,
         exporter: customExporter,
         meta,
@@ -36,31 +36,24 @@ export const ExportButton = (props: ExportButtonProps) => {
     const dataProvider = useDataProvider();
     const notify = useNotify();
     const handleClick = useCallback(
-        event => {
+        (event) => {
             dataProvider
                 .getList(resource, {
                     sort,
-                    filter: filter
-                        ? { ...filterValues, ...filter }
-                        : filterValues,
+                    filter: filter ? { ...filterValues, ...filter } : filterValues,
                     pagination: { page: 1, perPage: maxResults },
                     meta,
                 })
                 .then(
                     ({ data }) =>
                         exporter &&
-                        exporter(
-                            data,
-                            fetchRelatedRecords(dataProvider),
-                            dataProvider,
-                            resource
-                        )
+                        exporter(data, fetchRelatedRecords(dataProvider), dataProvider, resource)
                 )
-                .catch(error => {
+                .catch((error) => {
                     console.error(error);
-                    notify('ra.notification.http_error', { type: 'error' });
+                    notify("ra.notification.http_error", { type: "error" });
                 });
-            if (typeof onClick === 'function') {
+            if (typeof onClick === "function") {
                 onClick(event);
             }
         },
@@ -96,10 +89,7 @@ const sanitizeRestProps = ({
     filterValues,
     resource,
     ...rest
-}: Omit<
-    ExportButtonProps,
-    'sort' | 'maxResults' | 'label' | 'exporter' | 'meta'
->) => rest;
+}: Omit<ExportButtonProps, "sort" | "maxResults" | "label" | "exporter" | "meta">) => rest;
 
 interface Props {
     exporter?: Exporter;

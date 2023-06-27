@@ -1,4 +1,4 @@
-import ASRBenchmarkList from './ASRBenchmarkList';
+import ASRBenchmarkList from "./ASRBenchmarkList";
 
 export default {
     list: ASRBenchmarkList,
