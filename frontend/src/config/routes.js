@@ -16,28 +16,26 @@ const routes = {
         children: [],
     },
 
-    // asr
-    asr_label: {
-        to: "/asr_label",
-        name: "asr_label",
-        label: "ASR Label",
-        children: [
+    asr: {
+        name: "asr",
+        label: "ASR",
+        childrens: [
             {
-                to: "/asr_label/:id",
+                to: "/asr_label",
+                name: "asr_label",
+                label: "ASR Label",
+            },
+            {
+                to: "/asr_segments",
+                name: "asr_segments",
+                label: "ASR Segments",
+            },
+            {
+                to: "/asr_benchmark",
+                name: "asr_benchmark",
+                label: "ASR Benchmark",
             },
         ],
-    },
-    asr_segments: {
-        to: "/asr_segments",
-        name: "asr_segments",
-        label: "ASR Segments",
-        children: [],
-    },
-    asr_benchmark: {
-        to: "/asr_benchmark",
-        name: "asr_benchmark",
-        label: "ASR Benchmark",
-        children: [],
     },
 };
 
