@@ -1,12 +1,11 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { useRecordContext } from "react-admin";
-import { Edit, SimpleForm, TextField, TextInput } from "react-admin";
+import { Edit } from "react-admin";
 import ReactWaveform from "../../../../components/label_ui/waveform";
 
 const Waveform = () => {
     const record = useRecordContext();
-    const { id, seed, label_url, lb1 } = record;
+    const { label_url } = record;
 
     return (
         <ReactWaveform

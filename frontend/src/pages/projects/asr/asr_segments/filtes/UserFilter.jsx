@@ -1,5 +1,4 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { FilterList, FilterListItem } from "react-admin";
 
 const UserFilter = ({ values }) => {

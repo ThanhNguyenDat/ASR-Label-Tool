@@ -5,11 +5,8 @@ import {
     TextField,
     useRecordContext,
     BulkUpdateButton,
-    EditButton,
     BulkDeleteButton,
     BulkExportButton,
-    useResourceContext,
-    downloadCSV,
 } from "react-admin";
 
 import ThumbUpOutlinedIcon from "@mui/icons-material/ThumbUpOutlined";
@@ -20,8 +17,6 @@ import ASRSegmentsPanel from "./ASRSegmentsPanel";
 import PlayPauseButton from "../../../../components/buttons/PlayPauseButton";
 import jsonExport from "jsonexport/dist";
 const LabelBulkActionButtons = () => {
-    const resouce = useResourceContext();
-
     return (
         <>
             <BulkUpdateButton
@@ -71,7 +66,6 @@ const ASRSegmentsDatagrid = (props) => {
             // rowClick='edit'
 
             expand={<ASRSegmentsPanel />}
-            // expandSingle
             isRowExpandable={(row) => row.id}
         >
             <TextField source="id" />

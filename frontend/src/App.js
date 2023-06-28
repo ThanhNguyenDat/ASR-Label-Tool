@@ -1,5 +1,5 @@
 import "./App.css";
-import { Admin, Resource, CustomRoutes, ListGuesser } from "react-admin";
+import { Admin, Resource } from "react-admin";
 import simpleRestProvider from "./dataProvider";
 import Dashboard from "./pages/dashboard";
 import { authProvider } from "./authProvider";
@@ -9,8 +9,6 @@ import users from "./pages/users";
 import asrSegments from "./pages/projects/asr/asr_segments";
 import asrLabel from "./pages/projects/asr/asr_label";
 import asrBenchmark from "./pages/projects/asr/asr_benchmark";
-
-import routes from "./config/routes";
 
 let urlAPI = "http://0.0.0.0:6002/api/v1"; // native
 // let urlAPI = "http://0.0.0.0:8000/react_admin/api" // Kong

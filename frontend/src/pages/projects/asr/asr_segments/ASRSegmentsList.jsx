@@ -9,7 +9,6 @@ import {
 } from "react-admin";
 import { Divider, Tabs, Tab } from "@mui/material";
 
-import Aside from "./filtes/ASRLabellingFilterAside";
 import MoreDataButton from "../../../../components/buttons/MoreDataButton";
 import ASRSegmentsDatagrid from "./ASRSegmentsDatagrid";
 
@@ -86,7 +85,7 @@ const ASRSegmentsList = () => {
             perPage={10}
             actions={<ListActions />}
             // queryOptions={{meta: {_embed: 'users'}}}
-            aside={<Aside />}
+            // aside={<Aside />}
         >
             <TabbedDatagrid />
         </List>

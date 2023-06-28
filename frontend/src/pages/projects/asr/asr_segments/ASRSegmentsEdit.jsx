@@ -1,6 +1,5 @@
 import React from "react";
-import PropTypes from "prop-types";
-import { Edit, SimpleForm, TextField, TextInput } from "react-admin";
+import { Edit } from "react-admin";
 import Waveform from "../../../../components/label_ui/waveform";
 
 const ASRLabellingEdit = () => {

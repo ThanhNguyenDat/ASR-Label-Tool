@@ -100,7 +100,6 @@ def get_all(req: Request):
         f"parse: {s2 - s1}, query items: {s3 - s2}, query total: {s4 - s3} , reformat: {s5 - s4} ")
     return res_results, results_total[0][0]
 
-
 def update_predict(**kwargs):
     d_query = utils.parse_req_2_json(kwargs)
     # print("form: ", form)
@@ -169,7 +168,6 @@ def get_one(id: int, req: Request):
 
     return res_results
 
-
 def update_many(req: Request, data: dict):
     s1 = get_cur_time()
     string_filter, filter_values, string_sort, string_offset_limit = utils.parse_query_params(req)
@@ -212,3 +210,7 @@ def update(id: int, body: dict):
     
     return id
 
+def get_unique(req: Request):
+    # 4 filter to get unique
+    
+    pass

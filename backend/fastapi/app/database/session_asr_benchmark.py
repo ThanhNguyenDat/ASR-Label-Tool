@@ -1,14 +1,10 @@
 import os
-
-from fastapi import Request, Form
-from app.database import utils
-from app.asr import utils as asr_utils
-
-import requests
-import json
-
-from ailabtools.connection_pool_postgresql import ConnectionPoolPostgreSql
 import time
+
+from fastapi import Request
+from ailabtools.connection_pool_postgresql import ConnectionPoolPostgreSql
+
+from app.database import utils
 
 def get_cur_time():
     return int(time.time() * 1000)
@@ -20,7 +16,6 @@ USERNAME = "postgres"
 PASSWORD = "postgres"
 db = ConnectionPoolPostgreSql(1, 1, HOSTNAME, PORT, USERNAME,
                               PASSWORD, DATABASE, keep_connection=True, print_log=True)
-
 
 
 TABLE_NAME = 'asr_benchmark'
@@ -61,7 +56,7 @@ def get_all(req: Request):
         FROM {TABLE_NAME}
         {string_filter}
     """
-
+    print("SQL: ", sql)
     results = db.executeUpdate(sql, {**filter_values})
     # print("results: ", results)
     s3 = get_cur_time()
@@ -81,6 +76,9 @@ def get_all(req: Request):
         f"parse: {s2 - s1}, query items: {s3 - s2}, query total: {s4 - s3} , reformat: {s5 - s4} ")
     return res_results, results_total[0][0]
 
+def get_column_names(req: Request):
+    return SELECT_COLUMNS
+
 def get_one(id: int, req: Request):
     sql = f"""
         SELECT {','.join(SELECT_COLUMNS)}
@@ -96,6 +94,7 @@ def get_one(id: int, req: Request):
     res_results = res_results[0]
 
     return res_results
+
 
 
 def update_many(req: Request, data: dict):
@@ -139,4 +138,3 @@ def update(id: int, body: dict):
     db.executeUpdate(sql, {**body, "id": id})
     
     return id
-

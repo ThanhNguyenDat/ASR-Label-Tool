@@ -1,5 +1,4 @@
 import React from "react";
-import PropTypes from "prop-types";
 import CategoryIcon from "@mui/icons-material/LocalOffer";
 import { FilterListItem, FilterList } from "react-admin";
 

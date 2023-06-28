@@ -1,5 +1,4 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { Datagrid, List, TextField } from "react-admin";
 
 const UserList = () => {

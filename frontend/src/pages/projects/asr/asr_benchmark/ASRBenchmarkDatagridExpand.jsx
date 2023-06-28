@@ -1,5 +1,4 @@
 import React from "react";
-import PropTypes from "prop-types";
 import DiffViewerASRText from "../../../../components/diff_viewer/DiffViewerASRText";
 const modeDiffOpions = [
     {

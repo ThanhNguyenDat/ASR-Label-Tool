@@ -1,4 +1,4 @@
-import React, { useState, useEffect, forwardRef } from "react";
+import React from "react";
 import useWavesurfer from "../../../hooks/useWavesurfer";
 
 import IconButton from "@mui/material/IconButton";
@@ -8,7 +8,7 @@ import StopIcon from "@mui/icons-material/Stop";
 import PauseIcon from "@mui/icons-material/Pause";
 import LayersClearIcon from "@mui/icons-material/LayersClear";
 
-import { green, red, blue, orange } from "@mui/material/colors";
+import { green, red } from "@mui/material/colors";
 import TableWaveformEdit from "./TableWaveformEdit";
 
 const ReactWaveform = ({
@@ -19,8 +19,10 @@ const ReactWaveform = ({
     controlTable,
     ...rest
 }) => {
-    const { wavesurferRef, isLoading, isPlaying, togglePlaying, stopPlayback, clearSegments } =
-        useWavesurfer(url, annotations);
+    const { wavesurferRef, isPlaying, togglePlaying, stopPlayback, clearSegments } = useWavesurfer(
+        url,
+        annotations
+    );
 
     let transportPlayButton;
     if (!isPlaying) {

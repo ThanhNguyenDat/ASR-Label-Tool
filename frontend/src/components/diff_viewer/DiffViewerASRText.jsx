@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useRecordContext } from "ra-core";
-import ReactDiffViewer, { DiffMethod } from "@custom/react-diff-viewer";
+import { DiffMethod } from "@custom/react-diff-viewer";
 
 import CustomDiffViewer from "./DiffViewer.tsx";
 

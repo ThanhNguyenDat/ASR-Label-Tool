@@ -1,12 +1,8 @@
 import React, { useState } from "react";
-import PropTypes from "prop-types";
 
-import { Form, Input, Radio, Space, Table, Tag } from "antd";
+import { Form, Table } from "antd";
 
-import { DeleteOutlined, EditOutlined, CopyOutlined } from "@ant-design/icons";
 import { useRecordContext } from "ra-core";
-
-// import ReactDiffViewer from '../../diff_viewer';
 
 const EditableContext = React.createContext(null);
 const EditableRow = ({ index, ...props }) => {
