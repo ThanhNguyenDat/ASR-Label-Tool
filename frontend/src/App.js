@@ -26,11 +26,11 @@ function App() {
             dashboard={Dashboard}
             layout={Layout}
         >
-            <Resource name={routes.users.name} {...users} />
+            <Resource name={"users"} {...users} />
 
-            <Resource name={routes.asr_segments.name} {...asrSegments} />
-            <Resource name={routes.asr_label.name} {...asrLabel} />
-            <Resource name={routes.asr_benchmark.name} {...asrBenchmark} />
+            <Resource name={"asr_label"} {...asrLabel} />
+            <Resource name={"asr_segments"} {...asrSegments} />
+            <Resource name={"asr_benchmark"} {...asrBenchmark} />
         </Admin>
     );
 }
