@@ -13,6 +13,25 @@ router = APIRouter(
     tags=["asr_benchmark"],
 )
 
+@router.get("/column_names")
+async def getColumnNames(req: Request):
+    res = {
+        "error_code": 0,
+        "error_message": "Success",
+        "data": []
+    }
+    try:
+        st = time.time()
+        items = db_session.get_column_names(req)
+        res["data"] = items
+        et = time.time()
+        print(f'toook : {et - st}')
+    except Exception as e:
+        print('tb: ', tb.format_exc())
+        res["error_code"] = 1,
+        res["error_message"] = str(e)
+    return res
+
 @router.get("/{id}")
 async def getOne(id: int, req: Request):
     res = {
