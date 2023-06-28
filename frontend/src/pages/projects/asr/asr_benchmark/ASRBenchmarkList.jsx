@@ -1,34 +1,19 @@
 import React from "react";
-import PropTypes from "prop-types";
 
 import {
     ExportButton,
     List,
-    Count,
     SelectColumnsButton,
     TopToolbar,
-    useListContext,
     TextField,
     DatagridConfigurable,
-    FilterButton,
-    TextInput,
-    SelectInput,
+    // FilterButton,
 } from "react-admin";
 import PlayPauseButton from "../../../../components/buttons/PlayPauseButton";
 import ASRBenchmarkDatagridExpand from "./ASRBenchmarkDatagridExpand";
-import "./styles.scss";
+import FilterButton from "../../../../components/buttons/FilterButton.tsx";
 
-const fieldfilters = [
-    // <TextInput label="Search" source="q" alwaysOn />,
-    <SelectInput
-        source="google_text_type"
-        choices={[
-            { id: "normed", name: "Normed" },
-            { id: "normal", name: "Normal" },
-        ]}
-        alwaysOn
-    />,
-];
+import "./styles.scss";
 
 const ListActions = () => (
     <TopToolbar>
@@ -41,16 +26,23 @@ const ListActions = () => (
 );
 
 const ASRBenchmarkGoogleList = (props) => {
+    // const filters = {
+    //     'name|op=substring': 'ma',
+    //     'age|op=lt': [18],
+    //     'cities': {
+    //         'id|op=in': ['NY', 'LA']
+    //     },
+    //     'status|op=notIn': ["pending", "deleted"]
+    // }
+
     return (
         <List
-            filters={fieldfilters}
             actions={<ListActions />}
             sort={{ field: "id", order: "ASC" }}
             perPage={5}
             className="asr-benchmark-list"
         >
             <DatagridConfigurable
-                // omit={['seed', 'full_text', 'wer_google', 'wer_kaldi', 'wer_wenet']}
                 omit={["id", "label_url", "predict_google", "predict_kaldi", "predict_wenet"]}
                 expand={<ASRBenchmarkDatagridExpand />}
                 className="asr-benchmark-datagrid"
