@@ -1,16 +1,8 @@
 import React, { useState } from "react";
-import PropTypes from "prop-types";
 import Box from "@mui/material/Box";
 import LabelIcon from "@mui/icons-material/Label";
-import OrderIcon from "@mui/icons-material/AttachMoney";
 
-import {
-    useTranslate,
-    DashboardMenuItem,
-    MenuItemLink,
-    MenuProps,
-    useSidebarState,
-} from "react-admin";
+import { useTranslate, DashboardMenuItem, MenuItemLink, useSidebarState } from "react-admin";
 
 import SubMenu from "./SubMenu";
 import routes from "../config/routes";
@@ -26,6 +18,37 @@ const Menu = ({ dense = false }) => {
 
     const handleToggle = (menu) => {
         setState((state) => ({ ...state, [menu]: !state[menu] }));
+    };
+
+    const renderRoute = (route, menu) => {
+        // route: router.asr
+        // const route = routes.asr;
+        const childrens = route.childrens;
+
+        return (
+            <SubMenu
+                handleToggle={() => handleToggle(menu)}
+                isOpen={state[menu]}
+                name={route.label}
+                icon={<LabelIcon />}
+                dense={dense}
+            >
+                {childrens.map((child, index) => {
+                    return (
+                        <MenuItemLink
+                            to={child.to}
+                            state={{ _scrollToTop: true }}
+                            primaryText={translate(child.label, {
+                                smart_count: 2,
+                            })}
+                            leftIcon={<LabelIcon />}
+                            dense={dense}
+                            key={index}
+                        />
+                    );
+                })}
+            </SubMenu>
+        );
     };
 
     return (
@@ -59,50 +82,7 @@ const Menu = ({ dense = false }) => {
                     dense={dense}
                 />
             </SubMenu>
-            <SubMenu
-                handleToggle={() => handleToggle("menuASR")}
-                isOpen={state.menuASR}
-                name="ASR"
-                icon={<LabelIcon />}
-                dense={dense}
-            >
-                <MenuItemLink
-                    to={routes.asr_label.to}
-                    state={{ _scrollToTop: true }}
-                    primaryText={translate(routes.asr_label.label, {
-                        smart_count: 2,
-                    })}
-                    leftIcon={<LabelIcon />}
-                    dense={dense}
-                />
-                <MenuItemLink
-                    to={routes.asr_segments.to}
-                    state={{ _scrollToTop: true }}
-                    primaryText={translate(routes.asr_segments.label, {
-                        smart_count: 2,
-                    })}
-                    leftIcon={<LabelIcon />}
-                    dense={dense}
-                />
-                <MenuItemLink
-                    to={routes.asr_benchmark.to}
-                    state={{ _scrollToTop: true }}
-                    primaryText={translate(routes.asr_benchmark.label, {
-                        smart_count: 2,
-                    })}
-                    leftIcon={<LabelIcon />}
-                    dense={dense}
-                />
-            </SubMenu>
-            <MenuItemLink
-                to="/#"
-                state={{ _scrollToTop: true }}
-                primaryText={translate(`FaceId`, {
-                    smart_count: 2,
-                })}
-                leftIcon={<LabelIcon />}
-                dense={dense}
-            />
+            {renderRoute(routes.asr, "menuASR")}
         </Box>
     );
 };
