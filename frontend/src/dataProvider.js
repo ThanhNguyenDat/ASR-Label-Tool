@@ -1,69 +1,29 @@
 import { stringify } from "query-string";
-import { fetchUtils, DataProvider } from "ra-core";
+import { fetchUtils } from "ra-core";
+import { parseOperator } from "./helpers/common";
 
-/**
- * Maps react-admin queries to a simple REST API
- *
- * This REST dialect is similar to the one of FakeRest
- *
- * @see https://github.com/marmelab/FakeRest
- *
- * @example
- *
- * getList     => GET http://my.api.url/posts?sort=['title','ASC']&range=[0, 24]
- * getOne      => GET http://my.api.url/posts/123
- * getMany     => GET http://my.api.url/posts?filter={id:[123,456,789]}
- * update      => PUT http://my.api.url/posts/123
- * create      => POST http://my.api.url/posts
- * delete      => DELETE http://my.api.url/posts/123
- *
- * @example
- *
- * import * as React from "react";
- * import { Admin, Resource } from 'react-admin';
- * import simpleRestProvider from 'ra-data-simple-rest';
- *
- * import { PostList } from './posts';
- *
- * const App = () => (
- *     <Admin dataProvider={simpleRestProvider('http://path.to.my.api/')}>
- *         <Resource name="posts" list={PostList} />
- *     </Admin>
- * );
- *
- * export default App;
- */
 export default (apiUrl, httpClient = fetchUtils.fetchJson) => ({
     getList: (resource, params) => {
         const { page, perPage } = params.pagination;
         const { field, order } = params.sort;
+        const filter = params.filter;
 
         const rangeStart = (page - 1) * perPage;
         const rangeEnd = page * perPage - 1;
+        const filters = Object.keys(filter).map((key) => {
+            const { property, operator, value } = parseOperator(key, filter[key]);
+            return {
+                field: property,
+                operator: operator,
+                value,
+            };
+        });
 
         const query = {
             sort: JSON.stringify([field, order]),
             range: JSON.stringify([rangeStart, rangeEnd]),
-            filter: JSON.stringify(params.filter),
+            filter: JSON.stringify(filters),
         };
-
-        // todos: filter with operator
-        // const operators = { '_gte': '>=', '_lte': '<=', '_neq': '!=' };
-        // // filters is like [
-        // //    { field: "commentable", operator: "=", value: true},
-        // //    { field: "released", operator: ">=", value: '2018-01-01'}
-        // // ]
-        // const filters = Object.keys(filter).map(key => {
-        //     const operator = operators[key.slice(-4)];
-        //     return operator
-        //         ? { field: key.slice(0, -4), operator, value: filter[key] }
-        //         : { field: key, operator: '=', value: filter[key] };
-        // });
-        // const query = {
-        //     pagination: params.pagination,
-        //     sort: params.sort,
-        //     filter: filters,
-        // };
 
         const url = `${apiUrl}/${resource}?${stringify(query)}`;
 
@@ -91,17 +51,22 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => ({
     getManyReference: (resource, params) => {
         const { page, perPage } = params.pagination;
         const { field, order } = params.sort;
+        const filter = params.filter;
 
         const rangeStart = (page - 1) * perPage;
         const rangeEnd = page * perPage - 1;
-
+        const filters = Object.keys(filter).map((key) => {
+            const { property, operator, value } = parseOperator(key, filter[key]);
+            return {
+                field: property,
+                operator: operator,
+                value,
+            };
+        });
         const query = {
             sort: JSON.stringify([field, order]),
-            range: JSON.stringify([(page - 1) * perPage, page * perPage - 1]),
-            filter: JSON.stringify({
-                ...params.filter,
-                [params.target]: params.id,
-            }),
+            range: JSON.stringify([rangeStart, rangeEnd]),
+            filter: JSON.stringify(filters),
         };
         const url = `${apiUrl}/${resource}?${stringify(query)}`;
         return httpClient(url).then(({ headers, json }) => {
@@ -111,6 +76,11 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => ({
             };
         });
     },
+
+    getColumnNames: (resource, params) =>
+        httpClient(`${apiUrl}/${resource}/column_names`).then(({ json }) => ({
+            data: json.data || json,
+        })),
 
     update: (resource, params) =>
         httpClient(`${apiUrl}/${resource}/${params.id}`, {
