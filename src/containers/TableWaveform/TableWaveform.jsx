@@ -9,7 +9,7 @@ import {FiEdit3} from "react-icons/fi";
 import './styles.scss';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import DiffViewer, { DiffMethod } from 'react-diff-viewer-continued';
-
+import CustomDiffViewer from "../../components/diff_viewer/DiffViewer.tsx"
 
 const modeDescriptionOptions = [
     {value: "wenet kaldi", title: "Wenet | Kaldi", },
@@ -116,7 +116,7 @@ const PredictDiffViewer = ({
     oldTitle,
     newTitle,
     method="words", 
-    splitView=true, 
+    splitView=false, 
     modeShow,
     isHover,
 
@@ -146,7 +146,12 @@ const PredictDiffViewer = ({
             }}
         >
             <pre
-                style={{ display: "inline" }}
+                style={{ 
+                    display: "inline",
+                    wordSpacing: "0.1rem",
+                    letterSpacing: "0.01071em",
+                    fontFamily: '"Roboto","Helvetica","Arial",sans-serif',
+                }}
                 className="foo"
                 dangerouslySetInnerHTML={{
                 // __html: Prism.highlight(str, Prism.languages.javascript)
@@ -160,16 +165,25 @@ const PredictDiffViewer = ({
 
     const renderGutter = (row) => {
         let text;
+        let title;
         if (row.prefix === 'L') {
             text = oldValue;
+            title = oldTitle;
         } else if (row.prefix === 'R') {
             text = newValue;
+            title = newTitle;
         }
 
         return (
             <td 
                 className='control-diff-viewer'
+                style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    gap: 3
+                }}
             >
+                {title}
                 <FiEdit3 className='icon'
                     onClick={() => {
                         handleAcceptTextBtn(text);
@@ -181,12 +195,13 @@ const PredictDiffViewer = ({
 
     return (
         <>
-            <DiffViewer 
+            {/* <DiffViewer  */}
+            <CustomDiffViewer
                 oldValue={oldValue}
                 newValue={newValue}
 
-                leftTitle={oldTitle}
-                rightTitle={newTitle}
+                leftTitle={splitView && oldTitle}
+                rightTitle={splitView && newTitle}
     
                 hideLineNumbers={true}
                 showDiffOnly={false}

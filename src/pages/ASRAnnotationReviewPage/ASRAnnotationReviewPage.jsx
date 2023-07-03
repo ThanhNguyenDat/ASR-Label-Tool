@@ -80,7 +80,12 @@ const default_data = [
                         "length": 4920,
                         "text": "mi có ăn chay trường cái tâm mi mới mới tịnh lại thôi."
                     },
-                    "extras": {}
+                    "extras": {
+                        "classify": {
+                            "predict_kaldi": 'mi có ăn chay trường cái tâm mi mới mới tịnh lại',
+                            "predict_wenet": "mi có ăn chay trường mi có ăn chayừ quá mệt mỏi rồi. Ơi là trời. Áp lực quá, Bất lực bản thân, quá gà, có nhiêu chuyện làm cũng không xong, mà đòi làm gì nữa, nghĩ sao có xíu chuyện đó làm tới làm lui mà không xong, quá trời mệt. Ơi trời ơi, oiwiiiiiiiiiiiiiiiiiiiiiiiiiiii, ai đó nghe không u là trời. Mé quá mệt mỏi.  trường cái tâm mi mới mới tịnh lại,  cái tâm mi mới mới"
+                        }
+                    }
                 },
             }
         ],
@@ -133,36 +138,6 @@ const default_data = [
     },
     
 ]
-
-
-const rv1_fake = {
-    "data": [
-      {
-        "class_id": 3709,
-        "class_name": "Human",
-        "content": {
-          "tag": {
-            "index": 290,
-            "length": 4920,
-            "text": "mi có ăn chay trường cái tâm mi mới mới tịnh lại thôi."
-          },
-          "extras": {
-            "hard_level": 1,
-            "classify": {
-              "audibility": "good",
-              "noise": "clean",
-              "echo": "clean"
-            },
-            "review": "Good"
-          }
-        },
-        "data_cat_id": 2,
-        "dataset_id": 1970,
-        "seed": 380,
-        "item_id": 1470
-      }
-    ]
-  }
 
 
 function ASRAnnotationReviewPage(props) {
