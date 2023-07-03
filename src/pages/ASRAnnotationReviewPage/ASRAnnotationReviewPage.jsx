@@ -348,8 +348,8 @@ function ASRAnnotationReviewPage(props) {
                             "echo": anno.content.extras?.classify?.echo || 'clean',
                             "region": anno.content.extras?.classify?.region || 'other',
                             
-                            "predict_kaldi": anno.content.extras?.classify?.predict_kaldi || "",
-                            "predict_wenet": anno.content.extras?.classify?.predict_wenet || "",
+                            "predict_kaldi": anno.content.extras?.classify?.predict_kaldi.replace("None", "") || "",
+                            "predict_wenet": anno.content.extras?.classify?.predict_wenet.replace("None", "") || "",
                         },
                         "review": anno.content.extras?.review || "",
                     },
@@ -407,21 +407,35 @@ function ASRAnnotationReviewPage(props) {
     }
 
     const onSubmitSample = (dataLabelId) => {
-        console.log('submit id: ', dataLabelId);
-        const submitData = formatFinnalResult(entireDataLabel);
-        console.log('submit data: ', submitData)
-        
+        // console.log('submit id: ', dataLabelId);
+        // const submitData = formatFinnalResult(entireDataLabel);
         // get result label with 
-        const current_result_label = entireDataLabel.find(data => data.data[0].id === dataLabelId)
-        console.log('current: ', current_result_label)
-        const data = current_result_label['annotation']
+        const current_result_label = [entireDataLabel.find(data => data.data[0].id === dataLabelId)]
+        const submitData = formatFinnalResult(current_result_label)
         
+        // old code
+        const data = current_result_label[0]['annotation']
+
+        // new code
+        const formatedOnlySubmitButton = submitData.map(anno => ({
+            "class_id": anno.class_id,
+            "class_name": anno.class_name,
+            "content": {
+                "tag": anno['tag'],
+                "extras": anno['extras']
+            },
+            "data_cat_id": anno['data_cat_id'],
+            "dataset_id": anno['dataset_id'],
+            "item_id": anno['item_id'],
+            "seed": anno['seed']
+        }))
+
+        console.log("formated: ", formatedOnlySubmitButton);
         // format data
         const dataToUpdate = {
-            'data': data
+            'data': formatedOnlySubmitButton
         }
 
-        console.log('dataToUpdate: ', dataToUpdate)
         // call api
         const fetchAPI = async () => {
             await axios.post(process.env.REACT_APP_API_UPDATE, dataToUpdate, {
