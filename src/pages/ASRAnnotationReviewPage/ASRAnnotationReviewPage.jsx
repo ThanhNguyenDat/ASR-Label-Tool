@@ -95,7 +95,7 @@ const default_data = [
                 "dataset_id": 1970,
                 "seed": 380,
                 "id": 1470,
-                "file_name": "https://api.twilio.com//2010-04-01/Accounts/AC25aa00521bfac6d667f13fec086072df/Recordings/RE6d44bc34911342ce03d6ad290b66580c.mp3"
+                "file_name": "https://api.zalo.ai/ailab_video/label_supplier/audio_zalo/2023_03_27/P00471cf671cf9b91c2de.wav"
             }
         ]
     },
@@ -132,7 +132,7 @@ const default_data = [
                 "dataset_id": 1970,
                 "seed": 380,
                 "id": 1471,
-                "file_name": "https://assets.mixkit.co/active_storage/sfx/667/667-preview.mp3"
+                "file_name": "https://api.zalo.ai/ailab_video/label_supplier/audio_zalo/2023_03_27/P00471cf671cf9b91c2de.wav"
             }
         ]
     },

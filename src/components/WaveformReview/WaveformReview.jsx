@@ -507,16 +507,31 @@ function WaveformReview(props) {
             'end_time': region.end,
             'url': audioUrl,
         }
+
+        const options = {
+            url: audioUrl,
+            predict_wenet: true,
+            start_time: region.start,
+            end_time: region.end,
+        }
+        
+
         const fetchAPI = async () => {
-            await axios.post(process.env.REACT_APP_API_PREDICT, request_data, 
-                {
-                    headers: {
-                        'Content-Type': 'Application/json',
-                    },
-                }
-            ) 
+            const urlapi = "https://api.zalo.ai/label_backend_api/get_predict" // process.env.REACT_APP_API_PREDICT
+            var headers = new Headers();
+            headers.append("Content-Type", "text/plain");
+            var raw = JSON.stringify(options, null, 4);
+            
+            var requestOptions = {
+                method: "POST",
+                headers: headers,
+                body: raw,
+                redirect: 'follow'
+            };         
+            await fetch(urlapi, requestOptions)
+            .then(response => response.json())
             .then(response => {
-                const response_data = response.data.data;
+                const response_data = response.data;
 
                 const newDataTable = [...dataTable];
                 // show current
@@ -529,8 +544,33 @@ function WaveformReview(props) {
 
                 // setDataTable(newDataTable);
                 // updateResultLabel(newDataTable);
-            })  
-            .catch(error => {console.log(error)})            
+            })
+            .catch(error => {console.log(error)});
+
+            // await axios.post(url, raw, 
+            //     {
+            //         headers: {
+            //             "Content-Type": "text/plain"
+            //         },
+            //     }
+            // ) 
+            // .then(response => {
+            //     const response_data = response.data.data;
+
+            //     const newDataTable = [...dataTable];
+            //     // show current
+            //     newDataTable[currentRowDataTableIndex].predict_kaldi = response_data.predict_kaldi
+            //     newDataTable[currentRowDataTableIndex].predict_wenet = response_data.predict_wenet
+                
+            //     // update current data
+            //     updateDataTablePerCell(currentRowDataTableIndex, "predict_kaldi", response_data.predict_kaldi);
+            //     updateDataTablePerCell(currentRowDataTableIndex, "predict_wenet", response_data.predict_wenet);
+
+            //     // setDataTable(newDataTable);
+            //     // updateResultLabel(newDataTable);
+            // })  
+            // .catch(error => {console.log(error)})   
+             
         }
         fetchAPI();
         // call api show predict here
